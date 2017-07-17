@@ -1,0 +1,11 @@
+PCL is a large collaborative effort, and it would not exist without the contributions of several people.
+Please see https://github.com/PointCloudLibrary/pcl/graphs/contributors for a complete list of developers.
+
+This package contains a codec on top of PCL.
+ALso included is evaluation software and documentation.
+
+It was developed at CWI-Centrum voor Wiskunde en Informatica in Amsterdam, The Netherlands in 2014-2017 by:
+* Rufuel Mekuria (Unified Streaming)
+* Kees Blom (CWI)
+* Pablo Cesar (CWI).
+

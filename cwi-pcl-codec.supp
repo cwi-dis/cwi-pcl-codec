@@ -1,0 +1,123 @@
+{
+   setjmp_buffer
+   Memcheck:Cond
+   fun:jpeg_mem_dest
+   fun:_ZN3pcl2io10JPEGWriterIhE9writeJPEGERKNS_8PCLImageERSt6vectorIhSaIhEERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEib
+   fun:_ZN3pcl2io10JPEGWriterIhE9writeJPEGERKNS_8PCLImageERSt6vectorIhSaIhEEi
+   fun:_ZN3pcl6octree15ColorCodingJPEGINS_11PointXYZRGBEE15encodeJPEGSnakeERSt6vectorIcSaIcEERS4_IhSaIhEE
+   fun:_ZN3pcl6octree15ColorCodingJPEGINS_11PointXYZRGBEE20getAverageDataVectorEv
+   fun:_ZN3pcl2io23OctreePointCloudCodecV2INS_11PointXYZRGBENS_6octree27OctreeContainerPointIndicesENS3_20OctreeContainerEmptyENS3_14Octree2BufBaseIS4_S5_EEE15entropyEncodingERSoS9_
+   fun:_ZN3pcl2io23OctreePointCloudCodecV2INS_11PointXYZRGBENS_6octree27OctreeContainerPointIndicesENS3_20OctreeContainerEmptyENS3_14Octree2BufBaseIS4_S5_EEE16encodePointCloudERKN5boost10shared_ptrIKNS_10PointCloudIS2_EEEERSo
+   fun:_ZN25evaluate_compression_implIN3pcl11PointXYZRGBEE11do_encodingEN5boost10shared_ptrINS0_10PointCloudIS1_EEEEPNSt7__cxx1118basic_stringstreamIcSt11char_traitsIcESaIcEEER13QualityMetric
+   fun:_ZN25evaluate_compression_implIN3pcl11PointXYZRGBEE14evaluate_groupERSt6vectorIN5boost10shared_ptrINS0_10PointCloudIS1_EEEESaIS8_EERNSt7__cxx1118basic_stringstreamIcSt11char_traitsIcESaIcEEERSt14basic_ofstreamIcSF_ESL_
+   fun:_ZN25evaluate_compression_implIN3pcl11PointXYZRGBEE8evaluateEv
+   fun:main
+}
+{
+   python-0
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   ...
+   fun:*
+}
+{
+   python-1
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   ...
+   obj:*
+}
+{
+   python-2
+   Memcheck:Cond
+   fun:PyObject_Free
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   ...
+   fun:*
+}
+{
+   python-3
+   Memcheck:Cond
+   fun:PyObject_Free
+   obj:/usr/lib/x86_64-linux-gnu/libpython2.7.so.1.0
+   ...
+   obj:*
+}
+{
+   python-4
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_PyObject_GC_Malloc
+   ...
+   fun:*
+}
+{
+   python-4
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_PyObject_GC_Malloc
+   ...
+   obj:*
+}
+{
+   python-5
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   ...
+   fun:*
+}
+{
+   python-6
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   ...
+   obj:*
+}
+{
+   OpenGL-0
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/mesa/libGL.so*
+   ...
+   fun:*
+}
+{
+   OpenGL-1
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/mesa/libGL.so*
+   ...
+   obj:*
+}
+{
+   VTK-0
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libvtk*
+   ...
+   fun:*
+}
+{
+   VTK-1
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libvtk*
+   ...
+   obj:*
+}
+{
+   VTK-2
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:*
+}
+{
+   VTK-3
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   obj:*
+}
