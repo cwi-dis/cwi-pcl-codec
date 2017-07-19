@@ -63,7 +63,7 @@ Less easy install on Windows 7,8,10:
 
 * Install PCL-1.8 and all 3rd party packages that it needs using its
    All-In-One Installer from 'http://unanancyowen.com/en/pcl18/':
-  'https://1drv.ms/u/s!ApoY_0Ymu57sg5Qo2XRzcD73R8UnyQ' (32 bit installer)
+  'https://1drv.ms/u/s!ApoY_0Ymu57sg5QkeGyAxxAmuI4j0g' (32 bit installer)
 
 * Install 'libjpeg-turbo' from 'www.libjpeg-turbo.org':
   https://sourceforge.net/projects/libjpeg-turbo/files/1.5.1/libjpeg-turbo-1.5.1-gcc.exe
