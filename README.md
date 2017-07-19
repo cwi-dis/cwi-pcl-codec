@@ -47,7 +47,7 @@ wget https://www.dropbox.com/s/9llzm20pc4opdn9/PCL-1.8.0-Linux.deb
 
 * This installer has a bug, for which a patch is to be used: 'cd' to the directory 'cwi-pcl-codec'
   (where this file README.md was distributed), and type:
-  (PATCH=$PWD/PCLConfig-Ubuntu1604.patch;cd /;sudo patch -p1 < $PATCH)
+  (PATCH=$PWD/PCLConfig-Ubuntu16.04.patch;cd /;sudo patch -p1 < $PATCH)
   
 * Start 'cmake-gui', specify the directory where this file is located in 'Where is the source code',
   another empty directory 'Where to build the binaries', and select 'Unix Makefiles' in the 'CMakeSetup'
