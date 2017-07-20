@@ -93,10 +93,8 @@ Less easy install on Windows 7,8,10:
 Not so easy (tedious, but not difficult) install PCL 1.8.0 from source: (all platforms):
 -------------------------------------------------------------------------------
 
-* Get PCL from github:
-  git clone https://github.com/PointCloudLibrary/pcl
-  cd pcl
-  git branch 1.8.0
+* Get PCL source code from 'https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.8.0'
+  (note that the source code in the PCL development tree is not compatible with this package).
 
 * Get 3rd party packages:
   follow the instructions in: http://pointclouds.org/documentation/tutorials/compiling_pcl_dependencies_windows.php
