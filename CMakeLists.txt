@@ -48,10 +48,19 @@ project(CWI_PCL_CODEC)
 # set(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_COLOR_MAKEFILE   ON)
 
+# You can set this to '1' if you like a lot of CMake messages, e.g. to find a bug
+set (CMAKELISTS_DEBUG 0
+        CACHE INTERNAL "${PROJECT_NAME}: CMakeLists.txt Debug Flag" FORCE)
+
 set(SUBSYS_NAME cwi_pcl_codec)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/" ${CMAKE_MODULE_PATH})
-message("CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
-find_package(PCL 1.8 REQUIRED COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
+if(CMAKELISTS_DEBUG)
+  message("CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
+  set(QUIET_FLAG "")
+else(CMAKELISTS_DEBUG)
+  set(QUIET_FLAG QUIET)
+endif(CMAKELISTS_DEBUG)
+find_package(PCL 1.8 REQUIRED ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
 if(NOT PCL_FOUND)
   message(ERROR "PCL >= 1.8 not found.")
 endif(NOT PCL_FOUND)
@@ -65,7 +74,7 @@ if(NOT PCL_ALL_IN_ONE_INSTALLER)
     set(CMAKE_CXX_FLAGS "/EHsc")
     set(CMAKE_LD_FLAGS "-g -O0")
     # On Windows we have VTK 7.0
-    find_package(VTK 7.0 REQUIRED)
+    find_package(VTK 7.0 REQUIRED ${QUIET_FLAG})
     if(NOT VTK_FOUND)
       message(ERROR "VTK >= 7.0 found.")
     endif(VTK_FOUND)
@@ -75,7 +84,7 @@ if(NOT PCL_ALL_IN_ONE_INSTALLER)
     set(CMAKE_CXX_FLAGS "-g -O0")
     set(CMAKE_LD_FLAGS "-g -O0")
     # On Ubuntu 16.04 we have VTK 6.0
-    find_package(VTK 6.0)
+    find_package(VTK 6.0 ${QUIET_FLAG})
     if(NOT VTK_FOUND)
       find_package(VTK 6.1 REQUIRED)
       if(NOT VTK_FOUND)
@@ -87,18 +96,24 @@ endif(NOT PCL_ALL_IN_ONE_INSTALLER)
 
 #include(${CMAKE_SOURCE_DIR}/cmake/pcl_find_boost.cmake)
 set(BOOST_REQUIRED_MODULES system filesystem thread date_time iostreams chrono program_options)
-find_package(Boost 1.47.0 REQUIRED COMPONENTS ${BOOST_REQUIRED_MODULES})
+find_package(Boost 1.47.0 ${QUIET_FLAG} REQUIRED COMPONENTS ${BOOST_REQUIRED_MODULES})
 if(NOT Boost_FOUND)
   message(ERROR "Boost >= 1.48.0 not found.")
 endif(NOT Boost_FOUND)
-message("1.Boost_LIBRARIES=" ${Boost_LIBRARIES})
-find_package(Eigen 4.3)
+if(CMAKELISTS_DEBUG)
+ message("1.Boost_LIBRARIES=" ${Boost_LIBRARIES})
+endif(CMAKELISTS_DEBUG)
+find_package(Eigen 4.3 ${QUIET_FLAG})
 if (NOT Eigen_FOUND)
   message(ERROR "Eigen not found)")
 endif(NOT Eigen_FOUND)
-message("EIGEN_INCLUDE_DIRS: " ${EIGEN_INCLUDE_DIRS})
-find_package(JPEG_Turbo REQUIRED)
-message("2.Boost_LIBRARIES=" ${Boost_LIBRARIES})
+if(CMAKELISTS_DEBUG)
+  message(STATUS "Eigen found (include: ${EIGEN_INCLUDE_DIRS}, version: ${EIGEN_VERSION})")
+endif(CMAKELISTS_DEBUG)
+find_package(JPEG_Turbo ${QUIET_FLAG} REQUIRED)
+if(CMAKELISTS_DEBUG)
+  message("2.Boost_LIBRARIES=" ${Boost_LIBRARIES})
+endif(CMAKELISTS_DEBUG)
 if(NOT JPEG_Turbo_FOUND)
  message(ERROR "TurboJPEG not found.")
 endif(NOT JPEG_Turbo_FOUND)
@@ -110,31 +125,39 @@ set(${PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include
                                  ${PCL_INCLUDE_DIRS}
                                  ${EIGEN_INCLUDE_DIRS}
     CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
-message("${SUBSYS_NAME}-${PROJECT_NAME}_INCLUDE_DIRS: " ${${PROJECT_NAME}_INCLUDE_DIRS})
-message("3.Boost_LIBRARIES=" ${Boost_LIBRARIES})
+if(CMAKELISTS_DEBUG)
+  message("${SUBSYS_NAME}-${PROJECT_NAME}_INCLUDE_DIRS: " ${${PROJECT_NAME}_INCLUDE_DIRS})
+  message("3.Boost_LIBRARIES=" ${Boost_LIBRARIES})
+endif(CMAKELISTS_DEBUG)
 set(${PROJECT_NAME}_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/lib
                                  ${VTK_LIBRARY_DIR}
                                  ${Boost_LIBRARY_DIR}
                                  ${PCL_LIBRARY_DIRS}
     CACHE INTERNAL "${PROJECT_NAME}: Library Directories" FORCE)
-message("${SUBSYS_NAME}_LIBRARY_DIRS: " ${${PROJECT_NAME}_LIBRARY_DIRS})
-message("${SUBSYS_NAME}_JPEG_Turbo_LIBRARY: " ${JPEG_Turbo_LIBRARY})
-message("${SUBSYS_NAME}_VTK_LIBRARIES:" ${VTK_LIBRARIES})
-message("${SUBSYS_NAME}_Boost_LIBRARIES: " ${Boost_LIBRARIES})
-message("${SUBSYS_NAME}_PCL_LIBRARIES: " ${PCL_LIBRARIES})
+if(CMAKELISTS_DEBUG)
+  message("${SUBSYS_NAME}_LIBRARY_DIRS: " ${${PROJECT_NAME}_LIBRARY_DIRS})
+  message("${SUBSYS_NAME}_JPEG_Turbo_LIBRARY: " ${JPEG_Turbo_LIBRARY})
+  message("${SUBSYS_NAME}_VTK_LIBRARIES:" ${VTK_LIBRARIES})
+  message("${SUBSYS_NAME}_Boost_LIBRARIES: " ${Boost_LIBRARIES})
+  message("${SUBSYS_NAME}_PCL_LIBRARIES: " ${PCL_LIBRARIES})
+endif(CMAKELISTS_DEBUG)
 set(${PROJECT_NAME}_LIBRARIES
                                  ${JPEG_Turbo_LIBRARY}
                                  ${VTK_LIBRARIES}
                                  ${Boost_LIBRARIES}
                                  ${PCL_LIBRARIES}
     CACHE INTERNAL "${PROJECT_NAME}: Libraries" FORCE)
-message("${SUBSYS_NAME}-${PROJECT_NAME}_LIBRARIES: " ${${PROJECT_NAME}_LIBRARIES})
+if(CMAKELISTS_DEBUG)
+  message("${SUBSYS_NAME}-${PROJECT_NAME}_LIBRARIES: " ${${PROJECT_NAME}_LIBRARIES})
+endif(CMAKELISTS_DEBUG)
 set(${PROJECT_NAME}_DEFINITIONS
                                  ${JPEG_Turbo_DEFINITIONS} -DWITH_JPEG8=1
                                  ${Boost_DEFINITIONS}
                                  ${PCL_DEFINITIONS}
     CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
-message("${SUBSYS_NAME}-${PROJECT_NAME}_DEFINITIONS: " ${${PROJECT_NAME}_DEFINITIONS})
+if(CMAKELISTS_DEBUG)
+  message("${SUBSYS_NAME}-${PROJECT_NAME}_DEFINITIONS: " ${${PROJECT_NAME}_DEFINITIONS})
+endif(CMAKELISTS_DEBUG)
 
 add_definitions( ${${PROJECT_NAME}_DEFINITIONS})
 add_subdirectory("jpeg_io")

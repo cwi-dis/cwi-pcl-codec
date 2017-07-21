@@ -44,7 +44,3 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Eigen DEFAULT_MSG EIGEN_INCLUDE_DIR)
 
 mark_as_advanced(EIGEN_INCLUDE_DIR)
-
-if(EIGEN_FOUND)
-  message(STATUS "Eigen found (include: ${EIGEN_INCLUDE_DIRS}, version: ${EIGEN_VERSION})")
-endif(EIGEN_FOUND)
