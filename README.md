@@ -3,29 +3,29 @@
 cwi-pcl-codec
 =============
 
-This distribution contains a codec for encoding/decoding 3D Point Cloud data streams.   
-The codec is described in detail in a journal paper, of which a preprint is available at: https://ir.cwi.nl/pub/24395.   
-It is currently being reviwed by the MPEG working group 3DG-PCC on PointCloud Compression
+This distribution contains a codec for encoding/decoding 3D Point Cloud data streams, and a toolset for its objective evaluation.   
+The codec is described in detail in a journal paper(R. Mekuria, K. Blom, and P. Cesar, "Design, Implementation and Evaluation of a Point Cloud Codec for Tele-Immersive Video," IEEE Transactions on Circuits and Systems for Video Technology, 27(4): 828 -842, 2017, of which a preprint is available at: https://ir.cwi.nl/pub/24395.   
+The codec has served as the software to generate the anchors for the Call for Proposals for Point Cloud Compression by  the MPEG working group 3DG-PCC on PointCloud Compression
 (http://mpeg.chiariglione.org/standards/exploration/point-cloud-compression).
 
 This version can be build on  Ubuntu 16.04 (64 bit) or Windows 32 bit, using pre-build PointCloudLibrary(PCL)
-installers, or on many other systems by downloading and building PCL and its depencies.
+installers, or on many other systems by downloading and building PCL and its dependencies.
 
-This package contains of:
+This package contains:
 
 * codec software (cloud_codec_v2)
 * auxiliary files needed (for using 'cmake'  and building 'jpeg_io')
 * quality metrics
 * evaluation library
-* tools for testing and evalution of several aspects of this codec
-* this installation instruction
+* tools for testing and evaluation of several aspects of this codec
+* installation instruction
 
 To use it, several dependencies (Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) need to be installed:  
 
 * for Ubuntu 16.04 by installing a number of Debian packages
 * for Windows 7,8 and 10, most of this can be done using an all-in-one installer
 * for all other supported systems by downloading, building and installing PCL 
-  and its nessesary Third Party Package (TPP's) as described at:
+  and its necessary Third Party Package (TPP's) as described at:
   http://pointclouds.org/downloads -> 'Compiling from source'.
 
 Installation
@@ -79,7 +79,7 @@ Less easy install on Windows 7,8,10:
  
 * Start Visual Studio with the 'Solution' file created in the prious paragraph and select 'Build->Build Solution'.
 
-* After succesfull building, the program 'evaluate_compression.exe' can be found in the directory:
+* After successfull building, the program 'evaluate_compression.exe' can be found in the directory:
  'binaries'\apps\evaluate_compression\Debug.
   Before running, adapt the following environment variable:
   set path=%path%;C:\libjpeg-turbo-gcc\bin;C:\Program Files (x86)\OpenNI2\Tools 
@@ -144,7 +144,7 @@ The following arguments are recognized by the program 'evaluate_compression':
 
 The precise meanings of these parameters are explained in the journal paper mentioned above.
 
-Apr.6, 2017, updated: Jun 19, 2017.   
+Apr.6, 2017, last updated: Jun 25, 2017.   
 Kees Blom (Kees.Blom@cwi.nl) CWI, Amsterdam, The Netherlands
 
 

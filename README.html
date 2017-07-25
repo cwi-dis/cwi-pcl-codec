@@ -407,27 +407,27 @@ pre .il { color: #009999 } /* Literal.Number.Integer.Long */
         <div class="markdown-body">
         <h1>Copyright (c) 2017-, Stichting Centrum Wiskunde en Informatica (CWI).</h1>
 <h1>cwi-pcl-codec</h1>
-<p>This distribution contains a codec for encoding/decoding 3D Point Cloud data streams. <br />
-The codec is described in detail in a journal paper, of which a preprint is available at: <a href="https://ir.cwi.nl/pub/24395">https://ir.cwi.nl/pub/24395</a>. <br />
-It is currently being reviwed by the MPEG working group 3DG-PCC on PointCloud Compression
+<p>This distribution contains a codec for encoding/decoding 3D Point Cloud data streams, and a toolset for its objective evaluation. <br />
+The codec is described in detail in a journal paper(R. Mekuria, K. Blom, and P. Cesar, "Design, Implementation and Evaluation of a Point Cloud Codec for Tele-Immersive Video," IEEE Transactions on Circuits and Systems for Video Technology, 27(4): 828 -842, 2017, of which a preprint is available at: <a href="https://ir.cwi.nl/pub/24395">https://ir.cwi.nl/pub/24395</a>. <br />
+The codec has served as the software to generate the anchors for the Call for Proposals for Point Cloud Compression by  the MPEG working group 3DG-PCC on PointCloud Compression
 (<a href="http://mpeg.chiariglione.org/standards/exploration/point-cloud-compression">http://mpeg.chiariglione.org/standards/exploration/point-cloud-compression</a>).</p>
 <p>This version can be build on  Ubuntu 16.04 (64 bit) or Windows 32 bit, using pre-build PointCloudLibrary(PCL)
-installers, or on many other systems by downloading and building PCL and its depencies.</p>
-<p>This package contains of:</p>
+installers, or on many other systems by downloading and building PCL and its dependencies.</p>
+<p>This package contains:</p>
 <ul>
 <li>codec software (cloud_codec_v2)</li>
 <li>auxiliary files needed (for using 'cmake'  and building 'jpeg_io')</li>
 <li>quality metrics</li>
 <li>evaluation library</li>
-<li>tools for testing and evalution of several aspects of this codec</li>
-<li>this installation instruction</li>
+<li>tools for testing and evaluation of several aspects of this codec</li>
+<li>installation instruction</li>
 </ul>
 <p>To use it, several dependencies (Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) need to be installed:  </p>
 <ul>
 <li>for Ubuntu 16.04 by installing a number of Debian packages</li>
 <li>for Windows 7,8 and 10, most of this can be done using an all-in-one installer</li>
 <li>for all other supported systems by downloading, building and installing PCL 
-  and its nessesary Third Party Package (TPP's) as described at:
+  and its necessary Third Party Package (TPP's) as described at:
   <a href="http://pointclouds.org/downloads">http://pointclouds.org/downloads</a> -&gt; 'Compiling from source'.</li>
 </ul>
 <h1>Installation</h1>
@@ -489,7 +489,7 @@ that was specified in 'cmake-gui' to build the binaries.</p>
 <p>Start Visual Studio with the 'Solution' file created in the prious paragraph and select 'Build-&gt;Build Solution'.</p>
 </li>
 <li>
-<p>After succesfull building, the program 'evaluate_compression.exe' can be found in the directory:
+<p>After successfull building, the program 'evaluate_compression.exe' can be found in the directory:
  'binaries'\apps\evaluate_compression\Debug.
   Before running, adapt the following environment variable:
   set path=%path%;C:\libjpeg-turbo-gcc\bin;C:\Program Files (x86)\OpenNI2\Tools </p>
@@ -552,7 +552,7 @@ that was specified in 'cmake-gui' to build the binaries.</p>
   --predictive_quality_csv arg (=predictive_quality.csv) predictive coding quality results file name (.csv file)<br />
   --debug_level arg (=0)                debug print level (0=no debug print, 3=all debug print)  </p>
 <p>The precise meanings of these parameters are explained in the journal paper mentioned above.</p>
-<p>Apr.6, 2017, updated: Jun 19, 2017. <br />
+<p>Apr.6, 2017, last updated: Jun 25, 2017. <br />
 Kees Blom (<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#75;&#101;&#101;&#115;&#46;&#66;&#108;&#111;&#109;&#64;&#99;&#119;&#105;&#46;&#110;&#108;">&#75;&#101;&#101;&#115;&#46;&#66;&#108;&#111;&#109;&#64;&#99;&#119;&#105;&#46;&#110;&#108;</a>) CWI, Amsterdam, The Netherlands</p>
         </div>
         </body>
