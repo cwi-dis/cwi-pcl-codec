@@ -41,10 +41,10 @@
 #include <Eigen/StdVector>
 
 // point cloud compression from PCL
-#include <pcl/io/impl/entropy_range_coder.hpp>
+#include <pcl/compression/impl/entropy_range_coder.hpp>
 #include <pcl/cloud_codec_v2/point_cloud_codec_v2.h>
 #include <pcl/compression/point_coding.h>
-#include <pcl/io/impl/octree_pointcloud_compression.hpp>
+#include <pcl/compression/impl/octree_pointcloud_compression.hpp>
 #include <pcl/filters/radius_outlier_removal.h>
 #if defined(_OPENMP)
 #include <omp.h>
