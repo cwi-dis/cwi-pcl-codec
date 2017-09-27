@@ -107,5 +107,6 @@ protected:
     bool do_icp_on_original_;
     bool create_scalable_;
     int jpeg_quality_;
+    int output_index_;
   };
 #endif /* evaluate_compression_h */

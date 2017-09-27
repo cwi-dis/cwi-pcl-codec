@@ -815,7 +815,7 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
     QualityMetric achieved_quality;
     int i_strm_pos_cur = 0, i_strm_pos_prev = 0; // current and previous position in i-code stream
     int p_strm_pos_cur = 0, p_strm_pos_prev = 0; // current and previous position in p-code stream
-              
+      
     // encode pointcloud to string stream
     do_encoding (pc, &ss, achieved_quality);
     // decode the string stream
@@ -837,8 +837,7 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
     }
     if (output_directory_ != "")
     {
-	  static int idx = 0;
-      do_output ( "pointcloud_" + boost::lexical_cast<string> (idx++) + ".ply", output_pointcloud, achieved_quality);
+      do_output ( "pointcloud_" + boost::lexical_cast<string> (++output_index_) + ".ply", output_pointcloud, achieved_quality);
     }
     do_visualization ("Original", opc);
     do_visualization ("Decoded", dpc);
@@ -864,10 +863,10 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
       // create a deep copy of original pointcloud, for comparison
       do_delta_decoding (&p_frame_idat, &p_frame_pdat, output_pointcloud, predicted_pc, predictive_quality);
 //    compute the quality of the resulting predictive frame
-       pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (predicted_pc, bb);
+      pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (predicted_pc, bb);
       if (output_directory_ != "")
       {
-        do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (i) + ".ply", predicted_pc, achieved_quality);
+        do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (output_index_) + ".ply", predicted_pc, achieved_quality);
       }
       do_visualization ("Delta Decoded", predicted_pc);
       if (do_quality_computation_)
