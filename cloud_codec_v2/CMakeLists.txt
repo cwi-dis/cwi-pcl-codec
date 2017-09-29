@@ -68,6 +68,10 @@ set(impl_incs
    "include/pcl/${SUBSYS_NAME}/impl/quaternion_coding_impl.hpp"
    "include/pcl/${SUBSYS_NAME}/impl/rigid_transform_coding_impl.hpp"
    )
+if(${PCL_INSTALLED})
+    add_definitions(-DPCL_INSTALLED)
+endif(${PCL_INSTALLED})
+
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRS})
 add_library(${LIB_NAME} ${srcs} ${incs} ${impl_incs})
 target_link_libraries(${LIB_NAME} ${CWI_PCL_CODEC_LIBS} )
