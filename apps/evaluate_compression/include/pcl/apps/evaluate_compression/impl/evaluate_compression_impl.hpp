@@ -753,6 +753,13 @@ evaluate_compression_impl<PointT>::evaluate ()
     for (std::vector<std::string>::iterator itr = filenames.begin (); itr != filenames.end (); itr++)
     {
       std::string filename = *itr;
+      if (output_index_ == -1) { // get index of first file
+        std::stringstream ss(filename);
+        string tmp;
+        ss >> tmp >> output_index_;
+        if (output_index_ == -1) // no index found
+        output_index_ = 0;
+      }
       boost::shared_ptr<pcl::PointCloud<PointT> > pc (new PointCloud<PointT> ());
       if ( ! load_input_cloud(filename, pc))
       {

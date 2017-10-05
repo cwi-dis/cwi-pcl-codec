@@ -50,7 +50,7 @@
 
 class evaluate_compression {
 protected:
-  evaluate_compression (int argc, char** argv) : argc_(argc), argv_(argv) {}
+  evaluate_compression (int argc, char** argv) : argc_(argc), argv_(argv), output_index_(-1) {}
   private:
     // get_options_from_file
     // get_options_from_commandline
