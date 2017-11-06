@@ -666,18 +666,18 @@ namespace pcl{
             if((diff=std::abs(rt(i/4,i%4) - mdec(i/4,i%4))) > 0.01){
             //mdec(i/4,i%4) = rt(i/4,i%4);
             corrected_tf_matrix=true;
-            std::cout << " error decoding rigid transform "
+            std::cerr << " error decoding rigid transform "
             << comp_dat.size() << " index " << i/4 << "," 
             << i%4 << std::endl;
-            std::cout << " original " << rt << std::endl;
-            std::cout << " decoded " <<  mdec << std::endl;
+            std::cerr << " original " << rt << std::endl;
+            std::cerr << " decoded " <<  mdec << std::endl;
             std::cin.get();
             }
             }
             if(corrected_tf_matrix)
-            std::cout << " matrix decoded not ok " <<std::endl;
+            std::cerr << " matrix decoded not ok " <<std::endl;
             else
-            std::cout << " matrix decoded ok " <<std::endl;
+            std::cerr << " matrix decoded ok " <<std::endl;
             */
             if(write_out_cloud){
               // predicted point cloud
@@ -943,7 +943,7 @@ namespace pcl{
 				macro_block_count++;
 			}
 #if defined(_OPENMP)
-			std::cout << " running in parallel on " << num_threads_ << std::endl;
+            if (debug_level_ > 0) std::cerr << " running in parallel on " << num_threads_ << std::endl;
 			omp_set_num_threads(num_threads_);
 #endif//defined(_OPENMP)
 #pragma omp parallel for shared(p_info_list,p_result_list,p_result_matrices)
@@ -1167,18 +1167,11 @@ namespace pcl{
               cloud_out_arg->push_back(p_point);
             } 
           }
-          else{
-            std::cout << " failed decoding predictive frame, no corresponding i block " << std::endl;
-          }
+          else /* if (debug_level_ > 0) */ std::cerr << " failed decoding predictive frame, no corresponding i block " << std::endl;
         }
-        else
-          break;
+        else break;
       }
-      std::cout << " decoded: " << decoded_mblocks 
-        << " pblocks, resulting in " 
-        << cloud_out_arg->size() 
-        << " output points " 
-        << std::endl;
+      /* if (debug_level_ > 0) */ std::cerr << " decoded: " << decoded_mblocks << " pblocks, resulting in " << cloud_out_arg->size() << " output points " << std::endl;
 
       // decode the intra coded points
 
@@ -1829,9 +1822,7 @@ namespace pcl{
           // point_§clouds[i]->erase(indices_rem->begin(),indices_rem->end());
           // The resulting cloud_out contains all points of cloud_in that have 'min_points' or more neighbors within the 'radius' search area
           point_clouds[i] = l_ptr;
-          if (debug_level > 2) {
-            std::cout << "filtered out a total of: " << indices_rem->size() << " outliers" <<std::endl;
-          }
+          if (debug_level > 2) std::cerr << "filtered out a total of: " << indices_rem->size() << " outliers" <<std::endl;
           // The indices_rem array indexes all points of cloud_in that have less than 'min_points' neighbors  within the 0.1 'radius' search area
         }
       }
@@ -1893,8 +1884,7 @@ namespace pcl{
           max_pt_bb[2] = max_pt[2] + bb_expand_factor*abs(max_pt[2] - min_pt[2]);
           
           is_bb_init = true;
-          
-          cout << "re-intialized bounding box !!! " << endl;
+          if (debug_level > 1) cerr << "re-intialized bounding box !!! " << endl;
         }
         else
           aligned_flags[k] = true;
