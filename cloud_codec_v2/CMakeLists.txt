@@ -61,7 +61,7 @@ set(incs
   "include/pcl/${SUBSYS_NAME}/color_coding_jpeg.h"
   "include/pcl/${SUBSYS_NAME}/quaternion_coding.h"
   "include/pcl/${SUBSYS_NAME}/rigid_transform_coding.h"
- )
+  )
 set(impl_incs
    "include/pcl/${SUBSYS_NAME}/impl/point_cloud_codec_v2_impl.hpp"
    "include/pcl/${SUBSYS_NAME}/impl/point_cloud_codec_v2_omp_impl.hpp"
@@ -69,7 +69,7 @@ set(impl_incs
    "include/pcl/${SUBSYS_NAME}/impl/rigid_transform_coding_impl.hpp"
    )
 if(${PCL_INSTALLED})
-    add_definitions(-DPCL_INSTALLED)
+  add_definitions(-DPCL_INSTALLED)
 endif(${PCL_INSTALLED})
 
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRS})

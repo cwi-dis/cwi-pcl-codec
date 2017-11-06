@@ -115,11 +115,11 @@ if(CMAKELISTS_DEBUG)
   message("2.Boost_LIBRARIES=" ${Boost_LIBRARIES})
 endif(CMAKELISTS_DEBUG)
 if(NOT JPEG_Turbo_FOUND)
- message(ERROR "TurboJPEG not found.")
+  message(ERROR "TurboJPEG not found.")
 endif(NOT JPEG_Turbo_FOUND)
 
 if(EXISTS "${PCL_ROOT}/include/pcl-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}/pcl/io/impl/entropy_range_coder.hpp")
-    set(PCL_INSTALLED ON CACHE INTERNAL "PCL Installed" FORCE)
+ set(PCL_INSTALLED ON CACHE INTERNAL "PCL Installed" FORCE)
 endif()
 
 # Expose public includes and libraries to subprojects
