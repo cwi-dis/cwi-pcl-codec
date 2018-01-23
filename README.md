@@ -49,7 +49,7 @@ wget https://www.dropbox.com/s/9llzm20pc4opdn9/PCL-1.8.0-Linux.deb
   (where this file README.md was distributed), and type:
   (PATCH=$PWD/PCLConfig-Ubuntu16.04.patch;cd /;sudo patch -p1 < $PATCH)
   
-* Start 'cmake-gui', specify the directory where this file is located in 'Where is the source code',
+* Start 'cmake-gui (>= 3.10)', specify the directory where this file is located in 'Where is the source code',
   another empty directory 'Where to build the binaries', and select 'Unix Makefiles' in the 'CMakeSetup'
   pop-up window. Click(tap) 'Configure', and 'Generate'.
 
@@ -69,7 +69,7 @@ Less easy install on Windows 7,8,10:
   https://sourceforge.net/projects/libjpeg-turbo/files/1.5.1/libjpeg-turbo-1.5.1-gcc.exe
   (32 bit installer)
 
-* Start 'cmake-gui', select for 'source code' the directory 'cwi-pcl-codec' (where this file README.md
+* Start 'cmake-gui (>= 3.10)', select for 'source code' the directory 'cwi-pcl-codec' (where this file README.md
   distributed), and for 'binaries' another directory
 
 * Search for 'jpeg', for JPEG_INCLUDES specify 'C:libjpeg-turbo-gcc/include' and for 'JPEG_LIBRARY'
@@ -102,9 +102,9 @@ Not so easy (tedious, but not difficult) install PCL 1.8.0 from source: (all pla
   Be aware that the version numbers of some 3rd party packages are outdated and should match those used in the
   'apt-install' commands above.
 
-* Use 'cmake-gui' to configure and generate the files for building PCL
+* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building PCL
 
-* Use 'cmake-gui' to configure and generate the files for building the addional libraries and excutables in this package.
+* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building the addional libraries and excutables in this package.
 
 Running the evaluation program
 ==============================
