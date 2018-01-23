@@ -66,6 +66,7 @@ if(NOT PCL_FOUND)
 endif(NOT PCL_FOUND)
 
 if(NOT PCL_ALL_IN_ONE_INSTALLER)
+  message("CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}")
   # search for 3rd party packages
   if(WIN32)
     # Remove 'lib' prefix for shared libraries on Windows
@@ -78,12 +79,24 @@ if(NOT PCL_ALL_IN_ONE_INSTALLER)
     if(NOT VTK_FOUND)
       message(ERROR "VTK >= 7.0 found.")
     endif(VTK_FOUND)
-  else(WIN32)
+  endif(WIN32)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" )
+    # enable debugging on MacOSX
+    set(CMAKE_C_FLAGS "-g -O0")
+    set(CMAKE_CXX_FLAGS "-g -O0 -Wno-inconsistent-missing-override")
+    set(CMAKE_LD_FLAGS "-g -O0")
+    # On MacOSX >= 10.11.6 we may have VTK 8.0 from Homebrew
+    find_package(VTK 8.0 ${QUIET_FLAG})
+    if(NOT VTK_FOUND)
+      message(ERROR "VTK 8.0 not found (available at Homebrew)")
+    endif(NOT VTK_FOUND)
+  endif()
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux" )
     # enable debugging on Linux
     set(CMAKE_C_FLAGS "-g -O0")
     set(CMAKE_CXX_FLAGS "-g -O0")
     set(CMAKE_LD_FLAGS "-g -O0")
-    # On Ubuntu 16.04 we have VTK 6.0
+    # On Ubuntu 16.04 we have VTK 6.0 or 6.1
     find_package(VTK 6.0 ${QUIET_FLAG})
     if(NOT VTK_FOUND)
       find_package(VTK 6.1 REQUIRED)
@@ -91,7 +104,7 @@ if(NOT PCL_ALL_IN_ONE_INSTALLER)
         message(ERROR "VTK 6.0 or 6.1 not found.")
       endif()
     endif(NOT VTK_FOUND)
-  endif(WIN32)
+  endif()
 endif(NOT PCL_ALL_IN_ONE_INSTALLER)
 
 #include(${CMAKE_SOURCE_DIR}/cmake/pcl_find_boost.cmake)
