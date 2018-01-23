@@ -44,6 +44,8 @@ using namespace pcl;
 using namespace io;
 
 #ifdef _WIN32
+FILE _iob[] = { *stdin, *stdout, *stderr };
+extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 template class PCL_EXPORTS pcl::io::JPEGReader<uint8_t>;
 #endif//_WIN32
 template class PCL_EXPORTS pcl::io::JPEGReader<char>;
