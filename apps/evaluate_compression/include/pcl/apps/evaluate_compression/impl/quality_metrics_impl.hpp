@@ -89,7 +89,7 @@ using namespace pcl::search;
 		tt.tic ();
 
 		// compare A to B
-    pcl::search::KdTree<PointT> tree_b;
+        pcl::search::KdTree<PointT> tree_b;
 		tree_b.setInputCloud (cloud_b.makeShared ());
 		
 		// geometric differences A -> B

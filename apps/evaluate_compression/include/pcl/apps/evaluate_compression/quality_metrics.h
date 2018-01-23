@@ -55,12 +55,12 @@
 	std::size_t compressed_size;    //! store the compressed byte size
 
 	uint64_t in_point_count;
-  uint64_t out_point_count;
+    uint64_t out_point_count;
 	uint64_t byte_count_octree_layer;
 	uint64_t byte_count_centroid_layer;
 	uint64_t byte_count_color_layer;
 
-  float symm_rms;                             //! store symm rms metric
+    float symm_rms;                             //! store symm rms metric
 	float symm_hausdorff;                       //! store symm haussdorf
 	float left_hausdorff;                        //! store left haussdorf
 	float right_hausdorff;                      //! store right haussdorf
@@ -81,6 +81,6 @@
 
   //! \brief compute the quality metric, we assume the cloud_a is the original (for colors we only compare the original to the lossy cloud)
   template<typename PointT> PCL_EXPORTS void
-    computeQualityMetric (pcl::PointCloud<PointT>  &cloud_a, pcl::PointCloud<PointT>  &cloud_b, QualityMetric & qual_metric );
+    computeQualityMetric (pcl::PointCloud<PointT>  &cloud_a, pcl::PointCloud<PointT>  &cloud_b, QualityMetric & qual_metric);
 
 #endif
