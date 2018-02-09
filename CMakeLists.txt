@@ -85,10 +85,10 @@ if(NOT PCL_ALL_IN_ONE_INSTALLER)
     set(CMAKE_C_FLAGS "-g -O0")
     set(CMAKE_CXX_FLAGS "-g -O0 -Wno-inconsistent-missing-override")
     set(CMAKE_LD_FLAGS "-g -O0")
-    # On MacOSX >= 10.11.6 we may have VTK 8.0 from Homebrew
-    find_package(VTK 8.0 ${QUIET_FLAG})
+    # On MacOSX >= 10.11.6 we may have VTK 7.1 from Homebrew
+    find_package(VTK 7.1 ${QUIET_FLAG})
     if(NOT VTK_FOUND)
-      message(ERROR "VTK 8.0 not found (available at Homebrew)")
+      message(ERROR "VTK 7.1 not found (available at Homebrew)")
     endif(NOT VTK_FOUND)
   endif()
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux" )
