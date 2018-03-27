@@ -796,7 +796,7 @@ evaluate_compression_impl<PointT>::evaluate ()
          continue;
        }
        // encode the group for each set of 'group_size' point_clouds, and the final set
-       if (group_size_ == 0 || count == point_clouds.size () || count % group_size_ == 0)
+       if (group_size_ == 0 || count == point_clouds.size () || count % group_size_ == 0  || count == filenames.size())
        {
          restart_coders(); // (re)start encoder/decoder
          evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
