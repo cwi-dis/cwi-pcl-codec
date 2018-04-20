@@ -731,7 +731,7 @@ evaluate_compression_impl<PointT>::evaluate ()
       cout << "Need to specify a directory containing Point Cloud files (.pcd or .ply).\n";
       return (false);
     }
-    std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > point_clouds, group, encoder_output_clouds;
+    std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > >  group, encoder_output_clouds;
     int count = 0;
     std::ofstream intra_frame_quality_csv;
     stringstream compression_settings;
@@ -767,12 +767,12 @@ evaluate_compression_impl<PointT>::evaluate ()
       }
       group.push_back(pc->makeShared());
       count++;
-      if (group_size_ == 0 && count < point_clouds.size ())
+      if (group_size_ == 0 && count < filenames.size ())
       {
         continue;
       }
-      // encode the group for each set of 'group_size' point_clouds, and the final set
-      if (group_size_ == 0 || count == point_clouds.size () || count % group_size_ == 0)
+      // encode the group for each set of 'group_size' filenames, and the final set
+      if (group_size_ == 0 || count == filenames.size () || count % group_size_ == 0)
       {
         evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
         complete_initialization();
