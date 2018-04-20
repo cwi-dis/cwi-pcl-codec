@@ -22,7 +22,7 @@ This package contains:
 
 To use it, several dependencies (Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) need to be installed:  
 
-* for Ubuntu 16.04 by installing a number of Debian packages
+ * for Ubuntu 16.04 by installing a number of Debian packages
 * for Windows 7,8 and 10, most of this can be done using an all-in-one installer
 * for all other supported systems by downloading, building and installing PCL 
   and its necessary Third Party Package (TPP's) as described at:
@@ -65,19 +65,21 @@ Less easy install on Windows 7,8,10:
    All-In-One Installer from 'http://unanancyowen.com/en/pcl18/':
   'https://1drv.ms/u/s!ApoY_0Ymu57sg5QkeGyAxxAmuI4j0g' (32 bit installer)
 
-* Install 'libjpeg-turbo' from 'www.libjpeg-turbo.org':
-  https://sourceforge.net/projects/libjpeg-turbo/files/1.5.1/libjpeg-turbo-1.5.1-gcc.exe
-  (32 bit installer)
+* Download source tarball for 'libjpeg-turbo' from 'www.libjpeg-turbo.org':
+  https://sourceforge.net/projects/libjpeg-turbo/files/1.5.3/libjpeg-turbo-1.5.3.tar.gz/download
+  Unpack the tarball and start 'cmake_gui', select for source code directory the top-level directory
+  of 'libturbo-jpeg' (contains 'CMakelists.txt'), and for 'binaries' another directory, click 'Configure' and 'Generate'.
+  Now in your 'binaries' directory open the file 'libjpeg-turbo' and Build/Install the libjpeg-turbo libraries.
 
-* Start 'cmake-gui', select for 'source code' the directory 'cwi-pcl-codec' (where this file README.md
+* Next start 'cmake-gui', select for 'source code' the directory 'cwi-pcl-codec' (where this file README.md
   distributed), and for 'binaries' another directory
 
-* Search for 'jpeg', for JPEG_INCLUDES specify 'C:libjpeg-turbo-gcc/include' and for 'JPEG_LIBRARY'
-  'libjpeg-turbo-gcc/lib/turbojpeg'.
+* Search for 'jpeg', for JPEG_INCLUDES specify 'C:/libjpeg-turbo/include' and for 'JPEG_LIBRARY'
+  'C:/libjpeg-turbo/lib/turbojpeg-static.lib'.
   Next select 'Configure' and 'Generate', and you'll find a Microsoft Visual Studio Solution
   in the directory that was specified for 'binaries'.
  
-* Start Visual Studio with the 'Solution' file created in the prious paragraph and select 'Build->Build Solution'.
+* Start Visual Studio with the 'Solution' file created in the previous paragraph and select 'Build->Build Solution'.
 
 * After successfull building, the program 'evaluate_compression.exe' can be found in the directory:
  'binaries'\apps\evaluate_compression\Debug.
