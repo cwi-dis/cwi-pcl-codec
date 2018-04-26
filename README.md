@@ -67,9 +67,13 @@ Less easy install on Windows 7,8,10:
 
 * Download source tarball for 'libjpeg-turbo' from 'www.libjpeg-turbo.org':
   https://sourceforge.net/projects/libjpeg-turbo/files/1.5.3/libjpeg-turbo-1.5.3.tar.gz/download
-  Unpack the tarball and start 'cmake_gui', select for source code directory the top-level directory
+  Unpack the tarball and start 'cmake_gui', select for 'source code' directory the top-level directory
   of 'libturbo-jpeg' (contains 'CMakelists.txt'), and for 'binaries' another directory, click 'Configure' and 'Generate'.
-  Now in your 'binaries' directory open the file 'libjpeg-turbo' and Build/Install the libjpeg-turbo libraries.
+  Now in your 'binaries' directory open the file 'libjpeg-turbo-1.5.3.sln' with Visual Studio 2015.
+  In the Solution Explorer click Project 'INSTALL'. 
+  Select Build->Build Solution, if this is successful  select 'Build->Build INSTALL'.
+  By default this installs the include files and libraries libraries in 'C:\libjpeg-turbo\include' and
+  'C:\libjpeg-turbo\lib'
 
 * Next start 'cmake-gui', select for 'source code' the directory 'cwi-pcl-codec' (where this file README.md
   distributed), and for 'binaries' another directory
@@ -81,7 +85,7 @@ Less easy install on Windows 7,8,10:
  
 * Start Visual Studio with the 'Solution' file created in the previous paragraph and select 'Build->Build Solution'.
 
-* After successfull building, the program 'evaluate_compression.exe' can be found in the directory:
+* After successful building, the program 'evaluate_compression.exe' can be found in the directory:
  'binaries'\apps\evaluate_compression\Debug.
   Before running, adapt the following environment variable:
   set path=%path%;C:\libjpeg-turbo-gcc\bin;C:\Program Files (x86)\OpenNI2\Tools 
@@ -91,9 +95,8 @@ Less easy install on Windows 7,8,10:
   to the program:
   evaluate_compression --input_directories=<full path to directory with datafiles>
 
-
 Not so easy (tedious, but not difficult) install PCL 1.8.0 from source: (all platforms):
--------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
 
 * Get PCL source code from 'https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.8.0'
   (note that the source code in the PCL development tree is not compatible with this package).
@@ -118,7 +121,7 @@ The following arguments are recognized by the program 'evaluate_compression':
   -K [ --K_outlier_filter ] arg (=0)    K neighbours for radius outlier filter   
   --radius arg (=0.01)                  radius outlier filter, maximum radius  
   -g [ --group_size ] arg (=0)          maximum number of files to be compressed together (0=read all files, then en(de)code 1 by 1)  
-  -f [ --bb_expand_factor ] arg (=0.2)  bounding box expansion bto keep bounding box accross frames  
+  -f [ --bb_expand_factor ] arg (=0.2)  bounding box expansion to keep bounding box equal accross frames  
   -a [ --algorithm ] arg (=V2)          compression algorithm ('V1' or 'V2')  
   -i [ --input_directories ] arg        Directory containing supported files (.pcd or .ply)  
   -o [ --output_directory ] arg         Directory to store decompressed pointclouds (.ply)  
@@ -146,7 +149,7 @@ The following arguments are recognized by the program 'evaluate_compression':
 
 The precise meanings of these parameters are explained in the journal paper mentioned above.
 
-Apr.6, 2017, last updated: Jun 25, 2017.   
+Apr.6, 2017, updated: Jun 25, 2017 and Apr. 23, 2018.   
 Kees Blom (Kees.Blom@cwi.nl) CWI, Amsterdam, The Netherlands
 
 
