@@ -157,11 +157,11 @@ evaluate_compression_impl<PointT>::initialize_options_description ()
   ("create_scalable", po::value<bool> ()->default_value (false), "create scalable bitstream (not yet implemented)")
   ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
   ("icp_on_original", po::value<bool> ()->default_value (false),"icp_on_original ") // iterative closest point
-  ("jpeg_quality,q", po::value<int> ()->default_value (0), "jpeg quality parameter ")
+  ("jpeg_quality,j", po::value<int> ()->default_value (0), "jpeg quality parameter ")
   ("do_delta_coding,d", po::value<bool> ()->default_value (false),"use delta (predictive) en(de)coding ")
-  ("do_quality_computation", po::value<bool> ()->default_value (false),"compute quality of en(de)coding")
+  ("do_quality_computation,q", po::value<bool> ()->default_value (false),"compute quality of en(de)coding")
   ("do_icp_color_offset",po::value<bool> ()->default_value (false), "do color offset coding on predictive frames")
-  ("num_threads,j",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
+  ("num_threads,n",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
   ("intra_frame_quality_csv", po::value<string>()->default_value("intra_frame_quality.csv")," intra frame coding quality results file name (.csv file)")
   ("predictive_quality_csv",po::value<string>()->default_value("predictive_quality.csv"), " predictive coding quality results file name (.csv file)")
   ("debug_level",po::value<int> ()->default_value (0), "debug print level (0=no debug print, 3=all debug print)")
@@ -559,6 +559,7 @@ evaluate_compression_impl<PointT>::do_visualization (std::string id, boost::shar
   static int viewer_index_ = 0;
   static vector <vtkRect<int> > viewer_window_; // x,y,w,h
   ViewerPtr viewer = viewers[id];
+  vtkObject::GlobalWarningDisplayOff();
 
   if ( ! viewer)
   {
@@ -813,7 +814,7 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
   int working_group_size = working_group.size();
   vector<float> icp_convergence_percentage (working_group_size);
   vector<float> shared_macroblock_percentages (working_group_size);
-  boost::shared_ptr<pcl::PointCloud<PointT> > dpc; // decoded point cloud
+//  boost::shared_ptr<pcl::PointCloud<PointT> > dpc; // decoded point cloud
   for (int i = 0; i < working_group.size (); i++)
   {
     boost::shared_ptr<pcl::PointCloud<PointT> > pc = working_group[i];
@@ -832,8 +833,6 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
     boost::shared_ptr<pcl::PointCloud<PointT> > output_pointcloud (new pcl::PointCloud<PointT> ()), opc (new pcl::PointCloud<PointT> ());
     opc = group[i];
     do_decoding (&coded_stream, output_pointcloud, achieved_quality);
-    pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (output_pointcloud, bb);
-    dpc = output_pointcloud->makeShared ();
     if (do_quality_computation_)
     {
       do_quality_computation (pc, output_pointcloud, achieved_quality);
@@ -846,8 +845,10 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
     {
       do_output ( "pointcloud_" + boost::lexical_cast<string> (++output_index_) + ".ply", output_pointcloud, achieved_quality);
     }
+    if (bb_expand_factor_ > 0.0) pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (output_pointcloud, bb);
+    // Note that the quality of the en/decompression was computed on the transformed (bb aligned) pointclouds
     do_visualization ("Original", opc);
-    do_visualization ("Decoded", dpc);
+    do_visualization ("Decoded", output_pointcloud);
     // test and evaluation iterative closest point predictive coding
     if (algorithm_ == "V2" && do_delta_coding_ && bb_expand_factor_ >= 0  // bounding boxes were aligned
         && i > 0 && i+1 < group_size)
