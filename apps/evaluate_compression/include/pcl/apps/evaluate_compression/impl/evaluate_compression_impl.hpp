@@ -279,7 +279,7 @@ evaluate_compression_impl<PointT>::get_options (int argc, char** argv)
   std::vector<std::string> unrecognized_options = po::collect_unrecognized (parsed_options.options, po::exclude_positional);
   if (unrecognized_options.size () > 0) {
     cerr << "Unrecognized options on command line:\n";
-    for (std::vector<std::string>::iterator itr= unrecognized_options.begin (); itr != unrecognized_options.end (); itr++) {
+    for (std::vector<std::string>::iterator itr = unrecognized_options.begin (); itr != unrecognized_options.end (); itr++) {
       std::string unrecognized = *itr;
       std::cerr << unrecognized.c_str () << "\n";
     }
