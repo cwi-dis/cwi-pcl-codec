@@ -1931,6 +1931,7 @@ namespace pcl{
     template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::restore_scaling (PointCloudPtr &point_cloud, const BoundingBox& bb)
     {
       Eigen::Vector4f  dyn_range = bb.max_xyz - bb.min_xyz;
+      dyn_range[3] = 1; // avoid uninitialized variables
         
       if (point_cloud->size() > 0)
         for (int l = 0; l < point_cloud->size(); l++)
