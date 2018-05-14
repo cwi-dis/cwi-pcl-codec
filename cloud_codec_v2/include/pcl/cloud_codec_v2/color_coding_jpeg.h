@@ -117,7 +117,7 @@ namespace pcl{
       {
         // we still need to do jpeg encoding
         if(needs_jpeg_encoding_avg_){
-          std::vector<uint8_t> out_data;
+          std::vector<uint8_t> out_data(0);
           switch(mapping_mode_)
           {
             case(SNAKE):
