@@ -757,7 +757,7 @@ evaluate_compression_impl<PointT>::evaluate ()
       cerr << "Need to specify a directory containing Point Cloud files (.pcd or .ply).\n";
       return (false);
     }
-    std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > >  group, encoder_output_clouds;
+    std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > >  group;
     int count = 0;
     std::ofstream intra_frame_quality_csv;
     stringstream compression_settings;
