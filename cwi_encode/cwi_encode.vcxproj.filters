@@ -27,6 +27,15 @@
     <ClInclude Include="cwi_encode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="evaluate_compression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="evaluate_compression_impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="quality_metrics_impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -146,6 +146,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cwi_encode.h" />
+    <ClInclude Include="evaluate_compression.h" />
+    <ClInclude Include="evaluate_compression_impl.hpp" />
+    <ClInclude Include="quality_metrics_impl.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

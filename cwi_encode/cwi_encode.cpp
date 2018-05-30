@@ -3,8 +3,8 @@
 
 #include "stdafx.h"
 #include "cwi_encode.h"
-//#include <apps/evaluate_compression/include/pcl/apps/evaluate_compression/evaluate_compression.h>
-//#include <apps/evaluate_compression/include/pcl/apps/evaluate_compression/impl/evaluate_compression.hpp>
+#include <evaluate_comp.h>
+#include <evaluate_comp_impl.hpp>
 
 //#include <evaluate_compression_impl.hpp>
 struct encoder_params
@@ -61,8 +61,8 @@ CWI_ENCODE_API int ncwi_encode=0;
 //Sample function for Testing
 CWI_ENCODE_API int fncwi_encode(void)
 {
-	evaluate_compression_impl<PointXYZRGB> evaluator(argc, argv);
-	return evaluator.evaluate() == true ? 0 : -1;
+	//evaluate_compression_impl<PointXYZRGB> evaluator(argc, argv);
+	//return evaluator.evaluate() == true ? 0 : -1;
 }
 
 // This is the constructor of a class that has been exported.
@@ -75,5 +75,5 @@ Ccwi_encode::Ccwi_encode()
 CWI_ENCODE_API int cwi_encoder(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::ostream& comp_frame)
 {
 	evaluate_compression_impl<PointXYZRGB> evaluator(param, pointcloud, comp_frame);
-	return evaluator.evaluate() == true ? 0 : -1;
+	return evaluator.evaluate_comp() == true ? 0 : -1;
 }
