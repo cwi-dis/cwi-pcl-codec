@@ -74,6 +74,6 @@ Ccwi_encode::Ccwi_encode()
 //Final encoding function for signals
 CWI_ENCODE_API int cwi_encoder(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::ostream& comp_frame)
 {
-	evaluate_compression_impl<PointXYZRGB> evaluator(param, pointcloud, comp_frame);
+	evaluate_comp_impl<PointXYZRGB> evaluator(param, pointcloud, comp_frame);
 	return evaluator.evaluate_comp() == true ? 0 : -1;
 }
