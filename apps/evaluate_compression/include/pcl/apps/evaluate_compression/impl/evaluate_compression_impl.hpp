@@ -166,7 +166,7 @@ evaluate_compression_impl<PointT>::initialize_options_description ()
   ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
   ("icp_on_original", po::value<bool> ()->default_value (false),"icp_on_original ") // iterative closest point
   ("jpeg_quality,j", po::value<int> ()->default_value (0), "jpeg quality parameter ")
-  ("do_quality_computation,q", po::value<bool> ()->default_value (false),"compute quality of en(de)coding")
+  ("quality_computation,q", po::value<int> ()->default_value (0),"compute objective quality (0=<skip>, 1=D1, 2=D2) using point-to-point(D1)/plane(D2) metric" )
   ("do_icp_color_offset",po::value<bool> ()->default_value (false), "do color offset coding on predictive frames")
   ("num_threads,n",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
   ("intra_frame_quality_csv", po::value<string>()->default_value("intra_frame_quality.csv")," intra frame coding quality results file name (.csv file)")
@@ -337,7 +337,7 @@ evaluate_compression_impl<PointT>::assign_option_values ()
     keep_centroid_ = vm_["keep_centroid"].template as<int> ();
     create_scalable_ = vm_["create_scalable"].template as<bool> ();
     jpeg_quality_ = vm_["jpeg_quality"].template as<int> ();
-    do_quality_computation_ = vm_["do_quality_computation"].template as<bool> ();
+    quality_computation_ = vm_["quality_computation"].template as<int> ();
     icp_on_original_ = vm_["icp_on_original"].template as<bool> ();
     do_icp_color_offset_ = vm_["do_icp_color_offset"].template as<bool> ();
     num_threads_ = vm_["num_threads"].template as<int> ();
@@ -864,7 +864,7 @@ evaluate_compression_impl<PointT>::evaluate_group
     do_decoding (&coded_stream, output_pointcloud, achieved_quality);
     boost::shared_ptr<pcl::PointCloud<PointT> > rescaled_pc = output_pointcloud->makeShared ();
     if (bb_expand_factor_ > 0.0) pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (rescaled_pc, bb);
-    if (do_quality_computation_)
+    if (quality_computation_)
     { // Note that the quality_computation now works on the original (not bb-aligned) pc
       do_quality_computation (group[i], rescaled_pc, achieved_quality);
       if (intra_frame_quality_csv_ != "") achieved_quality.print_csv_line(compression_settings.str(), intra_frame_quality_csv);
@@ -898,7 +898,7 @@ evaluate_compression_impl<PointT>::evaluate_group
         do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (i) + ".ply", predicted_pc, achieved_quality);
       }
       do_visualization ("Delta Decoded", predicted_pc);
-      if (do_quality_computation_)
+      if (quality_computation_)
       {
         //    compute the quality of the resulting predictive frame
         do_quality_computation (group[i+1], predicted_pc, predictive_quality);

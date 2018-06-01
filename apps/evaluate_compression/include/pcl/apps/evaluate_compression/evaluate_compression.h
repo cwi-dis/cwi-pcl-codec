@@ -105,7 +105,7 @@ protected:
     int macroblock_size_;
     bool do_icp_color_offset_;
     bool do_delta_coding_;
-    bool do_quality_computation_;
+    int quality_computation_;
     bool do_icp_on_original_;
     bool create_scalable_;
     int jpeg_quality_;
