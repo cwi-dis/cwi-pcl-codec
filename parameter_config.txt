@@ -1,4 +1,5 @@
 #configuration file for testing the color encoding
+algorithm=Delta
 octree_bits=11
 color_bits=8
 color_coding_type= 1 # color coding types 1=grid 2=lines
@@ -7,7 +8,6 @@ keep_centroid=0 # option for keeping centroid instead of voxel centers only
 bb_expand_factor=0.20#  expansion factor used to keep bounding box constant over time
 intra_frame_quality_csv=intra_frame_quality_atDifferentLoDsJPEG.csv
 output_directory=output # directory to store .ply files
-do_delta_coding=1
 icp_on_original=0
 predictive_quality_csv=predictive_quality_4core.csv
 macroblock_size=16
