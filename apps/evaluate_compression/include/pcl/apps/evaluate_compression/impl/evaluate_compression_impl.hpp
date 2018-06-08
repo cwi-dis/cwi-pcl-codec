@@ -672,7 +672,7 @@ get_filenames_from_dir (std::string directory, vector<std::string>& filenames)
     }
     // order of filenames returned by directory_iterator is undefined
     namespace fs = boost::filesystem;
-    //#pragma omp parallel for
+    
     for (fs::directory_iterator itr (directory); itr != fs::directory_iterator (); itr++)
     {
         fs::directory_entry de = *itr;
