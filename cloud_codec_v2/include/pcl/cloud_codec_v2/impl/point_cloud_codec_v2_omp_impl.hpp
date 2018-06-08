@@ -124,21 +124,21 @@ namespace pcl
 //#pragma omp barrier // wait until all threads finished
 #pragma omp parallel for shared(p_info_list,p_result_list)
       for (int i = 0; i < p_info_list.size(); i++) {
-	pcl::octree::OctreeContainerPointIndices* i_leaf = p_info_list[i].i_leaf;
-	typename pcl::PointCloud<PointT>::Ptr cloud_out (new pcl::PointCloud<PointT>(icp_on_original ? *pcloud_arg : *simp_pcloud , *p_info_list[i].indices));
+	    pcl::octree::OctreeContainerPointIndices* i_leaf = p_info_list[i].i_leaf;
+	    typename pcl::PointCloud<PointT>::Ptr cloud_out (new pcl::PointCloud<PointT>(icp_on_original ? *pcloud_arg :    *simp_pcloud , *p_info_list[i].indices));
         p_result_list[i].out_cloud = cloud_out;
-	if (i_leaf != NULL)
-	{
-	  //const octree::OctreeKey current_key = p_info_list[i].current_key;
-	  p_result_list[i].in_cloud =  (PointCloudPtr) new pcl::PointCloud<PointT>(*icloud_arg, i_leaf->getPointIndicesVector());
-	  do_icp_prediction(
-	    p_result_list[i].rt,
-	    (PointCloudPtr) p_result_list[i].in_cloud,
-	    (PointCloudPtr) p_result_list[i].out_cloud,
-	    p_result_list[i].icp_success,
-	    p_result_list[i].rgb_offsets
-	  );
-	}
+	    if (i_leaf != NULL)
+	    {
+	      //const octree::OctreeKey current_key = p_info_list[i].current_key;
+	      p_result_list[i].in_cloud =  (PointCloudPtr) new pcl::PointCloud<PointT>(*icloud_arg, i_leaf->getPointIndicesVector());
+	      do_icp_prediction(
+	        p_result_list[i].rt,
+	        (PointCloudPtr) p_result_list[i].in_cloud,
+	        (PointCloudPtr) p_result_list[i].out_cloud,
+	        p_result_list[i].icp_success,
+	        p_result_list[i].rgb_offsets
+	      );
+	    }
       } // #pragma omp for				
 #pragma omp barrier // wait until all threads finished
       for (int i = 0; i < p_result_list.size(); i++)
