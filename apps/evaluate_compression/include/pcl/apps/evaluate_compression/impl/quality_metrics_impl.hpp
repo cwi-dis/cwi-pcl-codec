@@ -76,8 +76,9 @@ using namespace pcl::search;
     * @param cloud_b decoded cloud
     * @param qual_metric return updated quality metric
 	* \note PointT typename of point used in point cloud
-	* \author Rufael Mekuria (rufael.mekuria@cwi.nl)
-	*/
+    * \author Rufael Mekuria (rufael.mekuria@cwi.nl)
+    * \author Kees Blom (Kees.Blom@cwi.nl) modified in accordance with mpeg-3dgc pc_error code
+    */
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
     template<typename PointT> void
     computeQualityMetric (PointCloud<PointT>  &cloud_a, PointCloud<PointT>  &cloud_b, QualityMetric & qual_metric)
@@ -87,6 +88,12 @@ using namespace pcl::search;
 		//! we log time past in computing the quality metric
 		TicToc tt;
 		tt.tic ();
+
+        // In accoradance with MPEG-3DGC PointCloud Compression pc_error program,
+        // we use the largest nearest neighbour distance of all points in A for the peak signal value
+        pcl::search::KdTree<PointT> tree_a_self;
+        tree_a_self.setInputCloud (cloud_a.makeShared ());
+        float max_dist_a_self = -std::numeric_limits<float>::max ();
 
 		// compare A to B
         pcl::search::KdTree<PointT> tree_b;
@@ -105,10 +112,16 @@ using namespace pcl::search;
 
 		//! compute the maximum and mean square distance between each point in a to the nearest point in b 
 		//! compute the mean square color error for each point in a to the nearest point in b 
-		for (size_t i = 0; i < cloud_a.points.size (); ++i)
+        for (size_t i = 0; i < cloud_a.points.size (); ++i)
 		{
-		  std::vector<int> indices (1);
-		  std::vector<float> sqr_distances (1);
+          std::vector<int> indices_self (2);
+          std::vector<float> sqr_distances_self (2);
+          std::vector<int> indices (1);
+          std::vector<float> sqr_distances (1);
+          // search the most nearby point in the cloud_a_self, other than cloud_a.points[i]
+          tree_a_self.nearestKSearch (cloud_a.points[i], 2, indices_self, sqr_distances_self);
+          if (sqr_distances_self[1] > max_dist_a_self)
+            max_dist_a_self = sqr_distances_self[1];
 
 		  // search the most nearby point in the cloud_b
 		  tree_b.nearestKSearch (cloud_a.points[i], 1, indices, sqr_distances);
@@ -116,8 +129,8 @@ using namespace pcl::search;
 		  // haussdorf geometric distance (Linf norm)
 		  if (sqr_distances[0] > max_dist_a)
 			max_dist_a = sqr_distances[0];
-
-		  // mean square geometric distance (L2 norm)
+  
+          // mean square geometric distance (L2 norm)
 		  rms_dist_a+=sqr_distances[0];
 
 		  ////////////////////////////////////////////////////////////////
@@ -134,15 +147,14 @@ using namespace pcl::search;
 		  // calculate the maximum YUV components
 		  for(int cc=0;cc<3;cc++)
 			if((in_yuv[cc] * in_yuv[cc])  > (peak_yuv[cc] * peak_yuv[cc]))
-				peak_yuv[cc] = in_yuv[cc];
+              peak_yuv[cc] = in_yuv[cc];
 		  
 		  mse_colors_yuv[0]+=((in_yuv[0] - out_yuv[0]) * (in_yuv[0] - out_yuv[0]));
 		  mse_colors_yuv[1]+=((in_yuv[1] - out_yuv[1]) * (in_yuv[1] - out_yuv[1]));
 		  mse_colors_yuv[2]+=((in_yuv[2] - out_yuv[2]) * (in_yuv[2] - out_yuv[2]));
 		}
-
 		// compare geometry of B to A (needed for symmetric metric)
-    pcl::search::KdTree<PointT> tree_a;
+        pcl::search::KdTree<PointT> tree_a;
 		tree_a.setInputCloud (cloud_a.makeShared ());
 		float max_dist_b = -std::numeric_limits<float>::max ();
 		double rms_dist_b = 0;
@@ -159,7 +171,7 @@ using namespace pcl::search;
 		  // mean square distance
 		  rms_dist_b+=sqr_distances[0];
 		}
-
+        
 		////////////////////////////////////////////////////////////////
 		// calculate geometric error metrics
 		// 1. compute left and right haussdorf
@@ -179,7 +191,11 @@ using namespace pcl::search;
 
 		/////////////////////////////////////////////////////////
 		//
-		// calculate peak signal to noise ratio, 
+		// calculate peak signal to noise ratio
+/* Next code has been replaced by code derived from MPEG-3DGC pc_error,
+ * since the assumption in the next comment appeared not to be true.
+ * However, it might be a good idea to work with normalized PC's only, both for (de)compression, icp, error calc. etc.
+ * and keep an inverse transform matrix (concatenation of all operations) to be applied just before delivery of the PC's.
 		// we assume the meshes are normalized per component and the peak energy therefore should approach 3
 		//
 		///////////////////////////////////////////////////////////
@@ -190,9 +206,11 @@ using namespace pcl::search;
 		getMinMax3D<PointT>(cloud_a,l_min_signal,l_max_signal);
 
 		// calculate max energy of point
-		float l_max_geom_signal_energy = l_max_signal.x * l_max_signal.x 
+		float l_max_geom_signal_energy = l_max_signal.x * l_max_signal.x
 			+ l_max_signal.y * l_max_signal.y + l_max_signal.z * l_max_signal.z ;
-
+ */
+        float l_max_geom_signal_energy = max_dist_a_self*3;
+        
 		float peak_signal_to_noise_ratio = 10 * std::log10( l_max_geom_signal_energy / (dist_rms * dist_rms));
 
 		// compute averages for color distortions
