@@ -40,10 +40,12 @@
  */
 #ifndef POINT_CLOUD_QUALITY_HPP 
 #define POINT_CLOUD_QUALITY_HPP
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
+
+
+
 #include <pcl/point_types.h>
+#undef max
+#undef min
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
 #include <pcl/console/print.h>

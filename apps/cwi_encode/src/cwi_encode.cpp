@@ -1,16 +1,5 @@
 // cwi_encode.cpp : Defines the exported functions for the DLL application.
 //
-struct encoder_params
-{
-	int num_threads;
-	bool do_inter_frame;
-	int gop_size;
-	double exp_factor;
-	int octree_bits;
-	int color_bits;
-	int jpeg_quality;
-	int macroblock_size;
-};
 #include "stdafx.h"
 #include <sstream>
 #include <evaluate_comp.h>

@@ -49,10 +49,6 @@
 #include <omp.h>
 #endif//defined(_OPENMP)
 // c++ standard library
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
 #include <fstream>
 #include <vector>
 #include <ctime> // for 'strftime'
@@ -66,6 +62,8 @@ namespace po = boost::program_options;
 
 // point cloud library
 #include <pcl/point_cloud.h>
+#undef max
+#undef min
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/compression/octree_pointcloud_compression.h>
@@ -90,13 +88,13 @@ template<typename PointT>
 class evaluate_comp_impl : evaluate_comp {
   // using boost::exception on errors
   public:
-    evaluate_comp_impl (int argc, char** argv) : evaluate_compression (argc, argv), debug_level_ (3) {};
+    evaluate_comp_impl (int argc, char** argv) : evaluate_comp (argc, argv), debug_level_ (3) {};
     bool evaluate_group(std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > >& group, stringstream& compression_settings, std::ofstream& intra_frame_quality_csv, std::ofstream& predictive_quality_csv);
 
     // options handling
     void initialize_options_description ();
     bool get_options (int argc, char** argv);
-    void assign_option_values ();
+    void assign_option_values (encoder_params param);
   
     po::options_description desc_;
     po::variables_map vm_;
@@ -311,7 +309,7 @@ evaluate_comp_impl<PointT>::get_options (int argc, char** argv)
 
 template<typename PointT>
 void
-evaluate_comp_impl<PointT>::assign_option_values()
+evaluate_comp_impl<PointT>::assign_option_values(encoder_params param)
 {
 	//algorithm_ = vm_["algorithm"].template as<std::string> ();
 	algorithm_ = "V2";
@@ -324,16 +322,16 @@ evaluate_comp_impl<PointT>::assign_option_values()
 	//radius_ = vm_["radius"].template as<double> ();
 	radius_ = 0;
 	//bb_expand_factor_ = vm_["bb_expand_factor"].template as<double> ();
-	bb_expand_factor_ = encoder_params.exp_factor;
+	bb_expand_factor_ = param.exp_factor;
 	//algorithm_ = vm_["algorithm"].template as<std::string> ();
 	//show_statistics_ = vm_["show_statistics"].template as<bool> ();
 	show_statistics_ = false;
 	//enh_bits_ = vm_["enh_bits"].template as<int> ();
 	enh_bits_ = 0;
 	//octree_bits_ = vm_["octree_bits"].template as<int> ();
-	octree_bits_ = encoder_params.octree_bits;
+	octree_bits_ = param.octree_bits;
 	//color_bits_ = vm_["color_bits"].template as<int> ();
-	color_bits_ = encoder_params.color_bits;
+	color_bits_ = param.color_bits;
 	//visualization_ = vm_["visualization"].template as<bool> ();
 	visualization_ = false;
 	//Not required for library function
@@ -347,13 +345,13 @@ evaluate_comp_impl<PointT>::assign_option_values()
 		//color_coding_type_ = vm_["color_coding_type"].template as<int> ();
 		color_coding_type_ = 1;
 		//macroblock_size_ = vm_["macroblock_size"].template as<int> ();
-		macroblock_size_ = encoder_params.macroblock_size;
+		macroblock_size_ = param.macroblock_size;
 		//keep_centroid_ = vm_["keep_centroid"].template as<int> ();
 		keep_centroid_ = 0;
 		//create_scalable_ = vm_["create_scalable"].template as<bool> ();
 		create_scalable_ = false;
 		//jpeg_quality_ = vm_["jpeg_quality"].template as<int> ();
-		jpeg_quality_ = encoder_params.jpeg_quality;
+		jpeg_quality_ = param.jpeg_quality;
 		//do_delta_coding_ = vm_["do_delta_coding"].template as<bool> ();
 		do_delta_coding_ = false;
 		//Uncomment if  inter frame/ p frame
@@ -365,7 +363,7 @@ evaluate_comp_impl<PointT>::assign_option_values()
 		//do_icp_color_offset_ = vm_["do_icp_color_offset"].template as<bool> ();
 		do_icp_color_offset_ = false;
 		//num_threads_ = vm_["num_threads"].template as<int> ();
-		num_threads_ = encoder_params.num_threads;
+		num_threads_ = param.num_threads;
 		//intra_frame_quality_csv_ = vm_["intra_frame_quality_csv"].template as<string>();
 		intra_frame_quality_csv_ = "i_q.csv";
 		//predictive_quality_csv_ = vm_["predictive_quality_csv"].template as<string>();
@@ -830,14 +828,15 @@ evaluate_comp_impl<PointT>::evaluate ()
 }
 template<typename PointT>
 bool
-evaluate_comp_impl<PointT>::evaluator(encoder_params param, void*pc, std::stringstream& comp_frame)
+evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::stringstream& comp_frame)
 {
 	bool return_value = true;
 
 	try
 	{
-		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud;
-		pointcloud = pc;
+		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(pc);
+		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = * reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
+		//pointcloud = pc;
 		//initialize_options_description ();
 		//if ( ! get_options (argc_, argv_))
 		//{
@@ -858,7 +857,7 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void*pc, std::string
 		//return return_value;
 		//}
 		//Modified version for lib
-		assign_option_values();
+		assign_option_values(param);
 		//Stays unchanged
 		complete_initialization();
 		//if (input_directories_.size() > 1)
@@ -892,15 +891,16 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void*pc, std::string
 		*/
 		//Moved evaluate group up
 		//evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
-		if (K_outlier_filter_ > 0) do_outlier_removal(pointcloud);
+		//if (K_outlier_filter_ > 0) do_outlier_removal(pointcloud);
 		pcl::io::BoundingBox bb; // bounding box of this working_group
-		if (bb_expand_factor_ > 0.0) bb = do_bounding_box_normalization(pointcloud);
+		//if (bb_expand_factor_ > 0.0) bb = do_bounding_box_normalization(pointcloud);
 		QualityMetric achieved_quality;
 		stringstream ss;
 		do_encoding(pointcloud, &ss, achieved_quality);
 		string s = ss.str();
 		std::stringstream coded_stream(s);//ss.str ());
-		comp_frame = coded_stream;
+		//DebuG
+		comp_frame<<s;
 		/*vector<std::string> filenames;
 		if (get_filenames_from_dir (*input_directories_.begin(), filenames) != 0) return false;
 		for (std::vector<std::string>::iterator itr = filenames.begin (); itr != filenames.end (); itr++)

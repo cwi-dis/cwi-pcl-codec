@@ -109,4 +109,16 @@ protected:
     int jpeg_quality_;
     int output_index_;
   };
-#endif /* evaluate_compression_h */
+ /* evaluate_compression_h */
+struct encoder_params
+{
+	int num_threads;
+	bool do_inter_frame;
+	int gop_size;
+	double exp_factor;
+	int octree_bits;
+	int color_bits;
+	int jpeg_quality;
+	int macroblock_size;
+};
+#endif
