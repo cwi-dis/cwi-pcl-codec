@@ -49,6 +49,10 @@
 #include <omp.h>
 #endif//defined(_OPENMP)
 // c++ standard library
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 #include <fstream>
 #include <vector>
 #include <ctime> // for 'strftime'
@@ -825,12 +829,14 @@ evaluate_comp_impl<PointT>::evaluate ()
 }
 template<typename PointT>
 bool
-evaluate_comp_impl<PointT>::evaluator(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame)
+evaluate_comp_impl<PointT>::evaluator(encoder_params param, void*pc, std::stringstream& comp_frame)
 {
 	bool return_value = true;
 
 	try
 	{
+		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud;
+		pointcloud = pc;
 		//initialize_options_description ();
 		//if ( ! get_options (argc_, argv_))
 		//{

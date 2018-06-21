@@ -57,6 +57,7 @@ set(srcs
 set(LIB_NAME pcl_${SUBSYS_NAME})
 set(incs
    "include/pcl/apps/${SUBSYS_NAME}/${SUBSYS_NAME}.h"
+   "include/pcl/apps/${SUBSYS_NAME}/evaluate_comp.h"
 )
 set(impl_incs
    "include/pcl/apps/${SUBSYS_NAME}/impl/evaluate_comp_impl.hpp"

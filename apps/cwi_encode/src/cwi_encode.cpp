@@ -1,12 +1,5 @@
 // cwi_encode.cpp : Defines the exported functions for the DLL application.
 //
-
-#include "stdafx.h"
-#include "cwi_encode.h"
-#include <evaluate_comp.h>
-#include <evaluate_comp_impl.hpp>
-
-//#include <evaluate_compression_impl.hpp>
 struct encoder_params
 {
 	int num_threads;
@@ -18,6 +11,17 @@ struct encoder_params
 	int jpeg_quality;
 	int macroblock_size;
 };
+#include "stdafx.h"
+#include <sstream>
+#include <evaluate_comp.h>
+#include <evaluate_comp_impl.hpp>
+#include "cwi_encode.h"
+
+using namespace std;
+// point cloud library
+
+//#include <evaluate_compression_impl.hpp>
+
 /*evaluate_compression_impl<PointT>::assign_option_values()
 {
 	algorithm_ = vm_["algorithm"].template as<std::string>();
@@ -71,11 +75,17 @@ Ccwi_encode::Ccwi_encode()
 {
     return;
 }
+//pcl::PointCloud<PointT> & rcloud_out = *p_cloud;
+//pcl::PointCloud<PointT> & rcloud_in = *i_cloud;
 //Final encoding function for signals
-CWI_ENCODE_API int cwi_encoder(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame)
+
+//Original Pointer 
+//pcl::PointCloud<PointT> pointcloud
+//New pointer 
+CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame)
 {
 	int argc = 0;
 	char *argv[] = { NULL };
 	evaluate_comp_impl<PointXYZRGB> evaluate(argc,argv);
-	return evaluate.evaluator(param, pointcloud, comp_frame) == true ? 0 : -1;
+	return evaluate.evaluator(param, pc, comp_frame) == true ? 0 : -1;
 }

@@ -4,6 +4,16 @@
 // that uses this DLL. This way any other project whose source files include this file see 
 // CWI_ENCODE_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
+// point cloud library
+//#include <pcl/point_types.h>
+//#include <pcl/compression/point_coding.h>
+//#include <pcl/io/impl/octree_pointcloud_compression.hpp>
+//#include <pcl/point_cloud.h>
+//#include <pcl/io/pcd_io.h>
+//#include <pcl/io/ply_io.h>
+//#include <pcl/compression/octree_pointcloud_compression.h>
+//#include <pcl/cloud_codec_v2/point_cloud_codec_v2.h>
+//#include <pcl/filters/radius_outlier_removal.h>
 #ifdef CWI_ENCODE_EXPORTS
 #define CWI_ENCODE_API __declspec(dllexport)
 #else
@@ -20,4 +30,4 @@ public:
 extern CWI_ENCODE_API int ncwi_encode;
 
 CWI_ENCODE_API int fncwi_encode(void);
-CWI_ENCODE_API int cwi_encoder(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::ostream& comp_frame);
+CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
