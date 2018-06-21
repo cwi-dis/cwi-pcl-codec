@@ -841,14 +841,15 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
         achieved_quality.print_csv_line(compression_settings.str(), intra_frame_quality_csv);
       }
     }
+    // Note that the quality of the en/decompression was computed on the transformed (bb aligned) pointclouds
+    boost::shared_ptr<pcl::PointCloud<PointT> > rescaled_pc = output_pointcloud->makeShared ();
+    if (bb_expand_factor_ > 0.0) pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (rescaled_pc, bb);
     if (output_directory_ != "")
     {
-      do_output ( "pointcloud_" + boost::lexical_cast<string> (++output_index_) + ".ply", output_pointcloud, achieved_quality);
+      do_output ( "pointcloud_" + boost::lexical_cast<string> (++output_index_) + ".ply", rescaled_pc, achieved_quality);
     }
-    if (bb_expand_factor_ > 0.0) pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (output_pointcloud, bb);
-    // Note that the quality of the en/decompression was computed on the transformed (bb aligned) pointclouds
     do_visualization ("Original", opc);
-    do_visualization ("Decoded", output_pointcloud);
+    do_visualization ("Decoded", rescaled_pc);
     // test and evaluation iterative closest point predictive coding
     if (algorithm_ == "V2" && do_delta_coding_ && bb_expand_factor_ >= 0  // bounding boxes were aligned
         && i > 0 && i+1 < group_size)
