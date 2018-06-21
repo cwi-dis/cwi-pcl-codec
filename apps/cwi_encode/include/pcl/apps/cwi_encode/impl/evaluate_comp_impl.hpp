@@ -87,7 +87,7 @@ namespace po = boost::program_options;
 #include <qual_metrics.h>
 
 template<typename PointT>
-class evaluate_comp_impl : evaluate_compression {
+class evaluate_comp_impl : evaluate_comp {
   // using boost::exception on errors
   public:
     evaluate_comp_impl (int argc, char** argv) : evaluate_compression (argc, argv), debug_level_ (3) {};
@@ -128,6 +128,7 @@ class evaluate_comp_impl : evaluate_compression {
     boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > decoder_V2_;
   
     bool evaluate (); // TBD need catch exceptions
+	bool evaluator(encoder_params param, void*pc, std::stringstream& comp_frame);
 	bool evaluator(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame);
     void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud);
     int debug_level_;

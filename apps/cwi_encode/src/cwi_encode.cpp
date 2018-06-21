@@ -59,22 +59,23 @@ using namespace std;
 encoder_V2_->setMacroblockSize(macroblock_size_);
 */
 // This is an example of an exported variable
-CWI_ENCODE_API int ncwi_encode=0;
+//DebuG
+//CWI_ENCODE_API int ncwi_encode=0;
 
 // This is an example of an exported function.
 //Sample function for Testing
-CWI_ENCODE_API int fncwi_encode(void)
-{
+//CWI_ENCODE_API int fncwi_encode(void)
+//{
 	//evaluate_compression_impl<PointXYZRGB> evaluator(argc, argv);
 	//return evaluator.evaluate() == true ? 0 : -1;
-}
+//}
 
 // This is the constructor of a class that has been exported.
 // see cwi_encode.h for the class definition
-Ccwi_encode::Ccwi_encode()
-{
-    return;
-}
+//Ccwi_encode::Ccwi_encode()
+//{
+//   return;
+//}
 //pcl::PointCloud<PointT> & rcloud_out = *p_cloud;
 //pcl::PointCloud<PointT> & rcloud_in = *i_cloud;
 //Final encoding function for signals
@@ -82,7 +83,8 @@ Ccwi_encode::Ccwi_encode()
 //Original Pointer 
 //pcl::PointCloud<PointT> pointcloud
 //New pointer 
-CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame)
+//CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame)
+int __declspec(dllexport) cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame)
 {
 	int argc = 0;
 	char *argv[] = { NULL };

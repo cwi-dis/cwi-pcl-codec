@@ -21,13 +21,14 @@
 #endif
 
 // This class is exported from the cwi_encode.dll
-class CWI_ENCODE_API Ccwi_encode {
-public:
-	Ccwi_encode(void);
+//class CWI_ENCODE_API Ccwi_encode {
+//public:
+	//Ccwi_encode(void);
 	// TODO: add your methods here.
-};
+//};
 
-extern CWI_ENCODE_API int ncwi_encode;
+//extern CWI_ENCODE_API int ncwi_encode;
 
-CWI_ENCODE_API int fncwi_encode(void);
-CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
+//CWI_ENCODE_API int fncwi_encode(void);
+//CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
+int __declspec(dllexport) cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
