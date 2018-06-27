@@ -872,20 +872,21 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
       // create a deep copy of original pointcloud, for comparison
       do_delta_decoding (&p_frame_idat, &p_frame_pdat, output_pointcloud, predicted_pc, predictive_quality);
 //    compute the quality of the resulting predictive frame
+      if (do_quality_computation_)
+      {
+        do_quality_computation (working_group[i+1], output_pointcloud, predictive_quality);
+        if (predictive_quality_csv_ != "")
+        {
+          predictive_quality.print_csv_line(compression_settings.str(), predictive_quality_csv);
+        }
+      }
+      // restore the bounding box transformation on the xyz data
       pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (predicted_pc, bb);
       if (output_directory_ != "")
       {
         do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (output_index_) + ".ply", predicted_pc, achieved_quality);
       }
       do_visualization ("Delta Decoded", predicted_pc);
-      if (do_quality_computation_)
-      {
-        do_quality_computation (working_group[i+1], predicted_pc, predictive_quality);
-        if (predictive_quality_csv_ != "")
-        {
-          predictive_quality.print_csv_line(compression_settings.str(), predictive_quality_csv);
-        }
-      }
     }
     output_pointcloud->clear (); // clear output cloud
   }
