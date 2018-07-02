@@ -80,3 +80,10 @@ int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& c
 	return evaluate.evaluator(param, pc, comp_frame) == true ? 0 : -1;
 }
 
+int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame)
+{
+	int argc = 0;
+	char *argv[] = { NULL };
+	evaluate_comp_impl<PointXYZRGB> evaluate(argc, argv);
+	return evaluate.evaluate_dc(param, pc, comp_frame) == true ? 0 : -1;
+}

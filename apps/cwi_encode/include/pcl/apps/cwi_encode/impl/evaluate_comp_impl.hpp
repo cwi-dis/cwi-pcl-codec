@@ -127,7 +127,8 @@ class evaluate_comp_impl : evaluate_comp {
   
     bool evaluate (); // TBD need catch exceptions
 	bool evaluator(encoder_params param, void*pc, std::stringstream& comp_frame);
-	bool evaluator(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame);
+	bool evaluate_dc(encoder_params param, void*pc, std::stringstream& comp_frame);
+	//bool evaluator(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame);
     void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud);
     int debug_level_;
 };
@@ -952,6 +953,135 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 	return return_value;
 }
 
+template<typename PointT>
+bool
+evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::stringstream& comp_frame)
+{
+	bool return_value = true;
+
+	try
+	{
+		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(pc);
+		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
+		//pointcloud = pc;
+		//initialize_options_description ();
+		//if ( ! get_options (argc_, argv_))
+		//{
+		//return false;
+		//}
+		debug_level_ = vm_["debug_level"].template as<int>();
+		if (debug_level_ > 0)
+		{
+			std::cout << "debug_level=" << debug_level_ << "\n";
+			print_options(vm_);
+		}
+		#ifdef WITH_VTK
+		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
+		#endif/*WITH_VTK*/
+		//if (vm_.count ("help"))
+		//{
+		//std::cout << desc_ << "\n";
+		//return return_value;
+		//}
+		//Modified version for lib
+		assign_option_values(param);
+		//Stays unchanged
+		complete_initialization();
+		//if (input_directories_.size() > 1)
+		//{
+		//cout << "Fusing multiple directories not implemented.\n";
+		//return (false);
+		//}
+		//if (input_directories_.size() < 1)
+		//{
+		//cout << "Need to specify a directory containing Point Cloud files (.pcd or .ply).\n";
+		//return (false);
+		//}
+		//std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > point_clouds, group, encoder_output_clouds;
+		int count = 0;
+		std::ofstream intra_frame_quality_csv;
+		std::ofstream predictive_quality_csv;
+		stringstream compression_settings;
+		compression_settings << "octree_bits=" << octree_bits_ << " color_bits=" << color_bits_ << " enh._bits=" << enh_bits_ << "_colortype=" << color_coding_type_ << " centroid=" << keep_centroid_;
+		/*
+		if (intra_frame_quality_csv_ != "")
+		{
+		intra_frame_quality_csv.open(intra_frame_quality_csv_.c_str());
+		QualityMetric::print_csv_header(intra_frame_quality_csv);
+		}
+
+		if (predictive_quality_csv_ != "")
+		{
+		predictive_quality_csv.open(predictive_quality_csv_.c_str());
+		QualityMetric::print_csv_header(predictive_quality_csv);
+		}
+		*/
+		//Moved evaluate group up
+		//evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
+		//if (K_outlier_filter_ > 0) do_outlier_removal(pointcloud);
+		//pcl::io::BoundingBox bb; // bounding box of this working_group
+		//if (bb_expand_factor_ > 0.0) bb = do_bounding_box_normalization(pointcloud);
+		QualityMetric achieved_quality;
+		boost::shared_ptr<pcl::PointCloud<PointT> > pc(new pcl::PointCloud<PointT>());
+		//stringstream ss;
+		//stringstream *codedstream = &ss;
+		do_decoding(&comp_frame, pointcloud, achieved_quality);
+
+		//do_encoding(pointcloud, &ss, achieved_quality);
+		//string s = ss.str();
+		//std::stringstream coded_stream(s);//ss.str ());
+		//DebuG
+		//comp_frame<<s;
+		/*vector<std::string> filenames;
+		if (get_filenames_from_dir (*input_directories_.begin(), filenames) != 0) return false;
+		for (std::vector<std::string>::iterator itr = filenames.begin (); itr != filenames.end (); itr++)
+		{
+		std::string filename = *itr;
+		if (output_index_ == -1) { // get index of first file
+		std::stringstream ss(filename);
+		string tmp;
+		ss >> tmp >> output_index_;
+		if (output_index_ == -1) // no index found
+		output_index_ = 0;
+		}
+		boost::shared_ptr<pcl::PointCloud<PointT> > pc (new PointCloud<PointT> ());
+		if ( ! load_input_cloud(filename, pc))
+		{
+		continue;
+		}
+		group.push_back(pc->makeShared());
+		count++;
+		if (group_size_ == 0 && count < point_clouds.size ())
+		{
+		continue;
+		}
+		// encode the group for each set of 'group_size' point_clouds, and the final set
+		if (group_size_ == 0 || count == point_clouds.size () || count % group_size_ == 0)
+		{
+		evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
+		complete_initialization();
+		// start new group
+		group.clear ();
+		count = 0;
+		}
+		}
+		*/
+	}
+	catch (boost::exception &e) {
+		std::cerr << boost::diagnostic_information(e) << "\n";
+		return_value = false;
+	}
+	// Visualization not needed in lib
+	/*
+	if (visualization_)
+	{ // remove data structures related to visualzation
+	do_visualization ("Original", boost::shared_ptr<PointCloud<PointT> >());
+	do_visualization ("Decoded",  boost::shared_ptr<PointCloud<PointT> >());
+	do_visualization ("Delta Decoded",  boost::shared_ptr<PointCloud<PointT> >());
+	}
+	*/
+	return return_value;
+}
 
 template<typename PointT>
 bool

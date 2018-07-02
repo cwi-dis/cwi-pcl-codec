@@ -29,5 +29,6 @@ class __declspec(dllexport) cwi_encode
 {
 public:
 	int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
+	int cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame);
 };
 
