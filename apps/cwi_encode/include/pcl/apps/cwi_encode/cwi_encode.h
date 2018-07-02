@@ -14,12 +14,6 @@
 //#include <pcl/compression/octree_pointcloud_compression.h>
 //#include <pcl/cloud_codec_v2/point_cloud_codec_v2.h>
 //#include <pcl/filters/radius_outlier_removal.h>
-#ifdef CWI_ENCODE_EXPORTS
-#define CWI_ENCODE_API __declspec(dllexport)
-#else
-#define CWI_ENCODE_API __declspec(dllimport)
-#endif
-
 // This class is exported from the cwi_encode.dll
 //class CWI_ENCODE_API Ccwi_encode {
 //public:
@@ -31,4 +25,9 @@
 
 //CWI_ENCODE_API int fncwi_encode(void);
 //CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
-int __declspec(dllexport) cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
+class __declspec(dllexport) cwi_encode
+{
+public:
+	int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
+};
+

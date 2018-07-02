@@ -51,8 +51,6 @@ endif(CMAKELISTS_DEBUG)
 
 set(srcs
   "src/${SUBSYS_NAME}.cpp"
-  "src/dllmain.cpp"
-  "src/stdafx.cpp"
 )
 set(LIB_NAME pcl_${SUBSYS_NAME})
 set(incs
@@ -81,5 +79,5 @@ if(CMAKELISTS_DEBUG)
   message("${SUBSYS_NAME}-${PROJECT_NAME}_LIBRARIES: " ${${PROJECT_NAME}_LIBRARIES})
 endif(CMAKELISTS_DEBUG)
 
-add_library(${SUBSYS_NAME} ${srcs} ${incs} ${impl_incs})
+add_library(${SUBSYS_NAME} SHARED ${srcs} ${incs} ${impl_incs})
 target_link_libraries(${SUBSYS_NAME} ${${PROJECT_NAME}_LIBRARIES})
