@@ -88,7 +88,8 @@ template<typename PointT>
 class evaluate_comp_impl : evaluate_comp {
   // using boost::exception on errors
   public:
-    evaluate_comp_impl (int argc, char** argv) : evaluate_comp (argc, argv), debug_level_ (3) {};
+    //evaluate_comp_impl (int argc, char** argv) : evaluate_comp (argc, argv), debug_level_ (3) {};
+	  evaluate_comp_impl() {};
     bool evaluate_group(std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > >& group, stringstream& compression_settings, std::ofstream& intra_frame_quality_csv, std::ofstream& predictive_quality_csv);
 
     // options handling
@@ -836,19 +837,23 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 	try
 	{
 		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(pc);
+		//std::cout << "\n Converting void pointer \n";
 		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = * reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
+		//std::cout << "\n Void pointer converted \n";
 		//pointcloud = pc;
 		//initialize_options_description ();
 		//if ( ! get_options (argc_, argv_))
 		//{
 		//return false;
 		//}
+		/*
 		debug_level_ = vm_["debug_level"].template as<int>();
 		if (debug_level_ > 0)
 		{
 			std::cout << "debug_level=" << debug_level_ << "\n";
 			print_options(vm_);
 		}
+		*/
 		#ifdef WITH_VTK
 		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
 		#endif/*WITH_VTK*/
@@ -858,9 +863,11 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 		//return return_value;
 		//}
 		//Modified version for lib
+		//std::cout << " \n Going to initialize \n";
 		assign_option_values(param);
 		//Stays unchanged
 		complete_initialization();
+		//std::cout << "\n Initialisaztion complete \n";
 		//if (input_directories_.size() > 1)
 		//{
 		//cout << "Fusing multiple directories not implemented.\n";
@@ -877,6 +884,7 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 		std::ofstream predictive_quality_csv;
 		stringstream compression_settings;
 		compression_settings << "octree_bits=" << octree_bits_ << " color_bits=" << color_bits_ << " enh._bits=" << enh_bits_ << "_colortype=" << color_coding_type_ << " centroid=" << keep_centroid_;
+		//std::cout << " \n Compression settings assigned";
 		/*
 		if (intra_frame_quality_csv_ != "")
 		{
@@ -897,11 +905,13 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 		//if (bb_expand_factor_ > 0.0) bb = do_bounding_box_normalization(pointcloud);
 		QualityMetric achieved_quality;
 		stringstream ss;
+		//std::cout << "\n Starting to encode\n";
 		do_encoding(pointcloud, &ss, achieved_quality);
 		string s = ss.str();
 		std::stringstream coded_stream(s);//ss.str ());
 		//DebuG
 		comp_frame<<s;
+		//std::cout << " Encoding complete, compressed stream generated";
 		/*vector<std::string> filenames;
 		if (get_filenames_from_dir (*input_directories_.begin(), filenames) != 0) return false;
 		for (std::vector<std::string>::iterator itr = filenames.begin (); itr != filenames.end (); itr++)

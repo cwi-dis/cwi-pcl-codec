@@ -50,7 +50,8 @@
 
 class evaluate_comp {
 protected:
-  evaluate_comp (int argc, char** argv) : argc_(argc), argv_(argv), output_index_(-1) {}
+  //evaluate_comp (int argc, char** argv) : argc_(argc), argv_(argv), output_index_(-1) {}
+	evaluate_comp() {}
   private:
     // get_options_from_file
     // get_options_from_commandline

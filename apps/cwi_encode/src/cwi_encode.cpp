@@ -74,9 +74,10 @@ encoder_V2_->setMacroblockSize(macroblock_size_);
 //CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame)
 int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame)
 {
-	int argc = 0;
-	char *argv[] = { NULL };
-	evaluate_comp_impl<PointXYZRGB> evaluate(argc,argv);
+	//int argc = 0;
+	//char *argv[] = { NULL };
+	evaluate_comp_impl<PointXYZRGB> evaluate;
+	//std::cout << "Starting evaluator \n";
 	return evaluate.evaluator(param, pc, comp_frame) == true ? 0 : -1;
 }
 
@@ -84,6 +85,6 @@ int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& c
 {
 	int argc = 0;
 	char *argv[] = { NULL };
-	evaluate_comp_impl<PointXYZRGB> evaluate(argc, argv);
+	evaluate_comp_impl<PointXYZRGB> evaluate;
 	return evaluate.evaluate_dc(param, pc, comp_frame) == true ? 0 : -1;
 }
