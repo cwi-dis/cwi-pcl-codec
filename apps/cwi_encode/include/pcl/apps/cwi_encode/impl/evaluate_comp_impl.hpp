@@ -515,15 +515,20 @@ evaluate_comp_impl<PointT>::do_decoding (std::stringstream* coded_stream, boost:
   tt.tic ();
   if (algorithm_ == "V1")
   {
-    decoder_V1_->decodePointCloud (*coded_stream, pointcloud);
+	  //std::cout << "\n Starting decoding algo v1 \n";
+	  decoder_V1_->decodePointCloud (*coded_stream, pointcloud);
   }
   else
   {
     if (algorithm_ == "V2")
     {
-      decoder_V2_->decodePointCloud (*coded_stream, pointcloud);
+		//std::cout << "\n Strating decoding algo v2 \n";
+		//std::cout << "\nsize of coded_stream :\n" << sizeof(*coded_stream);
+		//std::cout << "\nsize of pointcloud :\n" << sizeof(pointcloud);
+		decoder_V2_->decodePointCloud (*coded_stream, pointcloud);
     }
   }
+  //std::cout << "\n Decoding complete\n";
   qualityMetric.decoding_time_ms = tt.toc ();
 }
 
@@ -972,19 +977,23 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 	try
 	{
 		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(pc);
-		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
+		boost::shared_ptr<pcl::PointCloud<PointT> > ptcld(new PointCloud<PointT>());
+		//boost::shared_ptr<pcl::PointCloud<PointT> > ptcld = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);	
+		ptcld->makeShared();
 		//pointcloud = pc;
 		//initialize_options_description ();
 		//if ( ! get_options (argc_, argv_))
 		//{
 		//return false;
 		//}
+		/*
 		debug_level_ = vm_["debug_level"].template as<int>();
 		if (debug_level_ > 0)
 		{
 			std::cout << "debug_level=" << debug_level_ << "\n";
 			print_options(vm_);
 		}
+		*/
 		#ifdef WITH_VTK
 		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
 		#endif/*WITH_VTK*/
@@ -997,6 +1006,7 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 		assign_option_values(param);
 		//Stays unchanged
 		complete_initialization();
+		//std::cout << "Initialization complete";
 		//if (input_directories_.size() > 1)
 		//{
 		//cout << "Fusing multiple directories not implemented.\n";
@@ -1013,6 +1023,7 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 		std::ofstream predictive_quality_csv;
 		stringstream compression_settings;
 		compression_settings << "octree_bits=" << octree_bits_ << " color_bits=" << color_bits_ << " enh._bits=" << enh_bits_ << "_colortype=" << color_coding_type_ << " centroid=" << keep_centroid_;
+		//std::cout << " Options assigned\n";
 		/*
 		if (intra_frame_quality_csv_ != "")
 		{
@@ -1032,11 +1043,17 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 		//pcl::io::BoundingBox bb; // bounding box of this working_group
 		//if (bb_expand_factor_ > 0.0) bb = do_bounding_box_normalization(pointcloud);
 		QualityMetric achieved_quality;
-		boost::shared_ptr<pcl::PointCloud<PointT> > pc(new pcl::PointCloud<PointT>());
+		//boost::shared_ptr<pcl::PointCloud<PointT> > pc(new pcl::PointCloud<PointT>());
 		//stringstream ss;
 		//stringstream *codedstream = &ss;
-		do_decoding(&comp_frame, pointcloud, achieved_quality);
 
+		//std::cout << "\nDecoding started\n";
+		//std::cout << " \n Size of compressed frame: " << sizeof(comp_frame) << "\n";
+		std::stringstream *ss = &comp_frame;;
+		//ss << comp_frame.rdbuf();
+		do_decoding(ss, ptcld, achieved_quality);
+		//std::cout << " Decoding done ";
+		//do_decoding(&coded_stream, output_pointcloud, achieved_quality);
 		//do_encoding(pointcloud, &ss, achieved_quality);
 		//string s = ss.str();
 		//std::stringstream coded_stream(s);//ss.str ());
