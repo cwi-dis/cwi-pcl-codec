@@ -226,10 +226,11 @@ namespace pcl{
       std::istream& compressed_tree_data_in_arg,
       PointCloudPtr &cloud_arg)
     {
-
+		//std::cout << "\n Entered cloud codec v2 \n";
+		//std::cout << "\n Size of compressed frame" << sizeof(compressed_tree_data_in_arg);
       // synchronize to frame header
-      syncToHeader(compressed_tree_data_in_arg);
-
+      //syncToHeader(compressed_tree_data_in_arg);
+	  //std::cout << "\n Header synced \n";
       // initialize octree
       switchBuffers ();
 
@@ -237,7 +238,7 @@ namespace pcl{
       deleteCurrentBuffer();
       deleteTree();
       setOutputCloud (cloud_arg);
-
+	  //std::cout << " \n Octree buffers switched \n";
       // color field analysis
       cloud_with_color_ = false;
       std::vector<pcl::PCLPointField> fields;
@@ -253,13 +254,13 @@ namespace pcl{
 
       // read header from input stream
       readFrameHeader (compressed_tree_data_in_arg);
-
+	  //std::cout << "\n Frame header read \n ";
       // set the right grid pattern to the JPEG coder
       jp_color_coder_ = ColorCodingJPEG<PointT>(75,color_coding_type_);
 
       // decode data vectors from stream
       entropyDecoding(compressed_tree_data_in_arg, compressed_tree_data_in_arg);
-
+	  //std::cout << "\n Entropy coding done \n";
       // initialize color and point encoding
       if(!color_coding_type_)
         color_coder_.initializeDecoding ();
@@ -272,7 +273,7 @@ namespace pcl{
       // initialize output cloud
       output_->points.clear ();
       output_->points.reserve (static_cast<std::size_t> (point_count_));
-
+	  //std::cout << "\n Starting to deserialize \n";
       if (i_frame_)
         // i-frame decoding - decode tree structure without referencing previous buffer
         deserializeTree (binary_tree_data_vector_, false);
@@ -284,7 +285,7 @@ namespace pcl{
       output_->height = 1;
       output_->width = static_cast<uint32_t> (cloud_arg->points.size ());
       output_->is_dense = false;
-
+	  //std::cout << "\n Pointcloud properties assigned \n";
       if (b_show_statistics_)
       {
         float bytes_per_XYZ = static_cast<float> (compressed_point_data_len_) / static_cast<float> (point_count_);
@@ -307,6 +308,7 @@ namespace pcl{
         PCL_INFO ("Total compression percentage: %f%%\n", (bytes_per_XYZ + bytes_per_color) / (sizeof (int) + 3.0f * sizeof (float)) * 100.0f);
         PCL_INFO ("Compression ratio: %f\n\n", static_cast<float> (sizeof (int) + 3.0f * sizeof (float)) / static_cast<float> (bytes_per_XYZ + bytes_per_color));
     }
+	  //std::cout << "\nDecoding done\n";
   }
 
     /**
@@ -1635,14 +1637,19 @@ namespace pcl{
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::syncToHeader (std::istream& compressed_tree_data_in_arg)
     {
       // sync to frame header
+		//std::cout << " \n Entered sync to frame header\n";
       unsigned int header_id_pos = 0;
+	  //std::cout << "\n Frame header identifier is :" << frame_header_identifier_;
       while (header_id_pos < strlen (frame_header_identifier_))
       {
         char readChar;
         compressed_tree_data_in_arg.read (static_cast<char*> (&readChar), sizeof (readChar));
         if (readChar != frame_header_identifier_[header_id_pos++])
           header_id_pos = (frame_header_identifier_[0]==readChar)?1:0;
+		//std::cout << "\n Header_id_pos is: " << header_id_pos;
+		//std::cout << "\n Read char is:" << readChar << "   Current frame header char is :" << frame_header_identifier_[header_id_pos];
       }
+	  //std::cout << " \n Left loop\n";
       //! read the original octree header
       OctreePointCloudCompression<PointT>::syncToHeader (compressed_tree_data_in_arg);
     };

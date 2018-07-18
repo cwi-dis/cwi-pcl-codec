@@ -841,34 +841,10 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 
 	try
 	{
-		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(pc);
-		//std::cout << "\n Converting void pointer \n";
 		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = * reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
-		//std::cout << "\n Void pointer converted \n";
-		//pointcloud = pc;
-		//initialize_options_description ();
-		//if ( ! get_options (argc_, argv_))
-		//{
-		//return false;
-		//}
-		/*
-		debug_level_ = vm_["debug_level"].template as<int>();
-		if (debug_level_ > 0)
-		{
-			std::cout << "debug_level=" << debug_level_ << "\n";
-			print_options(vm_);
-		}
-		*/
 		#ifdef WITH_VTK
 		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
-		#endif/*WITH_VTK*/
-		//if (vm_.count ("help"))
-		//{
-		//std::cout << desc_ << "\n";
-		//return return_value;
-		//}
-		//Modified version for lib
-		//std::cout << " \n Going to initialize \n";
+		#endif
 		assign_option_values(param);
 		//Stays unchanged
 		complete_initialization();
@@ -890,19 +866,6 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 		stringstream compression_settings;
 		compression_settings << "octree_bits=" << octree_bits_ << " color_bits=" << color_bits_ << " enh._bits=" << enh_bits_ << "_colortype=" << color_coding_type_ << " centroid=" << keep_centroid_;
 		//std::cout << " \n Compression settings assigned";
-		/*
-		if (intra_frame_quality_csv_ != "")
-		{
-		intra_frame_quality_csv.open(intra_frame_quality_csv_.c_str());
-		QualityMetric::print_csv_header(intra_frame_quality_csv);
-		}
-
-		if (predictive_quality_csv_ != "")
-		{
-		predictive_quality_csv.open(predictive_quality_csv_.c_str());
-		QualityMetric::print_csv_header(predictive_quality_csv);
-		}
-		*/
 		//Moved evaluate group up
 		//evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
 		//if (K_outlier_filter_ > 0) do_outlier_removal(pointcloud);
@@ -980,44 +943,13 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 		boost::shared_ptr<pcl::PointCloud<PointT> > ptcld(new PointCloud<PointT>());
 		//boost::shared_ptr<pcl::PointCloud<PointT> > ptcld = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);	
 		ptcld->makeShared();
-		//pointcloud = pc;
-		//initialize_options_description ();
-		//if ( ! get_options (argc_, argv_))
-		//{
-		//return false;
-		//}
-		/*
-		debug_level_ = vm_["debug_level"].template as<int>();
-		if (debug_level_ > 0)
-		{
-			std::cout << "debug_level=" << debug_level_ << "\n";
-			print_options(vm_);
-		}
-		*/
 		#ifdef WITH_VTK
 		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
-		#endif/*WITH_VTK*/
-		//if (vm_.count ("help"))
-		//{
-		//std::cout << desc_ << "\n";
-		//return return_value;
-		//}
+		#endif
 		//Modified version for lib
 		assign_option_values(param);
 		//Stays unchanged
 		complete_initialization();
-		//std::cout << "Initialization complete";
-		//if (input_directories_.size() > 1)
-		//{
-		//cout << "Fusing multiple directories not implemented.\n";
-		//return (false);
-		//}
-		//if (input_directories_.size() < 1)
-		//{
-		//cout << "Need to specify a directory containing Point Cloud files (.pcd or .ply).\n";
-		//return (false);
-		//}
-		//std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > point_clouds, group, encoder_output_clouds;
 		int count = 0;
 		std::ofstream intra_frame_quality_csv;
 		std::ofstream predictive_quality_csv;
