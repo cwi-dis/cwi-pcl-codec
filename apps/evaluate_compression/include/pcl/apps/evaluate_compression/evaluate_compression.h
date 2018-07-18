@@ -47,10 +47,12 @@
 #define EVALUATE_COMPRESSION_H
 #include <vector>
 #include <string>
+#include <pcl/point_types.h>
+#include <quality_metric.h>
 
 class evaluate_compression {
-protected:
-  evaluate_compression (int argc, char** argv) : argc_(argc), argv_(argv), output_index_(-1) {}
+  protected:
+    evaluate_compression (int argc, char** argv) : argc_(argc), argv_(argv), output_index_(-1) {}
   private:
     // get_options_from_file
     // get_options_from_commandline
@@ -58,12 +60,12 @@ protected:
     // load_pcl_file_in_diroctory
     // initialize
     // remove_outliers
-    // normalize_bouding_box
+    // fit in common bouding_box
     // encode
     // encode_group
     // decode
     // decode_group
-    // get_codec_quality
+    // get_codec_qualityƒ
     // visualize
     //
     // int evaluate(const int argc, const char* argv[]);
@@ -91,7 +93,7 @@ protected:
 //... outlier removal
     int K_outlier_filter_;
     double radius_;
-//... boundingbox expansion and normalisation
+//... boundingbox expansion and fit
     double bb_expand_factor_;
 //... compression codec settings
     double point_resolution_;
@@ -105,7 +107,7 @@ protected:
     int macroblock_size_;
     bool do_icp_color_offset_;
     bool do_delta_coding_;
-    int quality_computation_;
+    QualityMethod quality_method_;
     bool do_icp_on_original_;
     bool create_scalable_;
     int jpeg_quality_;

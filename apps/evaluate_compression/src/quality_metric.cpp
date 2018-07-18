@@ -34,9 +34,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <quality_metrics.h>
-#include <quality_metrics_impl.hpp>
+#include <quality_metric.h>
+#include <quality_metric_impl.hpp>
 template PCL_EXPORTS void
-computeQualityMetric<pcl::PointXYZRGB>(pcl::PointCloud<pcl::PointXYZRGB>&, pcl::PointCloud<pcl::PointXYZRGB>&, QualityMetric&);
+computeQualityMetric(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> >, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> >, QualityMetric&, boost::shared_ptr<PointCloud<pcl::PointXYZRGB> > );
 template PCL_EXPORTS void
-computeQualityMetric<pcl::PointXYZRGBA>(pcl::PointCloud<pcl::PointXYZRGBA>&, pcl::PointCloud<pcl::PointXYZRGBA>&, QualityMetric&);
+computeQualityMetric(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBA> >, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBA> >, QualityMetric&, boost::shared_ptr<PointCloud<pcl::PointXYZRGBA> >);
+template PCL_EXPORTS void
+fitPointCloudInBox(boost::shared_ptr<PointCloud<pcl::PointXYZRGB> > pc, Eigen::Matrix4f* rtm, pcl::PointXYZRGB* min_box, pcl::PointXYZRGB* max_box, bool Procrustes);
+template PCL_EXPORTS void
+fitPointCloudInBox(boost::shared_ptr<PointCloud<pcl::PointXYZRGBA> > pc, Eigen::Matrix4f* rtm, pcl::PointXYZRGBA* min_box, pcl::PointXYZRGBA* max_box, bool Procrustes);
+

@@ -51,7 +51,7 @@ endif(CMAKELISTS_DEBUG)
 
 set(srcs
   "src/${SUBSYS_NAME}.cpp"
-  "src/quality_metrics.cpp"
+  "src/quality_metric.cpp"
 )
 set(LIB_NAME pcl_${SUBSYS_NAME})
 set(incs
@@ -59,7 +59,7 @@ set(incs
 )
 set(impl_incs
    "include/pcl/apps/${SUBSYS_NAME}/impl/${SUBSYS_NAME}_impl.hpp"
-   "include/pcl/apps/${SUBSYS_NAME}/impl/quality_metrics_impl.hpp"
+   "include/pcl/apps/${SUBSYS_NAME}/impl/quality_metric_impl.hpp"
    )
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRS})
 
