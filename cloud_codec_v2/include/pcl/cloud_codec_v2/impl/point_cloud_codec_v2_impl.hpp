@@ -943,7 +943,7 @@ namespace pcl{
 				macro_block_count++;
 			}
 #if defined(_OPENMP)
-            if (debug_level_ > 0) std::cerr << " running in parallel on " << num_threads_ << std::endl;
+// XXX           if (debug_level_ > 0) std::cerr << " running in parallel on " << num_threads_ << std::endl;
 			omp_set_num_threads(num_threads_);
 #endif//defined(_OPENMP)
 #pragma omp parallel for shared(p_info_list,p_result_list,p_result_matrices)
@@ -1827,11 +1827,7 @@ namespace pcl{
         }
       }
     }
-    /** \brief
-      *  \param point_clouds: a vector of pointers to point_clouds to be inspected and modified
-      * to normalize their bouding boxes s.t. they effectivly can be used for interframe coding.
-      */
-    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> BoundingBox OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::normalize_pointclouds(vector<PointCloudPtr> &point_clouds, vector<BoundingBox, Eigen::aligned_allocator<BoundingBox> > &bounding_boxes, double bb_expand_factor, vector<float> dynamic_range, vector<float> offset, unsigned int debug_level)
+    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> BoundingBox OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::bb_fit_pointclouds (vector<PointCloudPtr> &point_clouds, vector<BoundingBox, Eigen::aligned_allocator<BoundingBox> > &bounding_boxes, double bb_expand_factor, vector<float> dynamic_range, vector<float> offset, unsigned int debug_level)
     {
       Eigen::Vector4f min_pt_bb(0,0,0,0);
       Eigen::Vector4f max_pt_bb;
@@ -1928,7 +1924,7 @@ namespace pcl{
       return bb;
     }
       
-    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::restore_scaling (PointCloudPtr &point_cloud, const BoundingBox& bb)
+    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::restore_bb_fit (PointCloudPtr &point_cloud, const BoundingBox& bb)
     {
       Eigen::Vector4f  dyn_range = bb.max_xyz - bb.min_xyz;
       dyn_range[3] = 1; // avoid uninitialized variables

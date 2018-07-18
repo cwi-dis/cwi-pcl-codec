@@ -216,15 +216,20 @@ namespace pcl{
       static void
       remove_outliers (vector<PointCloudPtr> &point_clouds, int num_points, double radius, unsigned int debug_level=0);
       /** \brief
-       *  \param point_clouds: an vector of suitably aligned pointers to point_clouds to be inspected and modified
-       * to normalize their bouding boxes s.t. they effectivly can be used for interframe coding.
+       *  \param point_clouds: vector of point_clouds to be inspected and modified s.t. their bouding boxes
+       *  they fit inside a common bouding box ("Procrustus transformation")
        * \\returns the common bounding box for \\ref point clouds
        */
       static BoundingBox
-      normalize_pointclouds (vector<PointCloudPtr> &point_clouds, vector<BoundingBox, Eigen::aligned_allocator<BoundingBox> > &bouding_boxes, double bb_expand_factor, vector<float> dyn_range, vector<float> offset, unsigned int debug_level=0);
-        
+      bb_fit_pointclouds (vector<PointCloudPtr> &point_clouds, vector<BoundingBox, Eigen::aligned_allocator<BoundingBox> > &bouding_boxes, double bb_expand_factor, vector<float> dyn_range, vector<float> offset, unsigned int debug_level=0);
+       
+      /** \brief
+       *  \param point_clouds: vector of point_clouds previously modified by \\tt bb_fit_pointclouds
+       *  to fit inside \tt BoundingBox \param bb
+       * \\returns the common bounding box for \\ref point clouds
+       */
       static void
-      restore_scaling (PointCloudPtr &point_clouds, const BoundingBox& bb);
+      restore_bb_fit (PointCloudPtr &point_clouds, const BoundingBox& bb);
       
       //! function for coding an enhancement layer
       // virtual void
