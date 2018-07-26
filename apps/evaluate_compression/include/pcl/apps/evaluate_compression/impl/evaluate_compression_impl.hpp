@@ -312,7 +312,6 @@ evaluate_compression_impl<PointT>::assign_option_values ()
   K_outlier_filter_ = vm_["K_outlier_filter"].template as<int> ();
   radius_ = vm_["radius"].template as<double> ();
   bb_expand_factor_ = vm_["bb_expand_factor"].template as<double> ();
-  algorithm_ = vm_["algorithm"].template as<std::string> ();
   show_statistics_ = vm_["show_statistics"].template as<bool> ();
   enh_bits_ = vm_["enh_bits"].template as<int> ();
   octree_bits_ = vm_["octree_bits"].template as<int> ();
@@ -874,17 +873,16 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
 //    compute the quality of the resulting predictive frame
       if (do_quality_computation_)
       {
-        do_quality_computation (working_group[i+1], output_pointcloud, predictive_quality);
+        do_quality_computation (working_group[i+1], predicted_pc, predictive_quality);
         if (predictive_quality_csv_ != "")
         {
           predictive_quality.print_csv_line(compression_settings.str(), predictive_quality_csv);
         }
       }
-      // restore the bounding box transformation on the xyz data
       pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (predicted_pc, bb);
       if (output_directory_ != "")
       {
-        do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (output_index_) + ".ply", predicted_pc, achieved_quality);
+        do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (output_index_) + ".ply", predicted_pc, predictive_quality);
       }
       do_visualization ("Delta Decoded", predicted_pc);
     }
