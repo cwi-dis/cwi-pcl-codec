@@ -753,12 +753,12 @@ evaluate_compression_impl<PointT>::evaluate ()
     for (std::vector<std::string>::iterator itr = filenames.begin (); itr != filenames.end (); itr++)
     {
       std::string filename = *itr;
-      if (output_index_ == -1) { // get index of first file
-        std::stringstream ss(filename);
-        string tmp;
-        ss >> tmp >> output_index_;
+      if (output_index_ == -1) { // get index of first file, 
+        boost::filesystem::path p(filename);
+        std::stringstream ss(p.stem().native());
+        ss >> output_index_;
         if (output_index_ == -1) // no index found
-        output_index_ = 0;
+          output_index_ = 0;
       }
       boost::shared_ptr<pcl::PointCloud<PointT> > pc (new PointCloud<PointT> ());
       if ( ! load_input_cloud(filename, pc))
@@ -845,13 +845,13 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
     if (bb_expand_factor_ > 0.0) pcl::io::OctreePointCloudCodecV2 <PointT>::restore_scaling (rescaled_pc, bb);
     if (output_directory_ != "")
     {
-      do_output ( "pointcloud_" + boost::lexical_cast<string> (++output_index_) + ".ply", rescaled_pc, achieved_quality);
+      do_output ( "pointcloud_" + boost::lexical_cast<string> (output_index_++) + ".ply", rescaled_pc, achieved_quality);
     }
     do_visualization ("Original", opc);
     do_visualization ("Decoded", rescaled_pc);
     // test and evaluation iterative closest point predictive coding
     if (algorithm_ == "V2" && do_delta_coding_ && bb_expand_factor_ >= 0  // bounding boxes were aligned
-        && i > 0 && i+1 < group_size)
+        && i+1 < group_size)
     {
       boost::shared_ptr<pcl::PointCloud<PointT> > predicted_pc (new pcl::PointCloud<PointT> ());
       cout << " delta coding frame nr " << i+1 << endl;
