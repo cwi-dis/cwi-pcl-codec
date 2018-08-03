@@ -51,9 +51,8 @@
 // c++ standard library
 #include <fstream>
 #include <vector>
-#include <ctime>        // strftime
+#include <ctime> // for 'strftime'
 #include <exception>
-#include <algorithm>    // std::max
 
 // boost library
 #include <boost/filesystem.hpp>
@@ -63,7 +62,6 @@ namespace po = boost::program_options;
 
 // point cloud library
 #include <pcl/point_cloud.h>
-#include <pcl/common/transforms.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/compression/octree_pointcloud_compression.h>
@@ -120,13 +118,47 @@ class evaluate_compression_impl : evaluate_compression
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //// Helper functions
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * function to scale x,y,z values point cloud to lie in (0,1)
+     * @param cloud (input) original cloud
+     * @param cloud (output) scaled cloud
+     * @param transmat (output) transformation matrix used for the scaling
+     * \note PointT typename of point used in point cloud
+     * \author Kees Blom (Kees.Blom@cwi.nl) June 19, 2018.
+     *
+     * TBD Implement min,max
+     */
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    template<typename PointT>
+    void
+    scalePointCloud(boost::shared_ptr<pcl::PointCloud<PointT> > pc, boost::shared_ptr<pcl::PointCloud<PointT> > &scaled_pc, Eigen::Matrix3f &m, float min=0.0, float max=1.0)
+    {
+//XXX        print_info(stderr, "scaling PointCloud (%ld points\n", pc->size());
+        PointT p_max;
+        PointT p_min;
+        PointT delta;
+        const pcl::PointCloud<PointT> cpc(*pc);
+        
+        // calculate peak geometric signal value
+        pcl::getMinMax3D<PointT>(cpc,p_min,p_max);
+        // diagonal vector
+        delta.x = (p_max.x-p_min.x) * max;
+        delta.y = (p_max.y-p_min.y) * max;
+        delta.z = (p_max.z-p_min.z) * max;
+        scaled_pc = pc->makeShared();
+        for (int i = 0; i < pc->size(); i++) {
+            scaled_pc->at(i).x = (pc->at(i).x - p_min.x) / delta.x + min;
+            scaled_pc->at(i).y = (pc->at(i).y - p_min.y) / delta.y + min;
+            scaled_pc->at(i).z = (pc->at(i).z - p_min.z) / delta.z + min;
+        }
+    }
     void do_outlier_removal (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > & pointcloud_group);
     pcl::io::BoundingBox do_bounding_box_normalization (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > & pointcloud_group);
     void do_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > point_cloud, stringstream* coded_stream, QualityMetric & achieved_quality);
     void do_decoding (stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & achieved_quality);
     void do_delta_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> >  p_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > out_cloud, stringstream* i_stream, stringstream* p_stream, QualityMetric & quality_metric);
     void do_delta_decoding (stringstream* i_stream, stringstream* p_stream, boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> >  out_cloud, QualityMetric & qualityMetric);
-    void do_quality_computation (boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, boost::shared_ptr<pcl::PointCloud<PointT> > reference_pointcloud, QualityMetric & quality_metric, boost::shared_ptr<pcl::PointCloud<PointT> >);
+    void do_quality_computation (boost::shared_ptr<pcl::PointCloud<PointT> > & pointcloud, boost::shared_ptr<pcl::PointCloud<PointT> > &reference_pointcloud, QualityMetric* quality_metric);
     void do_output (std::string path, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & qualityMetric);
     // V1 (common) settings
     boost::shared_ptr<pcl::io::OctreePointCloudCompression<PointT> > encoder_V1_;
@@ -134,12 +166,13 @@ class evaluate_compression_impl : evaluate_compression
     // V2 specific
     boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > encoder_V2_;
     boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > decoder_V2_;
-    
+  
     bool evaluate (); // TBD need catch exceptions
     bool evaluate2 ();
     void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> >& pointcloud);
     int debug_level_;
 };
+
 
 template<typename PointT>
 void
@@ -170,7 +203,7 @@ evaluate_compression_impl<PointT>::initialize_options_description ()
   ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
   ("icp_on_original", po::value<bool> ()->default_value (false),"icp_on_original ") // iterative closest point
   ("jpeg_quality,j", po::value<int> ()->default_value (0), "jpeg quality parameter ")
-  ("quality_method,q", po::value<int> ()->default_value ((int)SKIP),"compute objective quality (0=<skip>, 1=MPEG spec., 2=MPEG impl., >64 peak level) using point-to-point(D1)/plane(D2) metric" )
+  ("quality_method,q", po::value<int> ()->default_value (0),"compute objective quality (0=<skip>, 1=MPEG spec., 2=MPEG impl., >64 peak level) using point-to-point(D1)/plane(D2) metric" )
   ("do_icp_color_offset",po::value<bool> ()->default_value (false), "do color offset coding on predictive frames")
   ("num_threads,n",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
   ("intra_frame_quality_csv", po::value<string>()->default_value("intra_frame_quality.csv")," intra frame coding quality results file name (.csv file)")
@@ -324,7 +357,6 @@ evaluate_compression_impl<PointT>::assign_option_values ()
   K_outlier_filter_ = vm_["K_outlier_filter"].template as<int> ();
   radius_ = vm_["radius"].template as<double> ();
   bb_expand_factor_ = vm_["bb_expand_factor"].template as<double> ();
-  algorithm_ = vm_["algorithm"].template as<std::string> ();
   show_statistics_ = vm_["show_statistics"].template as<bool> ();
   enh_bits_ = vm_["enh_bits"].template as<int> ();
   octree_bits_ = vm_["octree_bits"].template as<int> ();
@@ -341,7 +373,7 @@ evaluate_compression_impl<PointT>::assign_option_values ()
     keep_centroid_ = vm_["keep_centroid"].template as<int> ();
     create_scalable_ = vm_["create_scalable"].template as<bool> ();
     jpeg_quality_ = vm_["jpeg_quality"].template as<int> ();
-    quality_method_ = static_cast<QualityMethod> (vm_["quality_method"].template as<int> () );
+    quality_method_ = static_cast<QualityMethod> (vm_["quality_method"].template as<int> ());
     icp_on_original_ = vm_["icp_on_original"].template as<bool> ();
     do_icp_color_offset_ = vm_["do_icp_color_offset"].template as<bool> ();
     num_threads_ = vm_["num_threads"].template as<int> ();
@@ -546,14 +578,13 @@ evaluate_compression_impl<PointT>::do_delta_decoding (std::stringstream* i_strea
     
 template<typename PointT>
 void
-evaluate_compression_impl<PointT>::do_quality_computation (boost::shared_ptr<pcl::PointCloud<PointT> > reference_pointcloud,
-                                                           boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud,
-                                                           QualityMetric & quality_metric,
-                                                           boost::shared_ptr<pcl::PointCloud<PointT> >  result //JNK
+evaluate_compression_impl<PointT>::do_quality_computation (boost::shared_ptr<pcl::PointCloud<PointT> > & reference_pointcloud,
+                                                           boost::shared_ptr<pcl::PointCloud<PointT> > & pointcloud,
+                                                           QualityMetric* quality_metric
                                                            )
 {
   // compute quality metric
-  computeQualityMetric<PointT> (reference_pointcloud, pointcloud, quality_metric, result);
+  computeQualityMetric<PointT> (reference_pointcloud, pointcloud, quality_metric);
 }
     
 template<typename PointT>
@@ -786,19 +817,22 @@ evaluate_compression_impl<PointT>::evaluate ()
     {
       std::string filename = *itr;
       if (output_index_ == -1) // get index of first file
-      {
-        std::stringstream ss(filename);
-        string tmp;
-        ss >> tmp >> output_index_;
+      { // when 'filename' has the form 'nnn'.ply, obtain 'output_index_' from 'filename'
+        boost::filesystem::path p(filename);
+        std::stringstream ss(p.stem().native());
+        ss >> output_index_;
         if (output_index_ == -1) // no index found
-        output_index_ = 0;
+          output_index_ = 0;
       }
       boost::shared_ptr<pcl::PointCloud<PointT> > pc (new PointCloud<PointT> ());
       if ( ! load_input_cloud(filename, pc))
       {
         continue;
       }
-      group.push_back(pc->makeShared());
+      boost::shared_ptr<PointCloud<PointT> > npc;
+      Eigen::Matrix3f nm;
+      npc = pc; //      scalePointCloud(pc, npc, nm, 0.0, 1.0);
+      group.push_back(npc);
       count++;
       if (group_size_ == 0 && count < filenames.size ())
       {
@@ -851,13 +885,12 @@ evaluate_compression_impl<PointT>::evaluate_group
   vector<float> icp_convergence_percentage (current_group_size);
   vector<float> shared_macroblock_percentages (current_group_size);
 
-#pragma omp parallel for
   for (int i = 0; i < current_group.size (); i++)
   {
     boost::shared_ptr<pcl::PointCloud<PointT> > pc = current_group[i];
     boost::shared_ptr<pcl::PointCloud<PointT> > original_pc = group[i]->makeShared ();
     stringstream ss;
-    QualityMetric achieved_quality(quality_method_);
+    QualityMetric achieved_quality;
     long long int i_strm_pos_cur = 0, i_strm_pos_prev = 0; // current and previous position in i-code stream
     long long int p_strm_pos_cur = 0, p_strm_pos_prev = 0; // current and previous position in p-code stream
               
@@ -873,18 +906,30 @@ evaluate_compression_impl<PointT>::evaluate_group
     boost::shared_ptr<pcl::PointCloud<PointT> > rescaled_pc = output_pointcloud->makeShared ();
     if (bb_expand_factor_ > 0.0) pcl::io::OctreePointCloudCodecV2 <PointT>::restore_bb_fit (rescaled_pc, bb);
     boost::shared_ptr<pcl::PointCloud<PointT> > tpc(new pcl::PointCloud<PointT>); // tmp
-    if (quality_method_ != SKIP)
-    { // Note that the quality_computation now works on the original (not bb-aligned) pc
-      do_quality_computation (group[i], rescaled_pc, achieved_quality, tpc);
-      if (intra_frame_quality_csv_ != "") achieved_quality.print_csv_line_(compression_settings.str(), intra_frame_quality_csv);
+    if (quality_method_)
+    {// Note that the quality_computation here works on the bb-aligned pc
+      if (quality_method_ &  BBALIGNED)
+      {
+        do_quality_computation (current_group[i], output_pointcloud, &achieved_quality);
+        tpc = output_pointcloud;
+      }
+      else
+      {// Note that the quality_computation now works on the original (not bb-aligned) pc
+        do_quality_computation (group[i], rescaled_pc, &achieved_quality);
+        tpc = rescaled_pc;
+      }
     }
-/* XX tmp code for testing
+    if (intra_frame_quality_csv_ != "")
+      achieved_quality.print_csv_line_(compression_settings.str(), intra_frame_quality_csv);
+// tmp code for testing
     static int nr=0; //XX
     std::string name; name = "pc_normals_" + boost::lexical_cast<string> (++nr) + ".ply"; //XX
     do_output(name, tpc, achieved_quality); //XX
- XX */
 
-    if (output_directory_ != "") do_output ( "pointcloud_" + boost::lexical_cast<string> (++output_index_) + ".ply", rescaled_pc,achieved_quality);
+    if (output_directory_ != "")
+    {
+      do_output ( "pointcloud_" + boost::lexical_cast<string> (output_index_++) + ".ply", rescaled_pc,achieved_quality);
+    }
     do_visualization ("Original", opc);
     do_visualization ("Decoded", rescaled_pc);
     // test and evaluation iterative closest point predictive coding
@@ -893,7 +938,7 @@ evaluate_compression_impl<PointT>::evaluate_group
       boost::shared_ptr<pcl::PointCloud<PointT> > predicted_pc (new pcl::PointCloud<PointT> ());
       cerr << " delta coding frame nr " << i+1 << endl;
       stringstream p_frame_pdat, p_frame_idat;
-      QualityMetric predictive_quality(quality_method_);
+      QualityMetric predictive_quality;
                   
       do_delta_encoding (icp_on_original_ ? pc : output_pointcloud, current_group[i+1], predicted_pc, &p_frame_idat, &p_frame_pdat, predictive_quality);
       // quality
@@ -910,13 +955,20 @@ evaluate_compression_impl<PointT>::evaluate_group
       pcl::io::OctreePointCloudCodecV2 <PointT>::restore_bb_fit (predicted_pc, bb);
       if (output_directory_ != "")
       {
-        do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (i) + ".ply", predicted_pc, achieved_quality);
+        do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (i) + ".ply", predicted_pc, predictive_quality);
       }
       do_visualization ("Delta Decoded", predicted_pc);
       if (quality_method_)
       {
         //    compute the quality of the resulting predictive frame
-        do_quality_computation (group[i+1], predicted_pc, predictive_quality, tpc);
+        if (quality_method_ &  BBALIGNED)
+        {
+          do_quality_computation (current_group[i+1], predicted_pc, &predictive_quality);
+        }
+        else
+        {
+          do_quality_computation (group[i+1], predicted_pc, &predictive_quality);
+        }
         if (predictive_quality_csv_ != "")
         {
           predictive_quality.print_csv_line_(compression_settings.str(), predictive_quality_csv);

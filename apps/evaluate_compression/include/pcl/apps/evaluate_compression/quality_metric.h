@@ -48,13 +48,14 @@
 	 * enum to distinguish various methods of Geometric Peak Signal to Noise Ratio
 	 * Since there is currently no clear agreement how to define geometric PSNR of degenerated
 	 * Point Clouds (PCs) we define some variants, all based on the point-to-point approach:
-	 * SKIP		  - skip
+	 * NONE	      - no quality computation
+     * SELECT     - select quality computation with optional options
 	 * ORIGINAL	  - Vorig-maxgeo in https://github.com/RufaelDev/pcc-mp3dg/tree/tcsvt_version
      * TCSVT      - Vdegr-maxgeo in R.Mekuria e.a. IEEE TCSVT 277(4): pp. 828-842, 2017
 	 * MAX_NN	  - same, but geom. peak value is maximal Nearest Neighbor distance
      * NORMALISED - PC x,y,z values re-scaled to [0,1), geom. peak value approaches sqrt(3)
 	*/
-	enum QualityMethod { SKIP=0, ORIGINAL, TCSVT, MAX_NN, NORMALISED=8 };
+	enum QualityMethod { NONE=0, SELECT, BBALIGNED, RESCALED=4, NORMALISED=8, MAX_BB=16, MAX_NN=32, BT709=64 };
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/*!
@@ -63,8 +64,8 @@
 	* \author Rufael Mekuria (rufael.mekuria@cwi.nl)
 	*/
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  struct QualityMetric{
-	
+  class QualityMetric{
+  public:
     QualityMethod quality_method_;
 	std::size_t compressed_size_;    //! store the compressed byte size
 
@@ -86,7 +87,7 @@
     double encoding_time_ms_;
     double decoding_time_ms_;
       
-      QualityMetric (QualityMethod method=SKIP) :
+      QualityMetric (QualityMethod method=NONE) :
         quality_method_(method)
       {}
 
@@ -101,8 +102,9 @@
    * (for colors we only compare the original to the lossy cloud)
    * quality_computation > 64 denotes the geom. peak value
    */
-template<typename PointT> PCL_EXPORTS void
-computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_b, QualityMetric & qual_metric, boost::shared_ptr<pcl::PointCloud<PointT> > result);
+template<typename PointT> PCL_EXPORTS
+void
+computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_b, QualityMetric* qual_metric);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*!
@@ -116,7 +118,8 @@ computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost
  * \author Kees Blom (Kees.Blom@cwi.nl) June 19, 2018.
  */
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<typename PointT> PCL_EXPORTS void
+template<typename PointT> PCL_EXPORTS
+void
 fitPointCloudInBox(boost::shared_ptr<pcl::PointCloud<PointT> > pc, Eigen::Matrix4f* rtm, PointT* min_box, PointT* max_box,
                    bool Procrustes=false);
 
