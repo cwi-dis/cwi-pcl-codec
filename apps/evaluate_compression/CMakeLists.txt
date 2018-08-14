@@ -56,6 +56,8 @@ set(srcs
 set(LIB_NAME pcl_${SUBSYS_NAME})
 set(incs
    "include/pcl/apps/${SUBSYS_NAME}/${SUBSYS_NAME}.h"
+   "include/pcl/apps/${SUBSYS_NAME}/quality_metric.h"
+
 )
 set(impl_incs
    "include/pcl/apps/${SUBSYS_NAME}/impl/${SUBSYS_NAME}_impl.hpp"

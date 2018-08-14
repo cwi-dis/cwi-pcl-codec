@@ -50,12 +50,20 @@
 	 * Point Clouds (PCs) we define some variants, all based on the point-to-point approach:
 	 * NONE	      - no quality computation
      * SELECT     - select quality computation with optional options
-	 * ORIGINAL	  - Vorig-maxgeo in https://github.com/RufaelDev/pcc-mp3dg/tree/tcsvt_version
+	 * ORIGINAL	  - Vorig-maxgeo     in https://github.com/RufaelDev/pcc-mp3dg/tree/tcsvt_version
      * TCSVT      - Vdegr-maxgeo in R.Mekuria e.a. IEEE TCSVT 277(4): pp. 828-842, 2017
 	 * MAX_NN	  - same, but geom. peak value is maximal Nearest Neighbor distance
      * NORMALISED - PC x,y,z values re-scaled to [0,1), geom. peak value approaches sqrt(3)
 	*/
-	enum QualityMethod { NONE=0, SELECT, BBALIGNED, RESCALED=4, NORMALISED=8, MAX_BB=16, MAX_NN=32, BT709=64 };
+	enum QualityMethod { NONE=0,        //! no quality computation
+                         SELECT,        //! select quality computation with optional options
+                         BBALIGNED,     //! compare bounding-box aligned pointclouds (i.o. original/final)
+                         RESCALED=4,    //!
+                         NORMALISED=8,  //! PC x,y,z values re-scaled to [0,1), geom. peak value approaches sqrt(3)
+                         TCSVT=16,      //! Vdegr-maxgeo as in R.Mekuria e.a. IEEE TCSVT 277(4): pp. 828-842, 2017
+                         MAX_NN=32,     //! same, but geom. peak value is maximal Nearest Neighbor distance
+                         BT709=64       //! select BT709 i.o. BT.601
+        };
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/*!
@@ -87,9 +95,16 @@
     double encoding_time_ms_;
     double decoding_time_ms_;
       
-      QualityMetric (QualityMethod method=NONE) :
-        quality_method_(method)
-      {}
+    QualityMetric (QualityMethod method=NONE) : quality_method_(method) {}
+
+    template<typename PointT> void convertRGBtoYUV(const PointT &in_rgb, float * out_yuv);
+      
+    /*! \brief compute the quality metric, we assume the cloud_a is the original
+     * and cloud_b the degenerated cloud
+     */
+    template<typename PointT>
+    PCL_EXPORTS void
+    computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_b);
 
 	// print the header of a .csv file
 	static PCL_EXPORTS void print_csv_header_ (std::ostream &csv_ostream);
@@ -98,13 +113,6 @@
 	PCL_EXPORTS void print_csv_line_ (const std::string &compression_setting_arg, std::ostream &csv_ostream);
   };
 
-  /*! \brief compute the quality metric, we assume the cloud_a is the original
-   * (for colors we only compare the original to the lossy cloud)
-   * quality_computation > 64 denotes the geom. peak value
-   */
-template<typename PointT> PCL_EXPORTS
-void
-computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_b, QualityMetric* qual_metric);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*!
