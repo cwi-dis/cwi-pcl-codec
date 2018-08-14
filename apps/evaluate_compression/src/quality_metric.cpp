@@ -38,7 +38,7 @@
 #include <quality_metric_impl.hpp>
 
 template PCL_EXPORTS void
-computeQualityMetric(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> >, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> >, QualityMetric*);
+QualityMetric::computeQualityMetric(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> >, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> >);
 //template PCL_EXPORTS void
 //computeQualityMetric(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBA> >, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBA> >, QualityMetric*);
 template PCL_EXPORTS void

@@ -58,26 +58,46 @@ using namespace pcl::console;
 using namespace pcl::search;
 
 /**
-\brief helper function to convert RGB to YUV
+\brief helper function to convert RGB to YUV using ITU-R rec.601 (analog TV)
 */
-
 template<typename PointT> void
-convertRGBtoYUV(const PointT &in_rgb, float * out_yuv)
+convertRGBtoYUV_BT601(const PointT &in_rgb, float * out_yuv)
 {
   // color space conversion to YUV on a 0-1 scale
-  out_yuv[0] = (0.299 * in_rgb.r + 0.587 * in_rgb.g + 0.114 * in_rgb.b)/255.0;
-  out_yuv[1] = (-0.147 * in_rgb.r - 0.289 * in_rgb.g + 0.436 * in_rgb.b)/255.0;
-  out_yuv[2] = (0.615 * in_rgb.r - 0.515 * in_rgb.g - 0.100 * in_rgb.b)/255.0;
+  out_yuv[0] = float( ( 0.299 * in_rgb.r + 0.587 * in_rgb.g + 0.114 * in_rgb.b)/255.0 );
+  out_yuv[1] = float( (-0.147 * in_rgb.r - 0.289 * in_rgb.g + 0.436 * in_rgb.b)/255.0 );
+  out_yuv[2] = float( ( 0.615 * in_rgb.r - 0.515 * in_rgb.g - 0.100 * in_rgb.b)/255.0 );
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/**
+ \brief helper function to convert RGB to YUV using ITU-R rec.709 (HDTV)
+ */
+template<typename PointT> void
+convertRGBtoYUV_BT709(const PointT &in_rgb, float *out_yuv)
+{
+    // color space conversion to YUV
+    out_yuv[0] = float( ( 0.2126 * in_rgb.r + 0.7152 * in_rgb.g + 0.0722 * in_rgb.b) / 255.0 );
+    out_yuv[1] = float( (-0.1146 * in_rgb.r - 0.3854 * in_rgb.g + 0.5000 * in_rgb.b) / 255.0 + 0.5000 );
+    out_yuv[2] = float( ( 0.5000 * in_rgb.r - 0.4542 * in_rgb.g - 0.0458 * in_rgb.b) / 255.0 + 0.5000 );
+}
+/**
+ \brief helper function to convert RGB to YUV using one of implemented conversion schemes
+ */
+template<typename PointT> void
+QualityMetric::convertRGBtoYUV(const PointT &in_rgb, float *out_yuv)
+{
+  if (quality_method_ & BT709)
+    convertRGBtoYUV_BT709(in_rgb, out_yuv);
+  else
+    convertRGBtoYUV_BT601(in_rgb, out_yuv);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
- * function to compute quality metric with bit settings
- * @param cloud_a original cloud
- * @param cloud_b decoded cloud
- * @param qual_metric return updated quality metric
+ * function to compute normals on a pointclouds
+ * @param pc the pointcloud
+ * @param normals the pc containing the resulting normals
+ * @param k number of points to to define normal plane
  * \note PointT typename of point used in point cloud
  * \author Kees Blom (Kees.Blom@cwi.nl) modified in accordance with mpeg-3dgc pc_error code
  */
@@ -144,7 +164,7 @@ fitPointCloudInBox(boost::shared_ptr<PointCloud<PointT> >  pc, Eigen::Matrix4f* 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename PointT>
 void
-computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > cloud_a, boost::shared_ptr<PointCloud<PointT> > cloud_b, QualityMetric* qual_metric)
+QualityMetric::computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > cloud_a, boost::shared_ptr<PointCloud<PointT> > cloud_b)
 {
   print_highlight (stderr, "Computing Quality Metrics for Point Clouds !!\n");
 
@@ -191,11 +211,13 @@ computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > cloud_a, boost::sha
     std::vector<float> sqr_distances_self (2);
     std::vector<int> indices (1);
     std::vector<float> sqr_distances (1);
-    // search the most nearby point in the cloud_a_self, other than cloud_a->points[i]
-    tree_a_self.nearestKSearch (cloud_a->points[i], 2, indices_self, sqr_distances_self);
-    if (sqr_distances_self[1] > max_dist_a_self)
-      max_dist_a_self = sqr_distances_self[1];
-
+    if (quality_method_ & MAX_NN)
+    {
+      // search the most nearby point in the cloud_a_self, other than cloud_a->points[i]
+      tree_a_self.nearestKSearch (cloud_a->points[i], 2, indices_self, sqr_distances_self);
+      if (sqr_distances_self[1] > max_dist_a_self)
+        max_dist_a_self = sqr_distances_self[1];
+    }
     // search the most nearby point in the cloud_b
     tree_b.nearestKSearch (cloud_a->points[i], 1, indices, sqr_distances);
     
@@ -214,7 +236,7 @@ computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > cloud_a, boost::sha
 	float out_yuv[3];
 	float in_yuv[3];
 
-	convertRGBtoYUV<PointT>(cloud_a->points[i],in_yuv);
+    convertRGBtoYUV<PointT>(cloud_a->points[i],in_yuv);
 	convertRGBtoYUV<PointT>(cloud_b->points[indices[0]],out_yuv);
 		  
     mse_colors_yuv[0]+=((in_yuv[0] - out_yuv[0]) * (in_yuv[0] - out_yuv[0]));
@@ -279,8 +301,24 @@ computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > cloud_a, boost::sha
 		float l_max_geom_signal_energy = l_max_signal.x * l_max_signal.x
 			+ l_max_signal.y * l_max_signal.y + l_max_signal.z * l_max_signal.z ;
  */
-  float l_max_geom_signal_energy = max_dist_a_self*3;
-        
+  float l_max_geom_signal_energy = 0.0;
+  if (quality_method_ & MAX_NN)
+  {
+    l_max_geom_signal_energy = max_dist_a_self*3;
+  }
+  else if (quality_method_ & TCSVT)
+  {
+    PointT l_max_signal;
+    PointT l_min_signal;
+    const PointCloud<PointT> c_cloud_a(*cloud_a);
+      
+    // calculate peak geometric signal value
+    getMinMax3D<PointT>(c_cloud_a,l_min_signal,l_max_signal);
+      
+    // calculate max energy of point
+    l_max_geom_signal_energy = l_max_signal.x * l_max_signal.x
+      + l_max_signal.y * l_max_signal.y + l_max_signal.z * l_max_signal.z ;
+  }
   float peak_signal_to_noise_ratio = 10 * std::log10( l_max_geom_signal_energy / (dist_rms * dist_rms));
 
   // compute averages for color distortions
@@ -308,8 +346,8 @@ computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > cloud_a, boost::sha
   print_info ("A->B color psnr V: "); print_value ("%f dB ", (float) psnr_colors_yuv[2]);
   print_info (" ]\n");
 
-  qual_metric->in_point_count_ = cloud_a->points.size ();
-  qual_metric->out_point_count_ = cloud_b->points.size ();
+  in_point_count_ = cloud_a->points.size ();
+  out_point_count_ = cloud_b->points.size ();
 
   //////////////////////////////////////////////////////
   //
@@ -318,20 +356,20 @@ computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > cloud_a, boost::sha
   ////////////////////////////////////////////////////
 
   // geometric quality metrics [haussdorf Linf]
-  qual_metric->left_hausdorff_ = max_dist_a;
-  qual_metric->right_hausdorff_ = max_dist_b;
-  qual_metric->symm_hausdorff_ = dist_h;
+  left_hausdorff_ = max_dist_a;
+  right_hausdorff_ = max_dist_b;
+  symm_hausdorff_ = dist_h;
 
   // geometric quality metrics [rms L2]
-  qual_metric->left_rms_ = rms_dist_a;
-  qual_metric->right_rms_ = rms_dist_b;
-  qual_metric->symm_rms_ = dist_rms;
-  qual_metric->psnr_db_ = peak_signal_to_noise_ratio ;
+  left_rms_ = rms_dist_a;
+  right_rms_ = rms_dist_b;
+  symm_rms_ = dist_rms;
+  psnr_db_ = peak_signal_to_noise_ratio ;
 
   // color quality metric (non-symmetric, L2)
-  qual_metric->psnr_yuv_[0]= psnr_colors_yuv[0];
-  qual_metric->psnr_yuv_[1]= psnr_colors_yuv[1];
-  qual_metric->psnr_yuv_[2]= psnr_colors_yuv[2];
+  psnr_yuv_[0]= psnr_colors_yuv[0];
+  psnr_yuv_[1]= psnr_colors_yuv[1];
+  psnr_yuv_[2]= psnr_colors_yuv[2];
 }
 
 //! function to print a header to csv file for logging the quality characteristics

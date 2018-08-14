@@ -169,7 +169,7 @@ class evaluate_compression_impl : evaluate_compression
   
     bool evaluate (); // TBD need catch exceptions
     bool evaluate2 ();
-    void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> >& pointcloud);
+    void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud);
     int debug_level_;
 };
 
@@ -490,7 +490,7 @@ evaluate_compression_impl<PointT>::do_bounding_box_normalization (std::vector<bo
 {
   vector<float> dyn_range, offset;
   vector<pcl::io::BoundingBox, Eigen::aligned_allocator<pcl::io::BoundingBox> >  bounding_boxes (group.size ());
-  return pcl::io::OctreePointCloudCodecV2 <PointT>::bb_fit_pointclouds  (group, bounding_boxes, bb_expand_factor_,  dyn_range, offset, debug_level_);
+  return pcl::io::OctreePointCloudCodecV2 <PointT>::bb_fit_pointclouds  (group, bounding_boxes, bb_expand_factor_, dyn_range, offset, debug_level_);
  }
                                   
 template<typename PointT>
@@ -584,7 +584,7 @@ evaluate_compression_impl<PointT>::do_quality_computation (boost::shared_ptr<pcl
                                                            )
 {
   // compute quality metric
-  computeQualityMetric<PointT> (reference_pointcloud, pointcloud, quality_metric);
+  quality_metric->computeQualityMetric<PointT> (reference_pointcloud, pointcloud);
 }
     
 template<typename PointT>
@@ -600,7 +600,7 @@ evaluate_compression_impl<PointT>::do_output (std::string path, boost::shared_pt
 
 template<typename PointT>
 void
-evaluate_compression_impl<PointT>::do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> >& pc)
+evaluate_compression_impl<PointT>::do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pc)
 {
   if ( ! visualization_) return;
 
@@ -639,6 +639,10 @@ evaluate_compression_impl<PointT>::do_visualization (std::string id, boost::shar
   }
   if (pc == NULL)
   {
+    viewer->removeAllCoordinateSystems();
+    viewer->removeAllShapes();
+    viewer->removeAllPointClouds();
+    viewers[id] = NULL;
     delete(viewer);
   }
   else
@@ -817,9 +821,19 @@ evaluate_compression_impl<PointT>::evaluate ()
     {
       std::string filename = *itr;
       if (output_index_ == -1) // get index of first file
-      { // when 'filename' has the form 'nnn'.ply, obtain 'output_index_' from 'filename'
+      { // when 'filename' has the form '.../nnn'.ply, obtain 'output_index_' as 'nnn' from 'filename'
         boost::filesystem::path p(filename);
-        std::stringstream ss(p.stem().native());
+		std::stringstream ss;
+#ifdef  WIN32
+//		printf("p.c_str()=%S\np.stem.c_str()=%S\n", p.c_str(), p.stem().c_str());
+		int len = wcslen(p.stem().c_str());
+		char* s = new char[len + 1];
+		wcstombs(s, p.stem().c_str(), len);
+		ss << s;
+		free(s);
+#else
+		ss << p.stem().native();
+#endif//WIN32
         ss >> output_index_;
         if (output_index_ == -1) // no index found
           output_index_ = 0;
@@ -854,9 +868,9 @@ evaluate_compression_impl<PointT>::evaluate ()
   }
   if (visualization_)
   { // remove data structures related to visualzation
-//X    do_visualization ("Original", boost::shared_ptr<pcl::PointCloud<PointT> >());
-//X    do_visualization ("Decoded",  boost::shared_ptr<pcl::PointCloud<PointT> >());
-//X    do_visualization ("Delta Decoded", boost::shared_ptr<pcl::PointCloud<PointT> >());
+    do_visualization ("Original", boost::shared_ptr<pcl::PointCloud<PointT> >());
+    do_visualization ("Decoded",  boost::shared_ptr<pcl::PointCloud<PointT> >());
+    do_visualization ("Delta Decoded", boost::shared_ptr<pcl::PointCloud<PointT> >());
   }
   return return_value;
 }
@@ -890,7 +904,7 @@ evaluate_compression_impl<PointT>::evaluate_group
     boost::shared_ptr<pcl::PointCloud<PointT> > pc = current_group[i];
     boost::shared_ptr<pcl::PointCloud<PointT> > original_pc = group[i]->makeShared ();
     stringstream ss;
-    QualityMetric achieved_quality;
+    QualityMetric achieved_quality(quality_method_);
     long long int i_strm_pos_cur = 0, i_strm_pos_prev = 0; // current and previous position in i-code stream
     long long int p_strm_pos_cur = 0, p_strm_pos_prev = 0; // current and previous position in p-code stream
               
@@ -906,9 +920,9 @@ evaluate_compression_impl<PointT>::evaluate_group
     boost::shared_ptr<pcl::PointCloud<PointT> > rescaled_pc = output_pointcloud->makeShared ();
     if (bb_expand_factor_ > 0.0) pcl::io::OctreePointCloudCodecV2 <PointT>::restore_bb_fit (rescaled_pc, bb);
     boost::shared_ptr<pcl::PointCloud<PointT> > tpc(new pcl::PointCloud<PointT>); // tmp
-    if (quality_method_)
+    if (quality_method_ & SELECT)
     {// Note that the quality_computation here works on the bb-aligned pc
-      if (quality_method_ &  BBALIGNED)
+      if (quality_method_  & BBALIGNED)
       {
         do_quality_computation (current_group[i], output_pointcloud, &achieved_quality);
         tpc = output_pointcloud;
@@ -938,7 +952,7 @@ evaluate_compression_impl<PointT>::evaluate_group
       boost::shared_ptr<pcl::PointCloud<PointT> > predicted_pc (new pcl::PointCloud<PointT> ());
       cerr << " delta coding frame nr " << i+1 << endl;
       stringstream p_frame_pdat, p_frame_idat;
-      QualityMetric predictive_quality;
+      QualityMetric predictive_quality(quality_method_);
                   
       do_delta_encoding (icp_on_original_ ? pc : output_pointcloud, current_group[i+1], predicted_pc, &p_frame_idat, &p_frame_pdat, predictive_quality);
       // quality
