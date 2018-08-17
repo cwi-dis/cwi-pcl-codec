@@ -44,6 +44,7 @@
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/common.h>
+#include <pcl/common/transforms.h>
 #include <pcl/console/print.h>
 #include <pcl/console/parse.h>
 #include <pcl/console/time.h>
@@ -144,9 +145,9 @@ fitPointCloudInBox(boost::shared_ptr<PointCloud<PointT> >  pc, Eigen::Matrix4f* 
   }
   // fill the transformation matrix
   Eigen::Matrix4f m;
-  m << delta.x,   0,         0,          min_box->x - p_min.x,
-  0,         delta.y,   0,               min_box->y - p_min.y,
-  0,         0,         delta.z,         min_box->z - p_min.z,
+  m << delta.x,   0,         0,          (min_box->x - p_min.x)*delta.x,
+  0,         delta.y,   0,               (min_box->y - p_min.y)*delta.y,
+  0,         0,         delta.z,         (min_box->z - p_min.z)*delta.z,
   0,         0,         0,               1;
   // return the transformation matrix
   *tm = m;
@@ -164,13 +165,31 @@ fitPointCloudInBox(boost::shared_ptr<PointCloud<PointT> >  pc, Eigen::Matrix4f* 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename PointT>
 void
-QualityMetric::computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > cloud_a, boost::shared_ptr<PointCloud<PointT> > cloud_b)
+QualityMetric::computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > cloud_a_arg, boost::shared_ptr<PointCloud<PointT> > cloud_b_arg)
 {
   print_highlight (stderr, "Computing Quality Metrics for Point Clouds !!\n");
 
   //! we log the time for computing the quality metric
   TicToc tt;
   tt.tic ();
+  boost::shared_ptr<PointCloud<PointT> > cloud_a(new PointCloud<PointT> ());
+  boost::shared_ptr<PointCloud<PointT> > cloud_b(new PointCloud<PointT> ());
+    
+    if (quality_method_ & NORMALISED)
+    {
+      PointT min, max;
+      max.x = max.y = max.z = 1.0;
+      Eigen::Matrix4f tr;
+      fitPointCloudInBox(cloud_a_arg, &tr, &min, &max);
+      pcl::transformPointCloud<PointT, float>(*cloud_a_arg, *cloud_a, tr);
+      fitPointCloudInBox(cloud_b_arg, &tr, &min, &max);
+      pcl::transformPointCloud<PointT, float>(*cloud_b_arg, *cloud_b, tr);
+    }
+    else
+    {
+      cloud_a = cloud_a_arg->makeShared();
+      cloud_b = cloud_b_arg->makeShared();
+    }
     /* no normals in this version
   // In accordance with MPEG-3DGC PointCloud Compression 'pc_error' for D1 (point-2-point metric)
   // we use the largest nearest neighbour distance of all points in A for the peak signal value
@@ -301,7 +320,7 @@ QualityMetric::computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > clou
 		float l_max_geom_signal_energy = l_max_signal.x * l_max_signal.x
 			+ l_max_signal.y * l_max_signal.y + l_max_signal.z * l_max_signal.z ;
  */
-  float l_max_geom_signal_energy = 0.0;
+  float l_max_geom_signal_energy = 1.0;
   if (quality_method_ & MAX_NN)
   {
     l_max_geom_signal_energy = max_dist_a_self*3;

@@ -203,7 +203,7 @@ evaluate_compression_impl<PointT>::initialize_options_description ()
   ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
   ("icp_on_original", po::value<bool> ()->default_value (false),"icp_on_original ") // iterative closest point
   ("jpeg_quality,j", po::value<int> ()->default_value (0), "jpeg quality parameter ")
-  ("quality_method,q", po::value<int> ()->default_value (0),"compute objective quality (0=<skip>, 1=MPEG spec., 2=MPEG impl., >64 peak level) using point-to-point(D1)/plane(D2) metric" )
+  ("quality_method,q", po::value<int> ()->default_value (0),"compute objective quality (0=<skip>, 1=<default>, 2=BBALIGNED, 4=peak value from largest original <xyz>, 8=peak value from largest nearest neighbour, 16=normalize point clouds,32=use BT.709 i.o BT.601 for colour PSNR" )
   ("do_icp_color_offset",po::value<bool> ()->default_value (false), "do color offset coding on predictive frames")
   ("num_threads,n",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
   ("intra_frame_quality_csv", po::value<string>()->default_value("intra_frame_quality.csv")," intra frame coding quality results file name (.csv file)")
@@ -583,8 +583,11 @@ evaluate_compression_impl<PointT>::do_quality_computation (boost::shared_ptr<pcl
                                                            QualityMetric* quality_metric
                                                            )
 {
-  // compute quality metric
-  quality_metric->computeQualityMetric<PointT> (reference_pointcloud, pointcloud);
+  // compute quality metric, is selected
+  if (quality_metric->quality_method_ & SELECT)
+  {
+    quality_metric->computeQualityMetric<PointT> (reference_pointcloud, pointcloud);
+  }
 }
     
 template<typename PointT>
@@ -920,25 +923,19 @@ evaluate_compression_impl<PointT>::evaluate_group
     boost::shared_ptr<pcl::PointCloud<PointT> > rescaled_pc = output_pointcloud->makeShared ();
     if (bb_expand_factor_ > 0.0) pcl::io::OctreePointCloudCodecV2 <PointT>::restore_bb_fit (rescaled_pc, bb);
     boost::shared_ptr<pcl::PointCloud<PointT> > tpc(new pcl::PointCloud<PointT>); // tmp
-    if (quality_method_ & SELECT)
-    {// Note that the quality_computation here works on the bb-aligned pc
-      if (quality_method_  & BBALIGNED)
-      {
-        do_quality_computation (current_group[i], output_pointcloud, &achieved_quality);
-        tpc = output_pointcloud;
-      }
-      else
-      {// Note that the quality_computation now works on the original (not bb-aligned) pc
-        do_quality_computation (group[i], rescaled_pc, &achieved_quality);
-        tpc = rescaled_pc;
-      }
+    // Note that the quality_computation here works on the bb-aligned pc
+    if (quality_method_  & BBALIGNED)
+    {
+      do_quality_computation (current_group[i], output_pointcloud, &achieved_quality);
+      tpc = output_pointcloud;
+    }
+    else
+    {// Note that the quality_computation now works on the original (not bb-aligned) pc
+      do_quality_computation (group[i], rescaled_pc, &achieved_quality);
+      tpc = rescaled_pc;
     }
     if (intra_frame_quality_csv_ != "")
       achieved_quality.print_csv_line_(compression_settings.str(), intra_frame_quality_csv);
-// tmp code for testing
-    static int nr=0; //XX
-    std::string name; name = "pc_normals_" + boost::lexical_cast<string> (++nr) + ".ply"; //XX
-    do_output(name, tpc, achieved_quality); //XX
 
     if (output_directory_ != "")
     {

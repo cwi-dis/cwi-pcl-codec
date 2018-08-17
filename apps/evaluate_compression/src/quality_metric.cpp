@@ -34,7 +34,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  */
-//#include <quality_metric.h>
 #include <quality_metric_impl.hpp>
 
 template PCL_EXPORTS void

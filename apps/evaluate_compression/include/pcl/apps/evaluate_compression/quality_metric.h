@@ -56,13 +56,12 @@
      * NORMALISED - PC x,y,z values re-scaled to [0,1), geom. peak value approaches sqrt(3)
 	*/
 	enum QualityMethod { NONE=0,        //! no quality computation
-                         SELECT,        //! select quality computation with optional options
-                         BBALIGNED,     //! compare bounding-box aligned pointclouds (i.o. original/final)
-                         RESCALED=4,    //!
-                         NORMALISED=8,  //! PC x,y,z values re-scaled to [0,1), geom. peak value approaches sqrt(3)
-                         TCSVT=16,      //! Vdegr-maxgeo as in R.Mekuria e.a. IEEE TCSVT 277(4): pp. 828-842, 2017
-                         MAX_NN=32,     //! same, but geom. peak value is maximal Nearest Neighbor distance
-                         BT709=64       //! select BT709 i.o. BT.601
+                         SELECT=1,      //! select quality computation with optional options
+                         BBALIGNED=2,   //! compare bounding-box aligned pointclouds (i.o. original/final)
+                         TCSVT=4,       //! Vdegr-maxgeo as in R.Mekuria e.a. IEEE TCSVT 277(4): pp. 828-842, 2017
+                         MAX_NN=8,     //! same, but geom. peak value is maximal Nearest Neighbor distance
+                         NORMALISED=16,  //! PC x,y,z values re-scaled to [0,1), geom. peak value approaches sqrt(3)
+                         BT709=32       //! select BT709 i.o. BT.601
         };
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
