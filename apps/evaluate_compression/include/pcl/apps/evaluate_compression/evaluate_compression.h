@@ -48,7 +48,7 @@
 #include <vector>
 #include <string>
 #include <pcl/point_types.h>
-#include <quality_metric.h>
+#include <pcl/quality_metric/quality_metric.h>
 
 class evaluate_compression {
   protected:

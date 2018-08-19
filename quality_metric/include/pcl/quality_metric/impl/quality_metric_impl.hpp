@@ -50,7 +50,7 @@
 #include <pcl/console/time.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/search/kdtree.h>
-#include <quality_metric.h>
+#include <pcl/quality_metric/quality_metric.h>
 
 //using namespace std;
 using namespace pcl;

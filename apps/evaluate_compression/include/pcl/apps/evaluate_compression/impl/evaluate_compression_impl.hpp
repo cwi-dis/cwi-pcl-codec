@@ -82,7 +82,6 @@ namespace po = boost::program_options;
 #endif//WIN32
 #include <evaluate_compression.h>
 #include <pcl/pcl_base.h>
-#include <quality_metric.h>
 
 template<typename PointT>
 class evaluate_compression_impl : evaluate_compression

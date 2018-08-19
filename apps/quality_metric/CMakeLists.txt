@@ -37,13 +37,12 @@
 
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 project(CWI_PCL_CODEC)
-set(SUBSYS_NAME evaluate_compression)
-set(SUBSYS_DESC "Evaluation program for Point Cloud Compression V2 (using JPEG compression")
+set(SUBSYS_NAME quality_metric)
+set(SUBSYS_DESC "Program to compute objective quality (PSNR) of degerated Pointclouds")
 
 set(${PROJECT_NAME}_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/pcl/apps/${SUBSYS_NAME}
   ${CMAKE_CURRENT_SOURCE_DIR}/include/pcl/apps/${SUBSYS_NAME}/impl
-  ${CMAKE_CURRENT_SOURCE_DIR}/../quality_metric/include/pcl/apps/quality_metric
   ${${PROJECT_NAME}_INCLUDE_DIRS}
   CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 if(CMAKELISTS_DEBUG)
@@ -53,9 +52,8 @@ endif(CMAKELISTS_DEBUG)
 set(srcs
   "src/${SUBSYS_NAME}.cpp"
 )
-set(LIB_NAME pcl_${SUBSYS_NAME})
 set(incs
-   "include/pcl/apps/${SUBSYS_NAME}/${SUBSYS_NAME}.h"
+   "include/pcl/apps/${SUBSYS_NAME}/quality_metric.h"
 )
 set(impl_incs
    "include/pcl/apps/${SUBSYS_NAME}/impl/${SUBSYS_NAME}_impl.hpp"
@@ -78,5 +76,4 @@ if(CMAKELISTS_DEBUG)
   message("${SUBSYS_NAME}-${PROJECT_NAME}_LIBRARIES: " ${${PROJECT_NAME}_LIBRARIES})
 endif(CMAKELISTS_DEBUG)
 
-add_executable(${SUBSYS_NAME} ${srcs} ${incs} ${impl_incs})
-target_link_libraries(${SUBSYS_NAME} ${${PROJECT_NAME}_LIBRARIES})
+add_executable(${SUBSYS_NAME} "src/${SUBSYS_NAME}.cpp" ${incs} ${impl_incs})

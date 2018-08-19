@@ -34,7 +34,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <quality_metric_impl.hpp>
+#include <pcl/quality_metric/impl/quality_metric_impl.hpp>
 
 template PCL_EXPORTS void
 QualityMetric::computeQualityMetric(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> >, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> >);
