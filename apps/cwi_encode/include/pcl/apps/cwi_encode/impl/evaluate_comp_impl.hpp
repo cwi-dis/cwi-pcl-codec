@@ -701,7 +701,7 @@ __declspec(dllexport) int load_ply_file_XYZRGB(std::string path, void **p)
 }
 __declspec(dllexport) void delete_ply_data(void *pc)
 {
-	delete[] pc;
+	//delete[] pc;
 }
 
 int
