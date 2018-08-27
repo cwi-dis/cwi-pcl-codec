@@ -34,9 +34,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <pcl/quality_metric/impl/quality_metric_impl.hpp>
 
+#include <quality_metric.h>
+#include <impl/quality_metric_impl.hpp>
 
 int main(int argc, char * argv[]) {
-  return -1;
+
+  quality_metric_impl<pcl::PointXYZRGB> quality_meter (argc, argv);
+
+  return quality_meter.evaluate();
 }

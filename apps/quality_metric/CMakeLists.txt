@@ -77,3 +77,4 @@ if(CMAKELISTS_DEBUG)
 endif(CMAKELISTS_DEBUG)
 
 add_executable(${SUBSYS_NAME} "src/${SUBSYS_NAME}.cpp" ${incs} ${impl_incs})
+target_link_libraries(${SUBSYS_NAME} ${${PROJECT_NAME}_LIBRARIES})

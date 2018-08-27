@@ -49,7 +49,7 @@ project(CWI_PCL_CODEC)
 # set(CMAKE_COLOR_MAKEFILE   ON)
 
 # You can set this to '1' if you like a lot of CMake messages, e.g. to find a bug in the CMakelists.txt
-set (CMAKELISTS_DEBUG 1
+set (CMAKELISTS_DEBUG 0
         CACHE INTERNAL "${PROJECT_NAME}: CMakeLists.txt Debug Flag" FORCE)
 
 set(SUBSYS_NAME cwi_pcl_codec)

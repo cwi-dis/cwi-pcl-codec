@@ -62,7 +62,7 @@ using namespace pcl::search;
 \brief helper function to convert RGB to YUV using ITU-R rec.601 (analog TV)
 */
 template<typename PointT> void
-convertRGBtoYUV_BT601(const PointT &in_rgb, float * out_yuv)
+convertRGBtoYUV_BT601(const PointT &in_rgb, float* out_yuv)
 {
   // color space conversion to YUV on a 0-1 scale
   out_yuv[0] = float( ( 0.299 * in_rgb.r + 0.587 * in_rgb.g + 0.114 * in_rgb.b)/255.0 );
@@ -74,7 +74,7 @@ convertRGBtoYUV_BT601(const PointT &in_rgb, float * out_yuv)
  \brief helper function to convert RGB to YUV using ITU-R rec.709 (HDTV)
  */
 template<typename PointT> void
-convertRGBtoYUV_BT709(const PointT &in_rgb, float *out_yuv)
+convertRGBtoYUV_BT709(const PointT &in_rgb, float* out_yuv)
 {
     // color space conversion to YUV
     out_yuv[0] = float( ( 0.2126 * in_rgb.r + 0.7152 * in_rgb.g + 0.0722 * in_rgb.b) / 255.0 );
@@ -91,31 +91,6 @@ QualityMetric::convertRGBtoYUV(const PointT &in_rgb, float *out_yuv)
     convertRGBtoYUV_BT709(in_rgb, out_yuv);
   else
     convertRGBtoYUV_BT601(in_rgb, out_yuv);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * function to compute normals on a pointclouds
- * @param pc the pointcloud
- * @param normals the pc containing the resulting normals
- * @param k number of points to to define normal plane
- * \note PointT typename of point used in point cloud
- * \author Kees Blom (Kees.Blom@cwi.nl) modified in accordance with mpeg-3dgc pc_error code
- */
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template<typename PointT> void
-computeNormals(boost::shared_ptr<PointCloud<PointT> > pc, PointCloud<pcl::Normal> &normals, int k=3)
-{
-    print_info(stderr, "TBD: Computing Normals\n");
-/**
-  pcl::NormalEstimationOMP<PointT, pcl::Normal> normalEstimation(1024);
-  boost::shared_ptr<pcl::search::KdTree<PointT> > tree (new pcl::search::KdTree<PointT>);
-
-  normalEstimation.setInputCloud (pc);
-  normalEstimation.setSearchMethod (tree);
-  normalEstimation.setKSearch (k);
-  normalEstimation.compute (normals);
- **/
 }
 /**
  \brief helper function to compute a homogen transformation matrix 'tm'
@@ -175,37 +150,21 @@ QualityMetric::computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > clou
   boost::shared_ptr<PointCloud<PointT> > cloud_a(new PointCloud<PointT> ());
   boost::shared_ptr<PointCloud<PointT> > cloud_b(new PointCloud<PointT> ());
     
-    if (quality_method_ & NORMALISED)
-    {
-      PointT min, max;
-      max.x = max.y = max.z = 1.0;
-      Eigen::Matrix4f tr;
-      fitPointCloudInBox(cloud_a_arg, &tr, &min, &max);
-      pcl::transformPointCloud<PointT, float>(*cloud_a_arg, *cloud_a, tr);
-      fitPointCloudInBox(cloud_b_arg, &tr, &min, &max);
-      pcl::transformPointCloud<PointT, float>(*cloud_b_arg, *cloud_b, tr);
-    }
-    else
-    {
-      cloud_a = cloud_a_arg->makeShared();
-      cloud_b = cloud_b_arg->makeShared();
-    }
-    /* no normals in this version
-  // In accordance with MPEG-3DGC PointCloud Compression 'pc_error' for D1 (point-2-point metric)
-  // we use the largest nearest neighbour distance of all points in A for the peak signal value
-  // For the D2 metric (point-to-plane) we implement the specification in
-  // MPEG2017/N16763 Annex B
-  PointCloud<pcl::Normal> normals_a;
-  computeNormals(cloud_a, normals_a, 10);
-  // convert normal vectors to regular ones
-  result->resize(normals_a.size());
-  for (int i=0; i<normals_a.size(); i++)
+  if (quality_method_ & NORMALISED)
   {
-    result->at(i).x =  normals_a.at(i).normal[0];
-    result->at(i).y =  normals_a.at(i).normal[1];
-    result->at(i).z =  normals_a.at(i).normal[2];
+    PointT min, max;
+    max.x = max.y = max.z = 1.0;
+    Eigen::Matrix4f tr;
+    fitPointCloudInBox(cloud_a_arg, &tr, &min, &max);
+    pcl::transformPointCloud<PointT, float>(*cloud_a_arg, *cloud_a, tr);
+    fitPointCloudInBox(cloud_b_arg, &tr, &min, &max);
+    pcl::transformPointCloud<PointT, float>(*cloud_b_arg, *cloud_b, tr);
   }
-     */
+  else
+  {
+    cloud_a = cloud_a_arg->makeShared();
+    cloud_b = cloud_b_arg->makeShared();
+  }
   pcl::search::KdTree<PointT> tree_a_self;
   tree_a_self.setInputCloud (cloud_a->makeShared ());
   float max_dist_a_self = -std::numeric_limits<float>::max ();
@@ -299,27 +258,6 @@ QualityMetric::computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > clou
 
   /////////////////////////////////////////////////////////
   //
-  // calculate peak signal to noise ratio
-/* Next code has been replaced by code derived from MPEG-3DGC pc_error
- * since the assumption in the next comment appeared not to be true.
- * However, it might be a good idea to work with normalized PC's only (xyz values scaled to (0,1),
- * both for (de)compression, icp, error calc. etc. and keep an inverse transform matrix
- * (concatenation of all operations) to be applied just before delivery of the PC's.
- 
-		// we assume the meshes are normalized per component and the peak energy therefore should approach 3
-		//
-		///////////////////////////////////////////////////////////
-		PointT l_max_signal;
-		PointT l_min_signal;
-        const PointCloud<PointT> c_cloud_a(*cloud_a);
-
-        // calculate peak geometric signal value
-		getMinMax3D<PointT>(c_cloud_a,l_min_signal,l_max_signal);
-
-		// calculate max energy of point
-		float l_max_geom_signal_energy = l_max_signal.x * l_max_signal.x
-			+ l_max_signal.y * l_max_signal.y + l_max_signal.z * l_max_signal.z ;
- */
   float l_max_geom_signal_energy = 1.0;
   if (quality_method_ & MAX_NN)
   {
@@ -435,6 +373,27 @@ QualityMetric::print_csv_header_(std::ostream &csv_ostream)
 			  << std::string("encoding_time_ms;")
 			  << std::string("decoding_time_ms;")
 			  << std::endl;
+}
+
+
+// return QualityMethod from string
+QualityMethod
+QualityMetric::get_QualityMethod (std::string& method_as_string){
+  std::vector<std::string> method_specs;
+    
+  boost::split(method_specs, method_as_string, boost::is_any_of("|"));
+  unsigned int mtd = SELECT;
+  for (int i = 0; i < method_specs.size(); i++)
+    if (false);
+      else if (method_specs[i].compare("")==0)            mtd = 0;
+      else if (method_specs[i].compare("SELECT")==0)      mtd |= SELECT;
+      else if (method_specs[i].compare("BBALIGNED")==0)   mtd |= BBALIGNED;
+      else if (method_specs[i].compare("TCSVT")==0)       mtd |= TCSVT;
+      else if (method_specs[i].compare("MAX_NN")==0)      mtd |= MAX_NN;
+      else if (method_specs[i].compare("NORMALISED")==0)  mtd |= NORMALISED;
+      else if (method_specs[i].compare("BT709")==0)       mtd |= BT709;
+      else throw std::invalid_argument(method_specs[i]);
+    return (QualityMethod) mtd;
 }
 
 #endif

@@ -114,62 +114,60 @@ class evaluate_compression_impl : evaluate_compression
     int viewer_delta_decoded_window_position_[2];
 #endif//WITH_VTK
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// Helper functions
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //// Helper functions
+  /**
+   * function to scale x,y,z values point cloud to lie in (0,1)
+   * @param cloud (input) original cloud
+   * @param cloud (output) scaled cloud
+   * @param transmat (output) transformation matrix used for the scaling
+   * \note PointT typename of point used in point cloud
+   * \author Kees Blom (Kees.Blom@cwi.nl) June 19, 2018.
+   *
+   * TBD Implement min,max
+   */
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * function to scale x,y,z values point cloud to lie in (0,1)
-     * @param cloud (input) original cloud
-     * @param cloud (output) scaled cloud
-     * @param transmat (output) transformation matrix used for the scaling
-     * \note PointT typename of point used in point cloud
-     * \author Kees Blom (Kees.Blom@cwi.nl) June 19, 2018.
-     *
-     * TBD Implement min,max
-     */
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    template<typename PointT>
-    void
-    scalePointCloud(boost::shared_ptr<pcl::PointCloud<PointT> > pc, boost::shared_ptr<pcl::PointCloud<PointT> > &scaled_pc, Eigen::Matrix3f &m, float min=0.0, float max=1.0)
-    {
-//XXX        print_info(stderr, "scaling PointCloud (%ld points\n", pc->size());
-        PointT p_max;
-        PointT p_min;
-        PointT delta;
-        const pcl::PointCloud<PointT> cpc(*pc);
+  void
+  scalePointCloud(boost::shared_ptr<pcl::PointCloud<PointT> > pc, boost::shared_ptr<pcl::PointCloud<PointT> > &scaled_pc,   Eigen::Matrix3f &m, float min=0.0, float max=1.0)
+  {
+    PointT p_max;
+    PointT p_min;
+    PointT delta;
+    const pcl::PointCloud<PointT> cpc(*pc);
         
-        // calculate peak geometric signal value
-        pcl::getMinMax3D<PointT>(cpc,p_min,p_max);
-        // diagonal vector
-        delta.x = (p_max.x-p_min.x) * max;
-        delta.y = (p_max.y-p_min.y) * max;
-        delta.z = (p_max.z-p_min.z) * max;
-        scaled_pc = pc->makeShared();
-        for (int i = 0; i < pc->size(); i++) {
-            scaled_pc->at(i).x = (pc->at(i).x - p_min.x) / delta.x + min;
-            scaled_pc->at(i).y = (pc->at(i).y - p_min.y) / delta.y + min;
-            scaled_pc->at(i).z = (pc->at(i).z - p_min.z) / delta.z + min;
-        }
+    // calculate peak geometric signal value
+    pcl::getMinMax3D<PointT>(cpc,p_min,p_max);
+    // diagonal vector
+    delta.x = (p_max.x-p_min.x) * max;
+    delta.y = (p_max.y-p_min.y) * max;
+    delta.z = (p_max.z-p_min.z) * max;
+    scaled_pc = pc->makeShared();
+    for (int i = 0; i < pc->size(); i++)
+    {
+      scaled_pc->at(i).x = (pc->at(i).x - p_min.x) / delta.x + min;
+      scaled_pc->at(i).y = (pc->at(i).y - p_min.y) / delta.y + min;
+      scaled_pc->at(i).z = (pc->at(i).z - p_min.z) / delta.z + min;
     }
-    void do_outlier_removal (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > & pointcloud_group);
-    pcl::io::BoundingBox do_bounding_box_normalization (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > & pointcloud_group);
-    void do_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > point_cloud, stringstream* coded_stream, QualityMetric & achieved_quality);
-    void do_decoding (stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & achieved_quality);
-    void do_delta_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> >  p_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > out_cloud, stringstream* i_stream, stringstream* p_stream, QualityMetric & quality_metric);
-    void do_delta_decoding (stringstream* i_stream, stringstream* p_stream, boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> >  out_cloud, QualityMetric & qualityMetric);
-    void do_quality_computation (boost::shared_ptr<pcl::PointCloud<PointT> > & pointcloud, boost::shared_ptr<pcl::PointCloud<PointT> > &reference_pointcloud, QualityMetric* quality_metric);
-    void do_output (std::string path, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & qualityMetric);
-    // V1 (common) settings
-    boost::shared_ptr<pcl::io::OctreePointCloudCompression<PointT> > encoder_V1_;
-    boost::shared_ptr<pcl::io::OctreePointCloudCompression<PointT> > decoder_V1_;
-    // V2 specific
-    boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > encoder_V2_;
-    boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > decoder_V2_;
+}
+  void do_outlier_removal (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > & pointcloud_group);
+  pcl::io::BoundingBox do_bounding_box_normalization (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > & pointcloud_group);
+  void do_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > point_cloud, stringstream* coded_stream, QualityMetric & achieved_quality);
+  void do_decoding (stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & achieved_quality);
+  void do_delta_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> >  p_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > out_cloud, stringstream* i_stream, stringstream* p_stream, QualityMetric & quality_metric);
+  void do_delta_decoding (stringstream* i_stream, stringstream* p_stream, boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> >  out_cloud, QualityMetric & qualityMetric);
+  void do_quality_computation (boost::shared_ptr<pcl::PointCloud<PointT> > & pointcloud, boost::shared_ptr<pcl::PointCloud<PointT> > &reference_pointcloud, QualityMetric* quality_metric);
+  void do_output (std::string path, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & qualityMetric);
+  // V1 (common) settings
+  boost::shared_ptr<pcl::io::OctreePointCloudCompression<PointT> > encoder_V1_;
+  boost::shared_ptr<pcl::io::OctreePointCloudCompression<PointT> > decoder_V1_;
+  // V2 specific
+  boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > encoder_V2_;
+  boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > decoder_V2_;
   
-    bool evaluate (); // TBD need catch exceptions
-    bool evaluate2 ();
-    void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud);
-    int debug_level_;
+  bool evaluate (); // TBD need catch exceptions
+  void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud);
+  int debug_level_;
 };
 
 
@@ -178,39 +176,39 @@ void
 evaluate_compression_impl<PointT>::initialize_options_description ()
 {
   desc_.add_options ()
-  ("help,h", "produce help message ")
-  ("K_outlier_filter,K",po::value<int> ()->default_value (0), "K neighbours for radius outlier filter ")
-  ("radius",po::value<double> ()->default_value (0.01), "radius outlier filter, maximum radius ")
-  ("group_size,g",po::value<int> ()->default_value (0), "maximum number of files to be compressed together (0=read all files, then en(de)code 1 by 1)")
-  ("bb_expand_factor,f", po::value<double> ()->default_value (0.20), "bounding box expansion to keep bounding box accross frames")
-  ("algorithm,a",po::value<string> ()->default_value ("V2"), "compression algorithm ('', 'V1', 'V2' or 'Delta')")
-  ("input_directories,i", po::value<std::vector<std::string> > (), "Directory containing supported files (.pcd or .ply)")
-  ("output_directory,o", po::value<std::string> ()->default_value (""), "Directory to store decompressed pointclouds (.ply)")
-  ("show_statistics,s",po::value<bool> ()->default_value (false)->implicit_value (true), "gather and show a bunch of releavant statistical data")
-  ("visualization,v",po::value<bool> ()->default_value (false)->implicit_value (true), "show both original and decoded PointClouds graphically")
-  ("point_resolution,p", po::value<double> ()->default_value (0.20), "XYZ resolution of point coordinates")
-  ("octree_resolution,r", po::value<double> ()->default_value (0.20), "voxel size")
+    ("help,h", "produce help message ")
+    ("K_outlier_filter,K",po::value<int> ()->default_value (0), "K neighbours for radius outlier filter ")
+    ("radius",po::value<double> ()->default_value (0.01), "radius outlier filter, maximum radius ")
+    ("group_size,g",po::value<int> ()->default_value (0), "maximum number of files to be compressed together (0=read all files0, then en(de)code 1 by 1)")
+    ("bb_expand_factor,f", po::value<double> ()->default_value (0.20), "bounding box expansion to keep bounding box accross frames")
+    ("algorithm,a",po::value<string> ()->default_value ("V2"), "compression algorithm ('', 'V1', 'V2' or 'Delta')")
+    ("input_directories,i", po::value<std::vector<std::string> > (), "Directory containing supported files (.pcd or .ply)")
+    ("output_directory,o", po::value<std::string> ()->default_value (""), "Directory to store decompressed pointclouds (.ply)")
+    ("show_statistics,s",po::value<bool> ()->default_value (false)->implicit_value (true), "gather and show a bunch of releavant statistical data")
+    ("visualization,v",po::value<bool> ()->default_value (false)->implicit_value (true), "show both original and decoded PointClouds graphically")
+    ("point_resolution,p", po::value<double> ()->default_value (0.20), "XYZ resolution of point coordinates")
+    ("octree_resolution,r", po::value<double> ()->default_value (0.20), "voxel size")
 
-  // V2 specific
-  ("octree_bits,b", po::value<int> ()->default_value (11), "octree resolution (bits)")
-  ("color_bits,c", po::value<int> ()->default_value (8), "color resolution (bits)")
-  ("enh_bits,e", po::value<int> ()->default_value (0), "bits to code the points towards the center ")
-  ("color_coding_type,t", po::value<int> ()->default_value (1), "pcl=0,jpeg=1 or graph transform ")
-  ("macroblock_size,m",po::value<int> ()->default_value (16), "size of macroblocks used for predictive frame (must be power of 2)")
-  ("keep_centroid", po::value<int> ()->default_value (0), "keep voxel grid positions or not ")
-  ("create_scalable", po::value<bool> ()->default_value (false), "create scalable bitstream (not yet implemented)")
-  ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
-  ("icp_on_original", po::value<bool> ()->default_value (false),"icp_on_original ") // iterative closest point
-  ("jpeg_quality,j", po::value<int> ()->default_value (0), "jpeg quality parameter ")
-  ("quality_method,q", po::value<int> ()->default_value (0),"compute objective quality (0=<skip>, 1=<default>, 2=BBALIGNED, 4=peak value from largest original <xyz>, 8=peak value from largest nearest neighbour, 16=normalize point clouds,32=use BT.709 i.o BT.601 for colour PSNR" )
-  ("do_icp_color_offset",po::value<bool> ()->default_value (false), "do color offset coding on predictive frames")
-  ("num_threads,n",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
-  ("intra_frame_quality_csv", po::value<string>()->default_value("intra_frame_quality.csv")," intra frame coding quality results file name (.csv file)")
-  ("predictive_quality_csv",po::value<string>()->default_value("predictive_quality.csv"), " predictive coding quality results file name (.csv file)")
-  ("debug_level",po::value<int> ()->default_value (0), "debug print level (0=no debug print, 3=all debug print)")
-    ;
+    // V2 specific
+    ("octree_bits,b", po::value<int> ()->default_value (11), "octree resolution (bits)")
+    ("color_bits,c", po::value<int> ()->default_value (8), "color resolution (bits)")
+    ("enh_bits,e", po::value<int> ()->default_value (0), "bits to code the points towards the center ")
+    ("color_coding_type,t", po::value<int> ()->default_value (1), "pcl=0,jpeg=1 or graph transform ")
+    ("macroblock_size,m",po::value<int> ()->default_value (16), "size of macroblocks used for predictive frame (must be power of 2)")
+    ("keep_centroid", po::value<int> ()->default_value (0), "keep voxel grid positions or not ")
+    ("create_scalable", po::value<bool> ()->default_value (false), "create scalable bitstream (not yet implemented)")
+    ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
+    ("icp_on_original", po::value<bool> ()->default_value (false),"icp_on_original ") // iterative closest point
+    ("jpeg_quality,j", po::value<int> ()->default_value (0), "jpeg quality parameter ")
+    ("quality_method,q", po::value<int> ()->default_value (0),"compute objective quality (0=<skip>, 1=<default>, 2=BBALIGNED, 4=peak value from largest original <xyz>, 8=peak value from largest nearest neighbour, 16=normalize point clouds,32=use BT.709 i.o BT.601 for colour PSNR" )
+    ("do_icp_color_offset",po::value<bool> ()->default_value (false), "do color offset coding on predictive frames")
+    ("num_threads,n",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
+    ("intra_frame_quality_csv", po::value<string>()->default_value("intra_frame_quality.csv")," intra frame coding quality results file name (.csv file)")
+    ("predictive_quality_csv",po::value<string>()->default_value("predictive_quality.csv"), " predictive coding quality results file name (.csv file)")
+    ("debug_level",po::value<int> ()->default_value (0), "debug print level (0=no debug print, 3=all debug print)")
+  ;
   pod_.add ("input_directories", -1);
- }
+}
 
 inline void
 print_options (po::variables_map vm) {
@@ -755,15 +753,6 @@ load_input_cloud (std::string filename, boost::shared_ptr<pcl::PointCloud<PointT
 
 template<typename PointT>
 bool
-evaluate_compression_impl<PointT>::evaluate2 ()
-{
-    bool return_value = true;
-
-    return return_value;
-}
-
-template<typename PointT>
-bool
 evaluate_compression_impl<PointT>::evaluate ()
 {
   bool return_value = true;
@@ -965,7 +954,7 @@ evaluate_compression_impl<PointT>::evaluate_group
       pcl::io::OctreePointCloudCodecV2 <PointT>::restore_bb_fit (predicted_pc, bb);
       if (output_directory_ != "")
       {
-        do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (i) + ".ply", predicted_pc, predictive_quality);
+        do_output ("delta_decoded_pc_" + boost::lexical_cast<string> (i+1) + ".ply", predicted_pc, predictive_quality);
       }
       do_visualization ("Delta Decoded", predicted_pc);
       if (quality_method_)

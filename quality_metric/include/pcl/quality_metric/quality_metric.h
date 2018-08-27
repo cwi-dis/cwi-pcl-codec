@@ -77,12 +77,12 @@
 	std::size_t compressed_size_;    //! store the compressed byte size
 
 	uint64_t in_point_count_;
-    uint64_t out_point_count_;
+  uint64_t out_point_count_;
 	uint64_t byte_count_octree_layer_;
 	uint64_t byte_count_centroid_layer_;
 	uint64_t byte_count_color_layer_;
 
-    float symm_rms_;                             //! store symm rms metric
+  float symm_rms_;                             //! store symm rms metric
 	float symm_hausdorff_;                       //! store symm haussdorf
 	float left_hausdorff_;                        //! store left haussdorf
 	float right_hausdorff_;                      //! store right haussdorf
@@ -91,22 +91,27 @@
 	double psnr_db_;                              //! store psnr for the geometry
 	double psnr_yuv_[3];                          //! store psnr for the colors
 
-    double encoding_time_ms_;
-    double decoding_time_ms_;
+  double encoding_time_ms_;
+  double decoding_time_ms_;
       
-    QualityMetric (QualityMethod method=NONE) : quality_method_(method) {}
+  QualityMetric (QualityMethod method=NONE) : quality_method_(method) {}
 
-    template<typename PointT> void convertRGBtoYUV(const PointT &in_rgb, float * out_yuv);
+  template<typename PointT> void convertRGBtoYUV(const PointT &in_rgb, float * out_yuv);
       
-    /*! \brief compute the quality metric, we assume the cloud_a is the original
-     * and cloud_b the degenerated cloud
-     */
-    template<typename PointT>
-    PCL_EXPORTS void
-    computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_b);
+  /*! \brief compute the quality metric, we assume the cloud_a is the original
+   * and cloud_b the degenerated cloud
+   */
+  template<typename PointT>
+  PCL_EXPORTS void
+  computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_b);
+
+  // return QualityMethod from string
+  static PCL_EXPORTS QualityMethod
+  get_QualityMethod (std::string& method_as_string);
 
 	// print the header of a .csv file
-	static PCL_EXPORTS void print_csv_header_ (std::ostream &csv_ostream);
+	static PCL_EXPORTS void
+  print_csv_header_ (std::ostream &csv_ostream);
 	
 	// print results into a .csv file
 	PCL_EXPORTS void print_csv_line_ (const std::string &compression_setting_arg, std::ostream &csv_ostream);
