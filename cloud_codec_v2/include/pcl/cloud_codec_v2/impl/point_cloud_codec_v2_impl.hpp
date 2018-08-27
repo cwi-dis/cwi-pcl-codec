@@ -229,7 +229,7 @@ namespace pcl{
 		//std::cout << "\n Entered cloud codec v2 \n";
 		//std::cout << "\n Size of compressed frame" << sizeof(compressed_tree_data_in_arg);
       // synchronize to frame header
-      //syncToHeader(compressed_tree_data_in_arg);
+      syncToHeader(compressed_tree_data_in_arg);
 	  //std::cout << "\n Header synced \n";
       // initialize octree
       switchBuffers ();

@@ -28,7 +28,8 @@
 class __declspec(dllexport) cwi_encode
 {
 public:
-	int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
+	int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp);
 	int cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame);
 };
-
+__declspec(dllexport) int load_ply_file_XYZRGB(std::string path, void **pc);
+__declspec(dllexport) void delete_ply_data(void *pc);

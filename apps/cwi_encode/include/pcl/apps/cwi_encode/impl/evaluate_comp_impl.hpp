@@ -83,6 +83,8 @@ namespace po = boost::program_options;
 #endif//WIN32
 #include <evaluate_comp.h>
 #include <qual_metrics.h>
+#undef max
+#undef min
 
 template<typename PointT>
 class evaluate_comp_impl : evaluate_comp {
@@ -686,6 +688,22 @@ load_ply_file (std::string path, boost::shared_ptr<pcl::PointCloud<PointT> > pc)
   return rv;
 }
 
+struct PLYExport {
+	boost::shared_ptr<pcl::PointCloud<PointXYZRGB>> pc;
+};
+__declspec(dllexport) int load_ply_file_XYZRGB(std::string path, void **p)
+{
+	auto pe = new PLYExport;
+	pe->pc = boost::shared_ptr<pcl::PointCloud<PointXYZRGB>>(new PointCloud<PointXYZRGB>());
+	int res = load_ply_file<PointXYZRGB>(path, pe->pc);
+	*p = reinterpret_cast<void *>(pe);
+	return res;
+}
+__declspec(dllexport) void delete_ply_data(void *pc)
+{
+	delete[] pc;
+}
+
 int
 get_filenames_from_dir (std::string directory, vector<std::string>& filenames)
 {
@@ -940,8 +958,8 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 	try
 	{
 		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(pc);
-		boost::shared_ptr<pcl::PointCloud<PointT> > ptcld(new PointCloud<PointT>());
-		//boost::shared_ptr<pcl::PointCloud<PointT> > ptcld = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);	
+		//boost::shared_ptr<pcl::PointCloud<PointT> > ptcld(new PointCloud<PointT>());
+		boost::shared_ptr<pcl::PointCloud<PointT> > ptcld = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);	
 		ptcld->makeShared();
 		#ifdef WITH_VTK
 		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
@@ -981,9 +999,12 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 
 		//std::cout << "\nDecoding started\n";
 		//std::cout << " \n Size of compressed frame: " << sizeof(comp_frame) << "\n";
+		string s = comp_frame.str();
+		std::stringstream coded_stream(s);
 		std::stringstream *ss = &comp_frame;;
 		//ss << comp_frame.rdbuf();
-		do_decoding(ss, ptcld, achieved_quality);
+		do_decoding(&coded_stream, ptcld, achieved_quality);
+		//std::cout << "\n Size of decoded point cloud :" << (*ptcld).points.size() << "\n";
 		//std::cout << " Decoding done ";
 		//do_decoding(&coded_stream, output_pointcloud, achieved_quality);
 		//do_encoding(pointcloud, &ss, achieved_quality);

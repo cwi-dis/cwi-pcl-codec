@@ -1,5 +1,6 @@
 // cwi_encode.cpp : Defines the exported functions for the DLL application.
 //
+#include<cstdint>
 #include <sstream>
 #include <evaluate_comp.h>
 #include <evaluate_comp_impl.hpp>
@@ -72,7 +73,7 @@ encoder_V2_->setMacroblockSize(macroblock_size_);
 //pcl::PointCloud<PointT> pointcloud
 //New pointer 
 //CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame)
-int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame)
+int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp)
 {
 	evaluate_comp_impl<PointXYZRGB> evaluate;
 	return evaluate.evaluator(param, pc, comp_frame) == true ? 0 : -1;
@@ -82,4 +83,9 @@ int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& c
 {
 	evaluate_comp_impl<PointXYZRGB> evaluate;
 	return evaluate.evaluate_dc(param, pc, comp_frame) == true ? 0 : -1;
+}
+FILE _iob[] = { *stdin, *stdout, *stderr };
+extern "C" FILE * __cdecl __iob_func(void)
+{
+	return _iob;
 }
