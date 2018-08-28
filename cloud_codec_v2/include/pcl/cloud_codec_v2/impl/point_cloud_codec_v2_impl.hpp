@@ -331,7 +331,7 @@ namespace pcl{
         true,
         0,
         true,
-        color_bit_resolution_ /*,0,do_voxel_centroid_enDecoding_*/
+        color_bit_resolution_   /*,0,do_voxel_centroid_enDecoding_*/
         );
 
       // use bounding box and obtain the octree grid
@@ -1196,7 +1196,8 @@ namespace pcl{
         0,
         true,
         color_bit_resolution_,
-        color_coding_type_, 
+        color_coding_type_,
+			timeStamp,
         do_voxel_centroid_enDecoding_
         );
 
@@ -1454,6 +1455,7 @@ namespace pcl{
       OctreePointCloudCompression<PointT, LeafT, BranchT, OctreeT>::writeFrameHeader(compressed_tree_data_out_arg);
 
       //! write additional fields for cloud codec v2
+	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&timeStamp), sizeof(timeStamp));
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&do_voxel_centroid_enDecoding_), sizeof (do_voxel_centroid_enDecoding_)); // centroid coding
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&do_connectivity_encoding_), sizeof (do_connectivity_encoding_));        // connectivity coding (not yet added)
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&create_scalable_bitstream_), sizeof (create_scalable_bitstream_));     // scalable bitstream
@@ -1470,6 +1472,8 @@ namespace pcl{
       OctreePointCloudCompression<PointT>::readFrameHeader(compressed_tree_data_in_arg);
 
       //! read additional fields for cloud codec v2
+	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&timeStamp), sizeof(timeStamp));
+	  std::cout << "\n Timestamp is :" << timeStamp;
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&do_voxel_centroid_enDecoding_), sizeof (do_voxel_centroid_enDecoding_));
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&do_connectivity_encoding_), sizeof (do_connectivity_encoding_));
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&create_scalable_bitstream_), sizeof (create_scalable_bitstream_));

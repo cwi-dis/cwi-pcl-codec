@@ -97,7 +97,7 @@ class evaluate_comp_impl : evaluate_comp {
     // options handling
     void initialize_options_description ();
     bool get_options (int argc, char** argv);
-    void assign_option_values (encoder_params param);
+    void assign_option_values (encoder_params param, std::uint64_t captureTimeStamp);
   
     po::options_description desc_;
     po::variables_map vm_;
@@ -129,7 +129,7 @@ class evaluate_comp_impl : evaluate_comp {
     boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > decoder_V2_;
   
     bool evaluate (); // TBD need catch exceptions
-	bool evaluator(encoder_params param, void*pc, std::stringstream& comp_frame);
+	bool evaluator(encoder_params param, void*pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp);
 	bool evaluate_dc(encoder_params param, void*pc, std::stringstream& comp_frame);
 	//bool evaluator(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame);
     void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud);
@@ -313,7 +313,7 @@ evaluate_comp_impl<PointT>::get_options (int argc, char** argv)
 
 template<typename PointT>
 void
-evaluate_comp_impl<PointT>::assign_option_values(encoder_params param)
+evaluate_comp_impl<PointT>::assign_option_values(encoder_params param, std::uint64_t captureTimeStamp)
 {
 	//algorithm_ = vm_["algorithm"].template as<std::string> ();
 	algorithm_ = "V2";
@@ -372,6 +372,7 @@ evaluate_comp_impl<PointT>::assign_option_values(encoder_params param)
 		intra_frame_quality_csv_ = "i_q.csv";
 		//predictive_quality_csv_ = vm_["predictive_quality_csv"].template as<string>();
 		predictive_quality_csv_ = "p_q.csv";
+		timeStamp_ = captureTimeStamp;
 	}
 }
 template<typename PointT>
@@ -423,6 +424,7 @@ evaluate_comp_impl<PointT>::complete_initialization ()
                              color_bits_ > 0 ? true : false,
                              color_bits_,
                              color_coding_type_,
+							   timeStamp_,
                              keep_centroid_,
                              create_scalable_, // not implemented
                              false, // do_connectivity_coding_ not implemented
@@ -442,6 +444,7 @@ evaluate_comp_impl<PointT>::complete_initialization ()
                              color_bits_ > 0 ? true : false,
                              color_bits_,
                              color_coding_type_,
+								 timeStamp_,
                              keep_centroid_,
                              create_scalable_, // not implemented
                              false, // do_connectivity_coding_, not implemented
@@ -853,7 +856,7 @@ evaluate_comp_impl<PointT>::evaluate ()
 }
 template<typename PointT>
 bool
-evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::stringstream& comp_frame)
+evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp)
 {
 	bool return_value = true;
 
@@ -863,7 +866,7 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 		#ifdef WITH_VTK
 		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
 		#endif
-		assign_option_values(param);
+		assign_option_values(param, captureTimeStamp);
 		//Stays unchanged
 		complete_initialization();
 		//std::cout << "\n Initialisaztion complete \n";
@@ -965,9 +968,9 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
 		#endif
 		//Modified version for lib
-		assign_option_values(param);
+		//assign_option_values(param);
 		//Stays unchanged
-		complete_initialization();
+		//complete_initialization();
 		int count = 0;
 		std::ofstream intra_frame_quality_csv;
 		std::ofstream predictive_quality_csv;

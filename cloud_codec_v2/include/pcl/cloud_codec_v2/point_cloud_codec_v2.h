@@ -105,15 +105,16 @@ namespace pcl{
         * \param codeConnectivity_arg:  connectivity coding (not yet implemented)
         * \param jpeg_quality_arg:  quality of the jpeg encoder (jpeg quality)
         */
-        OctreePointCloudCodecV2 (compression_Profiles_e compressionProfile_arg = MED_RES_ONLINE_COMPRESSION_WITH_COLOR,
-          bool showStatistics_arg = false,
-          const double pointResolution_arg = 0.001,
-          const double octreeResolution_arg = 0.01,
-          bool doVoxelGridDownDownSampling_arg = false,
-          const unsigned int iFrameRate_arg = 0, /* NO PCL P Frames in this version of the codec !! */
-          bool doColorEncoding_arg = true,
-          const unsigned char colorBitResolution_arg = 6,
-          const unsigned char colorCodingType_arg = 0,
+		OctreePointCloudCodecV2(compression_Profiles_e compressionProfile_arg = MED_RES_ONLINE_COMPRESSION_WITH_COLOR,
+			bool showStatistics_arg = false,
+			const double pointResolution_arg = 0.001,
+			const double octreeResolution_arg = 0.01,
+			bool doVoxelGridDownDownSampling_arg = false,
+			const unsigned int iFrameRate_arg = 0, /* NO PCL P Frames in this version of the codec !! */
+			bool doColorEncoding_arg = true,
+			const unsigned char colorBitResolution_arg = 6,
+			const unsigned char colorCodingType_arg = 0,
+			const unsigned char timeStamp_arg = 0,
           bool doVoxelGridCentroid_arg = true, 
           bool createScalableStream_arg = true, 
           bool codeConnectivity_arg = false,
@@ -129,6 +130,7 @@ namespace pcl{
           doColorEncoding_arg,
           colorBitResolution_arg), 
           color_coding_type_(colorCodingType_arg), 
+			timeStamp(timeStamp_arg),
           do_voxel_centroid_enDecoding_(doVoxelGridCentroid_arg),
           create_scalable_bitstream_(createScalableStream_arg),
           do_connectivity_encoding_(codeConnectivity_arg),
@@ -281,6 +283,8 @@ namespace pcl{
         // protected variables cloud codec v2
 
         uint32_t color_coding_type_; //! color coding with jpeg, graph transform, or differential encodings
+
+		uint64_t timeStamp;
 
         bool do_voxel_centroid_enDecoding_;  //! encode the centroid in addition
 

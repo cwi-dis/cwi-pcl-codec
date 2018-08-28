@@ -76,7 +76,7 @@ encoder_V2_->setMacroblockSize(macroblock_size_);
 int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp)
 {
 	evaluate_comp_impl<PointXYZRGB> evaluate;
-	return evaluate.evaluator(param, pc, comp_frame) == true ? 0 : -1;
+	return evaluate.evaluator(param, pc, comp_frame, timeStamp) == true ? 0 : -1;
 }
 
 int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame)

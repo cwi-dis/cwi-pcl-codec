@@ -109,6 +109,7 @@ protected:
     bool create_scalable_;
     int jpeg_quality_;
     int output_index_;
+	std::uint64_t timeStamp_;
   };
  /* evaluate_compression_h */
 struct encoder_params
