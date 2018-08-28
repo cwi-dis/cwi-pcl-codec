@@ -79,10 +79,10 @@ int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& c
 	return evaluate.evaluator(param, pc, comp_frame, timeStamp) == true ? 0 : -1;
 }
 
-int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame)
+int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &timeStamp)
 {
 	evaluate_comp_impl<PointXYZRGB> evaluate;
-	return evaluate.evaluate_dc(param, pc, comp_frame) == true ? 0 : -1;
+	return evaluate.evaluate_dc(param, pc, comp_frame, timeStamp) == true ? 0 : -1;
 }
 FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void)

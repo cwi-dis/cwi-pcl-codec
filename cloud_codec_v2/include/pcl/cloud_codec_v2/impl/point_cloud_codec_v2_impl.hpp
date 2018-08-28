@@ -224,7 +224,7 @@ namespace pcl{
     template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::decodePointCloud (
       std::istream& compressed_tree_data_in_arg,
-      PointCloudPtr &cloud_arg)
+      PointCloudPtr &cloud_arg, uint64_t &tmstmp)
     {
 		//std::cout << "\n Entered cloud codec v2 \n";
 		//std::cout << "\n Size of compressed frame" << sizeof(compressed_tree_data_in_arg);
@@ -254,6 +254,7 @@ namespace pcl{
 
       // read header from input stream
       readFrameHeader (compressed_tree_data_in_arg);
+	  tmstmp = timeStamp;
 	  //std::cout << "\n Frame header read \n ";
       // set the right grid pattern to the JPEG coder
       jp_color_coder_ = ColorCodingJPEG<PointT>(75,color_coding_type_);
@@ -742,6 +743,7 @@ namespace pcl{
         true,
         color_bit_resolution_,
         color_coding_type_, 
+			timeStamp,
         do_voxel_centroid_enDecoding_
         );
 
@@ -1074,6 +1076,7 @@ namespace pcl{
 				true,
 				color_bit_resolution_,
 				color_coding_type_,
+				timeStamp,
 				do_voxel_centroid_enDecoding_
 				);
 		intra_coder.defineBoundingBox(0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
@@ -1200,8 +1203,8 @@ namespace pcl{
 			timeStamp,
         do_voxel_centroid_enDecoding_
         );
-
-      intra_coder.decodePointCloud(i_coded_data,intra_coded_points);
+	  uint64_t t = 0;
+      intra_coder.decodePointCloud(i_coded_data,intra_coded_points,t);
 
       // add the decoded input points to the output cloud
       for(int i=0; i< intra_coded_points->size();i++)
@@ -1455,6 +1458,7 @@ namespace pcl{
       OctreePointCloudCompression<PointT, LeafT, BranchT, OctreeT>::writeFrameHeader(compressed_tree_data_out_arg);
 
       //! write additional fields for cloud codec v2
+	  //std::cout << "\n Input time stamp is: " << timeStamp << "\n";
 	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&timeStamp), sizeof(timeStamp));
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&do_voxel_centroid_enDecoding_), sizeof (do_voxel_centroid_enDecoding_)); // centroid coding
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&do_connectivity_encoding_), sizeof (do_connectivity_encoding_));        // connectivity coding (not yet added)
@@ -1473,7 +1477,7 @@ namespace pcl{
 
       //! read additional fields for cloud codec v2
 	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&timeStamp), sizeof(timeStamp));
-	  std::cout << "\n Timestamp is :" << timeStamp;
+	  //std::cout << "\n Timestamp is :" << timeStamp;
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&do_voxel_centroid_enDecoding_), sizeof (do_voxel_centroid_enDecoding_));
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&do_connectivity_encoding_), sizeof (do_connectivity_encoding_));
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&create_scalable_bitstream_), sizeof (create_scalable_bitstream_));

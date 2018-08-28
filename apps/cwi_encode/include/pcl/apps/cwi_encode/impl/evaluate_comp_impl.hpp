@@ -116,7 +116,7 @@ class evaluate_comp_impl : evaluate_comp {
     void do_outlier_removal (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > >& pointcloud);
     pcl::io::BoundingBox do_bounding_box_normalization (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > >& pointcloud);
     void do_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > point_cloud, stringstream* coded_stream, QualityMetric & achieved_quality);
-    void do_decoding (stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & achieved_quality);
+    void do_decoding (stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & achieved_quality, uint64_t &tmstmp_);
     void do_delta_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > p_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > out_cloud, stringstream* i_stream, stringstream* p__stream, QualityMetric & quality_metric);
     void do_delta_decoding (stringstream* i_stream, stringstream* p_stream, boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > out_cloud, QualityMetric & qualityMetric);
     void do_quality_computation (boost::shared_ptr<pcl::PointCloud<PointT> > & pointcloud, boost::shared_ptr<pcl::PointCloud<PointT> > &reference_pointcloud, QualityMetric & quality_metric);
@@ -130,7 +130,7 @@ class evaluate_comp_impl : evaluate_comp {
   
     bool evaluate (); // TBD need catch exceptions
 	bool evaluator(encoder_params param, void*pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp);
-	bool evaluate_dc(encoder_params param, void*pc, std::stringstream& comp_frame);
+	bool evaluate_dc(encoder_params param, void*pc, std::stringstream& comp_frame, uint64_t &tmstmp_);
 	//bool evaluator(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame);
     void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud);
     int debug_level_;
@@ -514,7 +514,7 @@ evaluate_comp_impl<PointT>::do_encoding (boost::shared_ptr<pcl::PointCloud<Point
     
 template<typename PointT>
 void
-evaluate_comp_impl<PointT>::do_decoding (std::stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & qualityMetric)
+evaluate_comp_impl<PointT>::do_decoding (std::stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & qualityMetric, uint64_t &tmstmp_)
 {
   pcl::console::TicToc tt;
   tt.tic ();
@@ -527,10 +527,7 @@ evaluate_comp_impl<PointT>::do_decoding (std::stringstream* coded_stream, boost:
   {
     if (algorithm_ == "V2")
     {
-		//std::cout << "\n Strating decoding algo v2 \n";
-		//std::cout << "\nsize of coded_stream :\n" << sizeof(*coded_stream);
-		//std::cout << "\nsize of pointcloud :\n" << sizeof(pointcloud);
-		decoder_V2_->decodePointCloud (*coded_stream, pointcloud);
+		decoder_V2_->decodePointCloud (*coded_stream, pointcloud, tmstmp_);
     }
   }
   //std::cout << "\n Decoding complete\n";
@@ -954,7 +951,7 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 
 template<typename PointT>
 bool
-evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::stringstream& comp_frame)
+evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &tmstmp_)
 {
 	bool return_value = true;
 
@@ -968,9 +965,9 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
 		#endif
 		//Modified version for lib
-		//assign_option_values(param);
+		assign_option_values(param,tmstmp_);
 		//Stays unchanged
-		//complete_initialization();
+		complete_initialization();
 		int count = 0;
 		std::ofstream intra_frame_quality_csv;
 		std::ofstream predictive_quality_csv;
@@ -1006,7 +1003,7 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 		std::stringstream coded_stream(s);
 		std::stringstream *ss = &comp_frame;;
 		//ss << comp_frame.rdbuf();
-		do_decoding(&coded_stream, ptcld, achieved_quality);
+		do_decoding(&coded_stream, ptcld, achieved_quality,tmstmp_);
 		//std::cout << "\n Size of decoded point cloud :" << (*ptcld).points.size() << "\n";
 		//std::cout << " Decoding done ";
 		//do_decoding(&coded_stream, output_pointcloud, achieved_quality);
@@ -1103,7 +1100,8 @@ evaluate_comp_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<pcl::Po
     int group_size = group.size ();
     boost::shared_ptr<pcl::PointCloud<PointT> > output_pointcloud (new pcl::PointCloud<PointT> ()), opc (new pcl::PointCloud<PointT> ());
     opc = group[i];
-    do_decoding (&coded_stream, output_pointcloud, achieved_quality);
+	uint64_t t = 0;
+    do_decoding (&coded_stream, output_pointcloud, achieved_quality, t);
     if (do_quality_computation_)
     {
       do_quality_computation (pc, output_pointcloud, achieved_quality);

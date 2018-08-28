@@ -114,7 +114,8 @@ namespace pcl{
 			bool doColorEncoding_arg = true,
 			const unsigned char colorBitResolution_arg = 6,
 			const unsigned char colorCodingType_arg = 0,
-			const unsigned char timeStamp_arg = 0,
+			uint64_t timeStamp_arg = 0,
+			//const unsigned char timeStamp_arg = 0,
           bool doVoxelGridCentroid_arg = true, 
           bool createScalableStream_arg = true, 
           bool codeConnectivity_arg = false,
@@ -177,7 +178,7 @@ namespace pcl{
         encodePointCloud (const PointCloudConstPtr &cloud_arg, std::ostream& compressed_tree_data_out_arg);
 
         void
-        decodePointCloud (std::istream& compressed_tree_data_in_arg, PointCloudPtr &cloud_arg);
+        decodePointCloud (std::istream& compressed_tree_data_in_arg, PointCloudPtr &cloud_arg, uint64_t &tmstmp);
 
         virtual void
         generatePointCloudDeltaFrame (const PointCloudConstPtr &icloud_arg, const PointCloudConstPtr &pcloud_arg, PointCloudPtr &out_cloud_arg, 

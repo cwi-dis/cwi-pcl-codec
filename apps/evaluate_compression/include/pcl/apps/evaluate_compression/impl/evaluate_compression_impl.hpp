@@ -487,7 +487,8 @@ evaluate_compression_impl<PointT>::do_decoding (std::stringstream* coded_stream,
   {
     if (algorithm_ == "V2")
     {
-      decoder_V2_->decodePointCloud (*coded_stream, pointcloud);
+		uint64_t t = 0;
+		decoder_V2_->decodePointCloud (*coded_stream, pointcloud, t);
     }
   }
   qualityMetric.decoding_time_ms = tt.toc ();

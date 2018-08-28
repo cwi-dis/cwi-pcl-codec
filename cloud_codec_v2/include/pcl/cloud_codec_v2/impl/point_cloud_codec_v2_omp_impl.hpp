@@ -250,6 +250,7 @@ namespace pcl
 	  true,
 	  color_bit_resolution_,
 	  color_coding_type_,
+		timeStamp,
 	  do_voxel_centroid_enDecoding_
 	);
 	intra_coder.defineBoundingBox(0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
