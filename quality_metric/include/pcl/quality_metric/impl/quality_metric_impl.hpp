@@ -381,19 +381,20 @@ QualityMethod
 QualityMetric::get_QualityMethod (std::string& method_as_string){
   std::vector<std::string> method_specs;
     
-  boost::split(method_specs, method_as_string, boost::is_any_of("|"));
+  boost::split(method_specs, method_as_string, boost::is_any_of(","));
   unsigned int mtd = SELECT;
   for (int i = 0; i < method_specs.size(); i++)
     if (false);
-      else if (method_specs[i].compare("")==0)            mtd = 0;
-      else if (method_specs[i].compare("SELECT")==0)      mtd |= SELECT;
-      else if (method_specs[i].compare("BBALIGNED")==0)   mtd |= BBALIGNED;
-      else if (method_specs[i].compare("TCSVT")==0)       mtd |= TCSVT;
-      else if (method_specs[i].compare("MAX_NN")==0)      mtd |= MAX_NN;
-      else if (method_specs[i].compare("NORMALISED")==0)  mtd |= NORMALISED;
-      else if (method_specs[i].compare("BT709")==0)       mtd |= BT709;
-      else throw std::invalid_argument(method_specs[i]);
-    return (QualityMethod) mtd;
+    else if (method_specs[i].compare("")==0)            mtd = 0;
+    else if (method_specs[i].compare("NONE")==0)        mtd = 0;
+    else if (method_specs[i].compare("SELECT")==0)      mtd |= SELECT;
+    else if (method_specs[i].compare("BBALIGNED")==0)   mtd |= BBALIGNED;
+    else if (method_specs[i].compare("TCSVT")==0)       mtd |= TCSVT;
+    else if (method_specs[i].compare("MAX_NN")==0)      mtd |= MAX_NN;
+    else if (method_specs[i].compare("NORMALISED")==0)  mtd |= NORMALISED;
+    else if (method_specs[i].compare("BT709")==0)       mtd |= BT709;
+    else throw std::invalid_argument(method_specs[i]);
+  return (QualityMethod) mtd;
 }
 
 #endif

@@ -200,7 +200,7 @@ evaluate_compression_impl<PointT>::initialize_options_description ()
     ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
     ("icp_on_original", po::value<bool> ()->default_value (false),"icp_on_original ") // iterative closest point
     ("jpeg_quality,j", po::value<int> ()->default_value (0), "jpeg quality parameter ")
-    ("quality_method,q", po::value<int> ()->default_value (0),"compute objective quality (0=<skip>, 1=<default>, 2=BBALIGNED, 4=peak value from largest original <xyz>, 8=peak value from largest nearest neighbour, 16=normalize point clouds,32=use BT.709 i.o BT.601 for colour PSNR" )
+    ("quality_method,q", po::value<std::string> ()->default_value ("NONE"),"compute objective quality (NONE,SELECT,BBALIGNED,TCSVT,MAX_NN,NORMALISED,BT709)" )
     ("do_icp_color_offset",po::value<bool> ()->default_value (false), "do color offset coding on predictive frames")
     ("num_threads,n",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
     ("intra_frame_quality_csv", po::value<string>()->default_value("intra_frame_quality.csv")," intra frame coding quality results file name (.csv file)")

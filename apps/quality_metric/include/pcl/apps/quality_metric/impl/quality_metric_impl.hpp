@@ -106,7 +106,7 @@ quality_metric_impl<PointT>::initialize_options_description ()
   ("help,h", "produce help message ")
   ("fileA,a", po::value<std::string> ()->default_value (""), "Path to original pointcloud file")
   ("fileB,b", po::value<std::string> ()->default_value (""), "Path to degenerated pointcloud file")
-  ("method,m", po::value<std::string> ()->default_value (""), "Error computation method: TCSVT, MAX_NN, NORMALISED, BT709")
+  ("method,m", po::value<std::string> ()->default_value ("NONE"), "Error computation method: NONE,SELECT,TCSVT,MAX_NN,NORMALISED,BT709")
   ("debug_level",po::value<int> ()->default_value (0), "debug print level (0=no debug print, 3=all debug print)")
   ;
 }

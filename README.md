@@ -3,115 +3,39 @@
 cwi-pcl-codec
 =============
 
-This distribution contains a codec for encoding/decoding 3D Point Cloud data streams, and a toolset for its objective evaluation.   
-The codec is described in detail in a journal paper(R. Mekuria, K. Blom, and P. Cesar, "Design, Implementation and Evaluation of a Point Cloud Codec for Tele-Immersive Video," IEEE Transactions on Circuits and Systems for Video Technology, 27(4): 828 -842, 2017, of which a preprint is available at: https://ir.cwi.nl/pub/24395.   
-The codec has served as the software to generate the anchors for the Call for Proposals for Point Cloud Compression by  the MPEG working group 3DG-PCC on PointCloud Compression
-(http://mpeg.chiariglione.org/standards/exploration/point-cloud-compression).
+This distribution contains a codec for encoding/decoding 3D Point Cloud data streams
+and a toolset for its objective evaluation.   
+It is described in detail in a journal paper(R. Mekuria, K. Blom, and P. Cesar,
+"Design, Implementation and Evaluation of a Point Cloud Codec for Tele-Immersive Video,
+" IEEE Transactions on Circuits and Systems for Video Technology, 27(4): 828 -842, 2017,
+(preprint is available at: https://ir.cwi.nl/pub/24395).
+The codec has served as an anchor for the "Call for Proposals for Point Cloud Compression"
+by  the MPEG working group 3DG-PCC on PointCloud Compression
+(https://mpeg.chiariglione.org/standards/mpeg-i/point-cloud-compression/call-proposals-point-cloud-compression-v2).
 
-This version can be build on  Ubuntu 16.04 (64 bit) or Windows 32 bit, using pre-build PointCloudLibrary(PCL)
-installers, or on many other systems by downloading and building PCL and its dependencies.
+The package contains:
 
-This package contains:
-
+* this file 'README.md'
 * codec software (cloud_codec_v2)
-* auxiliary files needed (for using 'cmake'  and building 'jpeg_io')
-* quality metrics
+* auxiliary files needed 
+* quality metrics library and app
 * evaluation library
 * tools for testing and evaluation of several aspects of this codec
-* installation instruction
+* installation instruction ('INSTALL.md')
 
-To use it, several dependencies (Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) need to be installed:  
+This version can be build on  Ubuntu 18.04 (64 bit), Windows 32/64 bit and MacOS 10.13.8 Hight Sierra,
+using binary installers for the Point Cloud Library (PCL), or on many other systems by downloading
+and building PCL and its dependencies.
 
-* for Ubuntu 16.04 by installing a number of Debian packages
-* for Windows 7,8 and 10, most of this can be done using an all-in-one installer
-* for all other supported systems by downloading, building and installing PCL 
-  and its necessary Third Party Package (TPP's) as described at:
-  http://pointclouds.org/downloads -> 'Compiling from source'.
+For details, see the file 'INSTALL.md' inthis directory.
 
-Installation
-============
+After building 2 applications will be available:
 
-Easy Ubuntu 16.04 Install PCL 1.8.0 using binary packages:
-----------------------------------------------------------
+evaluate_compression - reads Pointcloud datafiles, compress/decompress each of them, output the resulting pointclouds,
+		     visualizes and compares the original pointclouds with the encoded/decoded resulting pointclouds
+		     by calculating an objective metrics, using a variaty of algorithms.
 
-* On a clean Ubuntu 16.04 installation, start 'Terminal' and install the basic tools and 3rd party packages packages:  
-   sudo apt-get install -y git build-essential linux-libc-dev cmake cmake-gui cmake cmake-gui libusb-1.0-0-dev libusb-dev libudev-dev mpi-default-dev openmpi-bin openmpi-common libflann1.8 libflann-dev libeigen3-dev libboost-all-dev libvtk6.2-qt libvtk6.2 libvtk6-dev libvtk6-qt-dev libqhull* libgtest-dev freeglut3-dev pkg-config libxmu-dev libxi-dev mono-complete qt-sdk openjdk-8-jdk openjdk-8-jre libopenni0 libopenni-sensor-pointclouds0  libopenni-dev libopenni-sensor-pointclouds-dev libproj-dev libjpeg-turbo8-dev
-   
-* Get the PCL-1.8 (Point CLoud Librarry) installer for Ubuntu 16.04 64-bit:  
-wget https://www.dropbox.com/s/9llzm20pc4opdn9/PCL-1.8.0-Linux.deb   
-(see also: 'https://larrylisky.com/2014/03/03/installing-pcl-on-ubuntu/')   
-(prior versions of PCL are not recommended, e.g. in PCL1.7 visualization does not work properly)
-
-* Install PCL-1.8:
-  sudo dpkg -i PCL-1.8.0-Linux.deb
-
-* This installer has a bug, for which a patch is to be used: 'cd' to the directory 'cwi-pcl-codec'
-  (where this file README.md was distributed), and type:
-  (PATCH=$PWD/PCLConfig-Ubuntu16.04.patch;cd /;sudo patch -p1 < $PATCH)
-  
-* Start 'cmake-gui (>= 3.10)', specify the directory where this file is located in 'Where is the source code',
-  another empty directory 'Where to build the binaries', and select 'Unix Makefiles' in the 'CMakeSetup'
-  pop-up window. Click(tap) 'Configure', and 'Generate'.
-
-Now the codec libraries and evaluation tools can be build by typing 'make' in the directory
-that was specified in 'cmake-gui' to build the binaries.
-
-Less easy install on Windows 7,8,10:
------------------------------------
-
-* Install 'Visual Studio (2015)' and 'cmake-gui'
-
-* Install PCL-1.8 and all 3rd party packages that it needs using its
-   All-In-One Installer from 'http://unanancyowen.com/en/pcl18/':
-  'https://1drv.ms/u/s!ApoY_0Ymu57sg5QkeGyAxxAmuI4j0g' (32 bit installer)
-
-* Download source tarball for 'libjpeg-turbo' from 'www.libjpeg-turbo.org':
-  https://sourceforge.net/projects/libjpeg-turbo/files/1.5.3/libjpeg-turbo-1.5.3.tar.gz/download
-  Unpack the tarball and start 'cmake_gui', select for 'source code' directory the top-level directory
-  of 'libturbo-jpeg' (contains 'CMakelists.txt'), and for 'binaries' another directory, click 'Configure' and 'Generate'.
-  Now in your 'binaries' directory open the file 'libjpeg-turbo-1.5.3.sln' with Visual Studio 2015.
-  In the Solution Explorer click Project 'INSTALL'. 
-  Select Build->Build Solution, if this is successful  select 'Build->Build INSTALL'.
-  By default this installs the include files and libraries libraries in 'C:\libjpeg-turbo\include' and
-  'C:\libjpeg-turbo\lib'
-
-* Next start 'cmake-gui', select for 'source code' the directory 'cwi-pcl-codec' (where this file README.md
-  distributed), and for 'binaries' another directory
-
-* Search for 'jpeg', for JPEG_INCLUDES specify 'C:/libjpeg-turbo/include' and for 'JPEG_LIBRARY'
-  'C:/libjpeg-turbo/lib/turbojpeg-static.lib'.
-  Next select 'Configure' and 'Generate', and you'll find a Microsoft Visual Studio Solution
-  in the directory that was specified for 'binaries'.
- 
-* Start Visual Studio with the 'Solution' file created in the previous paragraph and select 'Build->Build Solution'.
-
-* After successful building, the program 'evaluate_compression.exe' can be found in the directory:
- 'binaries'\apps\evaluate_compression\Debug.
-  Before running, adapt the following environment variable:
-  set path=%path%;C:\libjpeg-turbo-gcc\bin;C:\Program Files (x86)\OpenNI2\Tools 
- 
-  Suitable input files for the program can be downloaded from: http://vcl.iti.gr/reconstruction/
-  Most of these data sets are huge; unpack some and specify the full directory path as an argument
-  to the program:
-  evaluate_compression --input_directories=<full path to directory with datafiles>
-
-Not so easy (tedious, but not difficult) install PCL 1.8.0 from source: (all platforms):
-----------------------------------------------------------------------------------------
-
-* Get PCL source code from 'https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.8.0'
-  (note that the source code in the PCL development tree is not compatible with this package).
-
-* Get 3rd party packages:
-  follow the instructions in: http://pointclouds.org/documentation/tutorials/compiling_pcl_dependencies_windows.php
-  or http://pointclouds.org/documentation/tutorials/compiling_pcl_macosx.php#compiling-pcl-macosx
-  Be aware that the version numbers of some 3rd party packages are outdated and should match those used in the
-  'apt-install' commands above.
-
-* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building the additional libraries and excutables in this package.
-
-* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building PCL
-
-Running the evaluation program
+Running evaluation_compression
 ==============================
 
 The following arguments are recognized by the program 'evaluate_compression':  
@@ -140,7 +64,8 @@ The following arguments are recognized by the program 'evaluate_compression':
   --icp_on_original arg (=0)            icp_on_original  
   -j [ --jpeg_quality ] arg (=0)        jpeg quality parameter  
   -d [ --do_delta_coding ] arg (=0)     use delta (predictive) en(de)coding  
-  -q [ do_quality_computation arg ](=0) compute quality of en(de)coding  
+  -q [ --quality_method arg ](="NONE")  compute quality of en(de)coding using specified comma-separated methods:
+       			    		NONE,SELECT,BBALIGNED,TCSVT,MAX_NN,NORMALISED,BT709
   --do_icp_color_offset arg (=0)        do color offset en(de)coding on predictive frames  
   -n [ --num_threads ] arg (=1)         number of parallel threads (1=default, single  thread, no parallel execution)  
   --intra_frame_quality_csv arg (=intra_frame_quality.csv) intra frame coding quality results filename (.csv file)  
@@ -149,7 +74,29 @@ The following arguments are recognized by the program 'evaluate_compression':
 
 The precise meanings of these parameters are explained in the journal paper mentioned above.
 
-Apr.6, 2017, updated: Jun 25, 2017 and Apr. 23, 2018.   
+For the various quality methods:
+BBALIGNED	- use the differences of the bounding box aligned pointclouds before and after (de)compression
+TCSVT           - use the same method as in the paper
+MAX_NN          - use the maximal nearest neighbour for the peak value in geometric PSNR
+NORMALISED      - scale all points in the pointclouds to be bounded by [0,1]
+BT709           - use the BT.709 algorithm instead of for RGB to YUV conversion
+
+
+Running quality_metric
+======================
+
+The following arguments are recognized by the program 'quality_metric':  
+(long version arguments without '--' can also be put in a file 'parameter_config.txt' in the working directory or its parent)
+
+
+  -h [ --help ]                         produce help message  
+  -a [ --fileA arg ]                    specify original pointcloud file (.ply or .pcd format)
+  -b [ --fileB arg ]                    specify degraded pointcloud file (.ply or .pcd format)
+  -q [ --quality_method arg ](="NONE")  compute quality of en(de)coding using specified comma-separated methods:
+       			    		NONE,SELECT,TCSVT,MAX_NN,NORMALISED,BT709
+
+
+Apr.6, 2017, updated: Jun 25, 2017, Apr. 23, 2018 and Aug.28, 2018.   
 Kees Blom (Kees.Blom@cwi.nl) CWI, Amsterdam, The Netherlands
 
 
