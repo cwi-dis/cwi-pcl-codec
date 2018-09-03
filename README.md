@@ -17,7 +17,7 @@ The package contains:
 
 * this file 'README.md'
 * codec software (cloud_codec_v2)
-* auxiliary files needed 
+* auxiliary files needed
 * quality metrics library and app
 * evaluation library
 * tools for testing and evaluation of several aspects of this codec
@@ -56,7 +56,7 @@ The following arguments are recognized by the program 'evaluate_compression':
   -b [ --octree_bits arg ] (=11)        octree resolution (bits)  
   -c [ --color_bits arg ] (=8)          color resolution (bits)  
   -e [ --enh_bits ] arg ] (=0)          not implemented
-  -t [ --color_coding_type arg ] (=1)   pcl=0,jpeg=1 
+  -t [ --color_coding_type arg ] (=1)   pcl=0,jpeg=1
   -m [ --macroblock_size arg ] (=16)    size of macroblocks used for predictive frame (has to be a power of 2)  
   --keep_centroid  arg (=0)             keep voxel grid positions or not  
   --create_scalable arg (=0)            create scalable bitstream (not yet implemented)  
@@ -65,7 +65,7 @@ The following arguments are recognized by the program 'evaluate_compression':
   -j [ --jpeg_quality ] arg (=0)        jpeg quality parameter  
   -d [ --do_delta_coding ] arg (=0)     use delta (predictive) en(de)coding  
   -q [ --quality_method arg ](="NONE")  compute quality of en(de)coding using specified comma-separated methods:
-       			    		NONE,SELECT,BBALIGNED,TCSVT,MAX_NN,NORMALISED,BT709
+       			    												NONE,SELECT,BBALIGNED,TCSVT,MAX_NN,NORMALISED,BT709
   --do_icp_color_offset arg (=0)        do color offset en(de)coding on predictive frames  
   -n [ --num_threads ] arg (=1)         number of parallel threads (1=default, single  thread, no parallel execution)  
   --intra_frame_quality_csv arg (=intra_frame_quality.csv) intra frame coding quality results filename (.csv file)  
@@ -74,8 +74,11 @@ The following arguments are recognized by the program 'evaluate_compression':
 
 The precise meanings of these parameters are explained in the journal paper mentioned above.
 
-For the various quality methods:
-BBALIGNED	- use the differences of the bounding box aligned pointclouds before and after (de)compression
+Available quality methods:
+NONE            - disable quality metric computation
+SELECT					- enable quality metric computation using defualt methods
+BBALIGNED				- use the differences of the bounding box aligned pointclouds before and after (de)compression
+									instead of comparing the original pointcloud with the final resulting pointcloud
 TCSVT           - use the same method as in the paper
 MAX_NN          - use the maximal nearest neighbour for the peak value in geometric PSNR
 NORMALISED      - scale all points in the pointclouds to be bounded by [0,1]
@@ -93,10 +96,8 @@ The following arguments are recognized by the program 'quality_metric':
   -a [ --fileA arg ]                    specify original pointcloud file (.ply or .pcd format)
   -b [ --fileB arg ]                    specify degraded pointcloud file (.ply or .pcd format)
   -q [ --quality_method arg ](="NONE")  compute quality of en(de)coding using specified comma-separated methods:
-       			    		NONE,SELECT,TCSVT,MAX_NN,NORMALISED,BT709
+                          			    		NONE,SELECT,TCSVT,MAX_NN,NORMALISED,BT709
 
 
 Apr.6, 2017, updated: Jun 25, 2017, Apr. 23, 2018 and Aug.28, 2018.   
 Kees Blom (Kees.Blom@cwi.nl) CWI, Amsterdam, The Netherlands
-
-

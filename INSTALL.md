@@ -9,19 +9,18 @@ and its dependencies need to be installed:
   libpcl-devpcl and libturbojpeg0-dev using the package manger 'synaptic'
 
 * for Windows 8 and 10, use the all-in-one installer for PCL-1.8.1 for your system and Visual Studio version
-  at: http://unanancyowen.com/en/pcl181/
+  at: http://unanancyowen.com/en/pcl181/. In addition, get and install 'libjpeg-turbo', from 'libjpeg-turbo.org'
 
 * For MacOS 10.13.8 High Sierra type in a terminal window: brew install jpeg-turbo pcl
 
-* for all other supported systems by downloading, building and installing PCL 
+* for all other supported systems by downloading, building and installing PCL
   and its necessary Third Party Package (TPP's: Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) as described at:
   http://pointclouds.org/downloads -> 'Compiling from source'.
 
-Next this package needs to be build:
 
 Ubuntu 18.04 Build & Install:
 -----------------------------
-  
+
 * Start 'cmake-gui (>= 3.10)', specify the directory where this file is located in 'Where is the source code',
   another empty directory 'Where to build the binaries', and select 'Unix Makefiles' in the 'CMakeSetup'
   pop-up window. Click(tap) 'Configure', and 'Generate'.
@@ -38,7 +37,7 @@ that was specified in 'cmake-gui' to build the binaries.
   Unpack the tarball and start 'cmake_gui', select for 'source code' directory the top-level directory
   of 'libturbo-jpeg' (contains 'CMakelists.txt'), and for 'binaries' another directory, click 'Configure' and 'Generate'.
   Now in your 'binaries' directory open the file 'libjpeg-turbo-1.5.3.sln' with Visual Studio 2015.
-  In the Solution Explorer click Project 'INSTALL'. 
+  In the Solution Explorer click Project 'INSTALL'.
   Select Build->Build Solution, if this is successful  select 'Build->Build INSTALL'.
   By default this installs the include files and libraries libraries in 'C:\libjpeg-turbo\include' and
   'C:\libjpeg-turbo\lib'
@@ -50,14 +49,14 @@ that was specified in 'cmake-gui' to build the binaries.
   'C:/libjpeg-turbo/lib/turbojpeg-static.lib'.
   Next select 'Configure' and 'Generate', and you'll find a Microsoft Visual Studio Solution
   in the directory that was specified for 'binaries'.
- 
+
 * Start Visual Studio with the 'Solution' file created in the previous paragraph and select 'Build->Build Solution'.
 
 * After successful building, the program 'evaluate_compression.exe' can be found in the directory:
  'binaries'\apps\evaluate_compression\Debug.
   Before running, adapt the following environment variable:
-  set path=%path%;C:\libjpeg-turbo-gcc\bin;C:\Program Files (x86)\OpenNI2\Tools 
- 
+  set path=%path%;C:\libjpeg-turbo-gcc\bin;C:\Program Files (x86)\OpenNI2\Tools
+
   Suitable input files for the program can be downloaded from: http://vcl.iti.gr/reconstruction/
   Most of these data sets are huge; unpack some and specify the full directory path as an argument
   to the program:
