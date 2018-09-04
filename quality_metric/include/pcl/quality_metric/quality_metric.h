@@ -49,11 +49,11 @@
 	 * Since there is currently no clear agreement how to define geometric PSNR of degenerated
 	 * Point Clouds (PCs) we define some variants, all based on the point-to-point approach:
 	 * NONE	      - no quality computation
-     * SELECT     - select quality computation with optional options
+   * SELECT     - select quality computation with optional options
 	 * ORIGINAL	  - Vorig-maxgeo     in https://github.com/RufaelDev/pcc-mp3dg/tree/tcsvt_version
-     * TCSVT      - Vdegr-maxgeo in R.Mekuria e.a. IEEE TCSVT 277(4): pp. 828-842, 2017
+   * TCSVT      - Vdegr-maxgeo in R.Mekuria e.a. IEEE TCSVT 277(4): pp. 828-842, 2017
 	 * MAX_NN	  - same, but geom. peak value is maximal Nearest Neighbor distance
-     * NORMALISED - PC x,y,z values re-scaled to [0,1), geom. peak value approaches sqrt(3)
+   * NORMALISED - PC x,y,z values re-scaled to [0,1), geom. peak value approaches sqrt(3)
 	*/
 	enum QualityMethod { NONE=0,        //! no quality computation
                        SELECT=1,      //! select quality computation with optional options
