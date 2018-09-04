@@ -93,8 +93,9 @@ The following arguments are recognized by the program 'quality_metric':
 
 
   -h [ --help ]                         produce help message  
-  -a [ --fileA arg ]                    specify original pointcloud file (.ply or .pcd format)
+  -a [ --fileA arg ]                    specify original pointcloud file (.ply or .pcd format) 
   -b [ --fileB arg ]                    specify degraded pointcloud file (.ply or .pcd format)
+
   -q [ --quality_method arg ](="NONE")  compute quality of en(de)coding using specified comma-separated methods:
                           			    		NONE,SELECT,TCSVT,MAX_NN,NORMALISED,BT709
 

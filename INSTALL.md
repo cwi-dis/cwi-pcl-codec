@@ -62,7 +62,7 @@ that was specified in 'cmake-gui' to build the binaries.
   to the program:
   evaluate_compression --input_directories=<full path to directory with datafiles>
 
-Not so easy (tedious, but not difficult) install PCL 1.8.0 from source: (all platforms):
+Other platforms: install PCL 1.8.1 from source:
 ----------------------------------------------------------------------------------------
 
 * Get PCL source code from 'https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.8.1'
@@ -74,7 +74,14 @@ Not so easy (tedious, but not difficult) install PCL 1.8.0 from source: (all pla
   Be aware that the version numbers of some 3rd party packages are outdated and should match those used in the
   'apt-install' commands above.
 
-* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building the additional
-  libraries and excutables in this package.
+* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building each of the additional libraries and excutables in these package;
+  build and install each of the libraries using the build system selected by 'cmake'
 
-* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building PCL
+* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building PCL;
+  build and install the libraries using the build system selected by 'cmake'
+
+* Download libjpeg-turbo  https://sourceforge.net/projects/libjpeg-turbo/files/1.5.3/libjpeg-turbo-1.5.3.tar.gz/download
+  Use: 'configure; make install' to install the libraries
+
+* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building cwi-pcl-codec;
+  build and install the libraries using the build system selected by 'cmake'
