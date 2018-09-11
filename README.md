@@ -5,10 +5,10 @@ cwi-pcl-codec
 
 This distribution contains a codec for encoding/decoding 3D Point Cloud data streams
 and a toolset for its objective evaluation.   
-It is described in detail in a journal paper(R. Mekuria, K. Blom, and P. Cesar,
+It is described in detail in a journal paper (R. Mekuria, K. Blom, and P. Cesar,
 "Design, Implementation and Evaluation of a Point Cloud Codec for Tele-Immersive Video,
 " IEEE Transactions on Circuits and Systems for Video Technology, 27(4): 828 -842, 2017,
-(preprint is available at: https://ir.cwi.nl/pub/24395).
+(preprint is available at: https://ir.cwi.nl/pub/24395).  
 The codec has served as an anchor for the "Call for Proposals for Point Cloud Compression"
 by  the MPEG working group 3DG-PCC on PointCloud Compression
 (https://mpeg.chiariglione.org/standards/mpeg-i/point-cloud-compression/call-proposals-point-cloud-compression-v2).
@@ -33,7 +33,7 @@ After building 2 applications will be available:
 
 evaluate_compression - reads Pointcloud datafiles, compress/decompress each of them, output the resulting pointclouds,
 		     visualizes and compares the original pointclouds with the encoded/decoded resulting pointclouds
-		     by calculating an objective metrics, using a variaty of algorithms.
+		     by calculating an objective metrics, using a variety of algorithms.
 
 Running evaluation_compression
 ==============================
@@ -93,9 +93,8 @@ The following arguments are recognized by the program 'quality_metric':
 
 
   -h [ --help ]                         produce help message  
-  -a [ --fileA arg ]                    specify original pointcloud file (.ply or .pcd format) 
-  -b [ --fileB arg ]                    specify degraded pointcloud file (.ply or .pcd format)
-
+  -a [ --fileA arg ]                    specify original pointcloud file (.ply or .pcd format)  
+  -b [ --fileB arg ]                    specify degraded pointcloud file (.ply or .pcd format)  
   -q [ --quality_method arg ](="NONE")  compute quality of en(de)coding using specified comma-separated methods:
                           			    		NONE,SELECT,TCSVT,MAX_NN,NORMALISED,BT709
 

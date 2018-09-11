@@ -177,8 +177,8 @@ evaluate_compression_impl<PointT>::initialize_options_description ()
 {
   desc_.add_options ()
     ("help,h", "produce help message ")
-    ("K_outlier_filter,K",po::value<int> ()->default_value (0), "K neighbours for radius outlier filter ")
-    ("radius",po::value<double> ()->default_value (0.01), "radius outlier filter, maximum radius ")
+    ("K_outlier_filter,K",po::value<int> ()->default_value (0), "'K' neighbours within 'radius' needed for each inlier point (radius outlier filter)  ")
+    ("radius",po::value<double> ()->default_value (0.01), "radius for outlier filter")
     ("group_size,g",po::value<int> ()->default_value (0), "maximum number of files to be compressed together (0=read all files0, then en(de)code 1 by 1)")
     ("bb_expand_factor,f", po::value<double> ()->default_value (0.20), "bounding box expansion to keep bounding box accross frames")
     ("algorithm,a",po::value<string> ()->default_value ("V2"), "compression algorithm ('', 'V1', 'V2' or 'Delta')")
@@ -188,6 +188,11 @@ evaluate_compression_impl<PointT>::initialize_options_description ()
     ("visualization,v",po::value<bool> ()->default_value (false)->implicit_value (true), "show both original and decoded PointClouds graphically")
     ("point_resolution,p", po::value<double> ()->default_value (0.20), "XYZ resolution of point coordinates")
     ("octree_resolution,r", po::value<double> ()->default_value (0.20), "voxel size")
+    ("quality_method,q", po::value<std::string> ()->default_value ("NONE"),"compute objective quality (NONE,SELECT,BBALIGNED,TCSVT,MAX_NN,NORMALISED,BT709)" )
+    ("intra_frame_quality_csv", po::value<string>()->default_value("intra_frame_quality.csv")," intra frame coding quality results file name (.csv file)")
+    ("predictive_quality_csv",po::value<string>()->default_value("predictive_quality.csv"), " predictive coding quality results file name (.csv file)")
+    ("num_threads,n",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
+    ("debug_level",po::value<int> ()->default_value (0), "debug print level (0=no debug print, 3=all debug print)")
 
     // V2 specific
     ("octree_bits,b", po::value<int> ()->default_value (11), "octree resolution (bits)")
@@ -200,12 +205,7 @@ evaluate_compression_impl<PointT>::initialize_options_description ()
     ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
     ("icp_on_original", po::value<bool> ()->default_value (false),"icp_on_original ") // iterative closest point
     ("jpeg_quality,j", po::value<int> ()->default_value (0), "jpeg quality parameter ")
-    ("quality_method,q", po::value<std::string> ()->default_value ("NONE"),"compute objective quality (NONE,SELECT,BBALIGNED,TCSVT,MAX_NN,NORMALISED,BT709)" )
     ("do_icp_color_offset",po::value<bool> ()->default_value (false), "do color offset coding on predictive frames")
-    ("num_threads,n",po::value<int> ()->default_value (1), "number of omp cores (1=default, 1 thread, no parallel execution)")
-    ("intra_frame_quality_csv", po::value<string>()->default_value("intra_frame_quality.csv")," intra frame coding quality results file name (.csv file)")
-    ("predictive_quality_csv",po::value<string>()->default_value("predictive_quality.csv"), " predictive coding quality results file name (.csv file)")
-    ("debug_level",po::value<int> ()->default_value (0), "debug print level (0=no debug print, 3=all debug print)")
   ;
   pod_.add ("input_directories", -1);
 }
@@ -365,12 +365,14 @@ evaluate_compression_impl<PointT>::assign_option_values ()
   output_directory_ = vm_["output_directory"].template as<std::string> ();
   if (algorithm_ == "V2" || algorithm_ == "Delta")
   {
+    std::string quality_as_string = "";
     color_coding_type_ = vm_["color_coding_type"].template as<int> ();
     macroblock_size_ = vm_["macroblock_size"].template as<int> ();
     keep_centroid_ = vm_["keep_centroid"].template as<int> ();
     create_scalable_ = vm_["create_scalable"].template as<bool> ();
     jpeg_quality_ = vm_["jpeg_quality"].template as<int> ();
-    quality_method_ = static_cast<QualityMethod> (vm_["quality_method"].template as<int> ());
+    quality_as_string = static_cast<std::string> (vm_["quality_method"].template as<string> ());
+    quality_method_ = QualityMetric::get_QualityMethod(quality_as_string);
     icp_on_original_ = vm_["icp_on_original"].template as<bool> ();
     do_icp_color_offset_ = vm_["do_icp_color_offset"].template as<bool> ();
     num_threads_ = vm_["num_threads"].template as<int> ();
