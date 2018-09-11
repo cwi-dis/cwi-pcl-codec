@@ -943,7 +943,6 @@ namespace pcl{
 				macro_block_count++;
 			}
 #if defined(_OPENMP)
-// XXX           if (debug_level_ > 0) std::cerr << " running in parallel on " << num_threads_ << std::endl;
 			omp_set_num_threads(num_threads_);
 #endif//defined(_OPENMP)
 #pragma omp parallel for shared(p_info_list,p_result_list,p_result_matrices)
