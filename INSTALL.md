@@ -2,12 +2,14 @@
 Installation
 ============
 
+PointCLoudLibrary PCL-1.8.1 and liblpeg-turbo:
+----------------------------------------------
 
 To build the package 'cwi-pcl-codec', first the Point Cloud Library (PCL) (http://pointclouds.org)
 its dependencies and libjpeg-turbo need to be installed:  
 
 * for Ubuntu 18.04 by installing 2 Debian packages ('gcc', 'cmake' and 'make' required):  
-  libpcl-devpcl and libturbojpeg0-dev using the package manger 'synaptic'
+  libpcl-dev and libturbojpeg0-dev using the package manger 'synaptic'
 
 * for Windows 8 and 10 with VisualStudio 2015/2017, use the all-in-one installer for PCL-1.8.1 for your system  
   and Visual Studio version available at: http://unanancyowen.com/en/pcl181/.
@@ -32,7 +34,7 @@ Now the codec libraries and evaluation tools can be build by typing 'make' in th
 that was specified in 'cmake-gui' to build the binaries.
 
  Windows 8,10 Build & Install:
------------------------------------
+------------------------------
 
 * Install 'Visual Studio (2015 or 2017)' and 'cmake-gui'  
   Download source tarball for 'libjpeg-turbo' from 'www.libjpeg-turbo.org':  
