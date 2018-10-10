@@ -80,3 +80,7 @@ endif(CMAKELISTS_DEBUG)
 
 add_executable(${SUBSYS_NAME} ${srcs} ${incs} ${impl_incs})
 target_link_libraries(${SUBSYS_NAME} ${${PROJECT_NAME}_LIBRARIES})
+
+install(TARGETS ${SUBSYS_NAME} DESTINATION bin)
+install(FILES ${incs} ${impl_incs} DESTINATION include)
+
