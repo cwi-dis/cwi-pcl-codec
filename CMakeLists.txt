@@ -99,6 +99,9 @@ if(NOT PCL_ALL_IN_ONE_INSTALLER)
      find_package(VTK 6.1 ${QUIET_FLAG})
     endif(NOT VTK_FOUND)
     if(NOT VTK_FOUND)
+     find_package(VTK 6.3 ${QUIET_FLAG})
+    endif(NOT VTK_FOUND)
+    if(NOT VTK_FOUND)
      find_package(VTK 8.0 ${QUIET_FLAG})
     endif(NOT VTK_FOUND)
     if(NOT VTK_FOUND)
@@ -186,3 +189,14 @@ add_subdirectory("cloud_codec_v2")
 add_subdirectory("quality_metric")
 add_subdirectory("apps/quality_metric")
 add_subdirectory("apps/evaluate_compression")
+
+# uninstall target
+if(NOT TARGET uninstall)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY)
+
+    add_custom_target(uninstall
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
