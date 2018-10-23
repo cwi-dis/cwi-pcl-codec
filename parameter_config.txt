@@ -9,6 +9,7 @@ bb_expand_factor=0.20#  expansion factor used to keep bounding box constant over
 intra_frame_quality_csv=intra_frame_quality_atDifferentLoDsJPEG.csv
 output_directory=output # directory to store .ply files
 icp_on_original=0
+quality_method=SELECT
 predictive_quality_csv=predictive_quality_4core.csv
 macroblock_size=16
 do_icp_color_offset=0
