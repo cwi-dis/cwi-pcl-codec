@@ -74,47 +74,68 @@
   class QualityMetric{
   public:
     QualityMethod quality_method_;
-	std::size_t compressed_size_;    //! store the compressed byte size
+    std::size_t compressed_size_;    //! store the compressed byte size
 
-	uint64_t in_point_count_;
-  uint64_t out_point_count_;
-	uint64_t byte_count_octree_layer_;
-	uint64_t byte_count_centroid_layer_;
-	uint64_t byte_count_color_layer_;
+    uint64_t in_point_count_;
+    uint64_t out_point_count_;
+    uint64_t byte_count_octree_layer_;
+    uint64_t byte_count_centroid_layer_;
+    uint64_t byte_count_color_layer_;
 
-  float symm_rms_;                             //! store symm rms metric
-	float symm_hausdorff_;                       //! store symm haussdorf
-	float left_hausdorff_;                        //! store left haussdorf
-	float right_hausdorff_;                      //! store right haussdorf
-	float left_rms_;                             //! store left rms
-	float right_rms_;                            //! store right rms
-	double psnr_db_;                              //! store psnr for the geometry
-	double psnr_yuv_[3];                          //! store psnr for the colors
+    float symm_rms_;                             //! store symm rms metric
+    float symm_hausdorff_;                       //! store symm haussdorf
+    float left_hausdorff_;                        //! store left haussdorf
+    float right_hausdorff_;                      //! store right haussdorf
+    float left_rms_;                             //! store left rms
+    float right_rms_;                            //! store right rms
+    double psnr_db_;                              //! store psnr for the geometry
+    double psnr_yuv_[3];                          //! store psnr for the colors
 
-  double encoding_time_ms_;
-  double decoding_time_ms_;
+    double encoding_time_ms_;
+    double decoding_time_ms_;
       
-  QualityMetric (QualityMethod method=NONE) : quality_method_(method) {}
+    QualityMetric (QualityMethod method=NONE) :
+      quality_method_(method),
+      compressed_size_(0),
+    
+      in_point_count_(0),
+      out_point_count_(0),
+      byte_count_octree_layer_(0),
+      byte_count_centroid_layer_(0),
+      byte_count_color_layer_(0),
+    
+      symm_rms_(0),
+      symm_hausdorff_(0),
+      left_hausdorff_(0),
+      right_hausdorff_(0),
+      left_rms_(0),
+      right_rms_(0),
+      psnr_db_(0),
+      psnr_yuv_(),
+    
+      encoding_time_ms_(0),
+      decoding_time_ms_(0)
+    {}
 
-  template<typename PointT> void convertRGBtoYUV(const PointT &in_rgb, float * out_yuv);
+    template<typename PointT> void convertRGBtoYUV(const PointT &in_rgb, float * out_yuv);
       
-  /*! \brief compute the quality metric, we assume the cloud_a is the original
-   * and cloud_b the degenerated cloud
-   */
-  template<typename PointT>
-  PCL_EXPORTS void
-  computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_b);
+    /*! \brief compute the quality metric, we assume the cloud_a is the original
+     * and cloud_b the degenerated cloud
+     */
+    template<typename PointT>
+    PCL_EXPORTS void
+    computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_b);
 
-  // return QualityMethod from string
-  static PCL_EXPORTS QualityMethod
-  get_QualityMethod (std::string& method_as_string);
+    // return QualityMethod from string
+    static PCL_EXPORTS QualityMethod
+    get_QualityMethod (std::string& method_as_string);
 
-	// print the header of a .csv file
-	static PCL_EXPORTS void
-  print_csv_header_ (std::ostream &csv_ostream);
+    // print the header of a .csv file
+    static PCL_EXPORTS void
+    print_csv_header_ (std::ostream &csv_ostream);
 	
-	// print results into a .csv file
-	PCL_EXPORTS void print_csv_line_ (const std::string &compression_setting_arg, std::ostream &csv_ostream);
+    // print results into a .csv file
+    PCL_EXPORTS void print_csv_line_ (const std::string &compression_setting_arg, std::ostream &csv_ostream);
   };
 
 
