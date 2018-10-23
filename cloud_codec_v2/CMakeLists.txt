@@ -58,7 +58,6 @@ set(incs
   "include/pcl/${SUBSYS_NAME}/point_coding_v2.h"
   "include/pcl/${SUBSYS_NAME}/color_coding_jpeg.h"
   "include/pcl/${SUBSYS_NAME}/snake_grid_mapping.h"
-  "include/pcl/${SUBSYS_NAME}/color_coding_jpeg.h"
   "include/pcl/${SUBSYS_NAME}/quaternion_coding.h"
   "include/pcl/${SUBSYS_NAME}/rigid_transform_coding.h"
   )
@@ -91,3 +90,6 @@ set(${PROJECT_NAME}_LIBRARIES
 if(CMAKELISTS_DEBUG)
   message("${SUBSYS_NAME}-${PROJECT_NAME}_LIBRARIES: " ${${PROJECT_NAME}_LIBRARIES})
 endif(CMAKELISTS_DEBUG)
+
+install(TARGETS ${PROJECT_NAME_LIBRARIES} DESTINATION lib)
+install(FILES ${incs} ${impl_incs} DESTINATION include)
