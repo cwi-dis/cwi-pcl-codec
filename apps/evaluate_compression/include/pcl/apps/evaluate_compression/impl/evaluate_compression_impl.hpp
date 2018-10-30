@@ -372,7 +372,7 @@ evaluate_compression_impl<PointT>::assign_option_values ()
     create_scalable_ = vm_["create_scalable"].template as<bool> ();
     jpeg_quality_ = vm_["jpeg_quality"].template as<int> ();
     quality_as_string = static_cast<std::string> (vm_["quality_method"].template as<string> ());
-    quality_method_ = QualityMetric::get_QualityMethod(quality_as_string);
+    quality_method_ = QualityMetric::getQualityMethodFromString(quality_as_string);
     icp_on_original_ = vm_["icp_on_original"].template as<bool> ();
     do_icp_color_offset_ = vm_["do_icp_color_offset"].template as<bool> ();
     num_threads_ = vm_["num_threads"].template as<int> ();
@@ -800,13 +800,13 @@ evaluate_compression_impl<PointT>::evaluate ()
     if (intra_frame_quality_csv_ != "")
     {
       intra_frame_quality_csv.open(intra_frame_quality_csv_.c_str());
-      QualityMetric::print_csv_header_(intra_frame_quality_csv);
+      QualityMetric::printCSVHeader (intra_frame_quality_csv);
     }
     std::ofstream predictive_quality_csv;
     if (predictive_quality_csv_ != "")
     {
       predictive_quality_csv.open(predictive_quality_csv_.c_str());
-      QualityMetric::print_csv_header_(predictive_quality_csv);
+      QualityMetric::printCSVHeader (predictive_quality_csv);
     }
     vector<std::string> filenames;
     if (get_filenames_from_dir (*input_directories_.begin(), filenames) != 0) return false;
@@ -925,7 +925,7 @@ evaluate_compression_impl<PointT>::evaluate_group
       tpc = rescaled_pc;
     }
     if (intra_frame_quality_csv_ != "")
-      achieved_quality.print_csv_line_(compression_settings.str(), intra_frame_quality_csv);
+      achieved_quality.printCSVLine (compression_settings.str(), intra_frame_quality_csv);
 
     if (output_directory_ != "")
     {
@@ -972,7 +972,7 @@ evaluate_compression_impl<PointT>::evaluate_group
         }
         if (predictive_quality_csv_ != "")
         {
-          predictive_quality.print_csv_line_(compression_settings.str(), predictive_quality_csv);
+          predictive_quality.printCSVLine (compression_settings.str(), predictive_quality_csv);
         }
       }
     }

@@ -187,7 +187,7 @@ add_definitions( ${${PROJECT_NAME}_DEFINITIONS})
 add_subdirectory("jpeg_io")
 add_subdirectory("cloud_codec_v2")
 add_subdirectory("quality_metric")
-add_subdirectory("apps/quality_metric")
+add_subdirectory("apps/quality_metricCLI")
 add_subdirectory("apps/evaluate_compression")
 
 # uninstall target
