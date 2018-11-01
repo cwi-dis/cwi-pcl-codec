@@ -816,16 +816,16 @@ evaluate_compression_impl<PointT>::evaluate ()
       if (output_index_ == -1) // get index of first file
       { // when 'filename' has the form '.../nnn'.ply, obtain 'output_index_' as 'nnn' from 'filename'
         boost::filesystem::path p(filename);
-		std::stringstream ss;
+        std::stringstream ss;
 #ifdef  WIN32
-//		printf("p.c_str()=%S\np.stem.c_str()=%S\n", p.c_str(), p.stem().c_str());
-		int len = wcslen(p.stem().c_str());
-		char* s = new char[len + 1];
-		wcstombs(s, p.stem().c_str(), len);
-		ss << s;
-		free(s);
+//		    printf("p.c_str()=%S\np.stem.c_str()=%S\n", p.c_str(), p.stem().c_str());
+        int len = wcslen(p.stem().c_str());
+        char* s = new char[len + 1];
+        wcstombs(s, p.stem().c_str(), len);
+        ss << s;
+        free(s);
 #else
-		ss << p.stem().native();
+        ss << p.stem().native();
 #endif//WIN32
         ss >> output_index_;
         if (output_index_ == -1) // no index found
@@ -914,7 +914,7 @@ evaluate_compression_impl<PointT>::evaluate_group
     if (bb_expand_factor_ > 0.0) pcl::io::OctreePointCloudCodecV2 <PointT>::restore_bb_fit (rescaled_pc, bb);
     boost::shared_ptr<pcl::PointCloud<PointT> > tpc(new pcl::PointCloud<PointT>); // tmp
     // Note that the quality_computation here works on the bb-aligned pc
-    if (quality_method_  & BBALIGNED)
+    if (quality_method_ & BBALIGNED)
     {
       do_quality_computation (current_group[i], output_pointcloud, &achieved_quality);
       tpc = output_pointcloud;
