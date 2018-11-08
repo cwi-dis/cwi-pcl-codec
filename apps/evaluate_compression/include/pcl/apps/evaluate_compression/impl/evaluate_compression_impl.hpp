@@ -201,8 +201,9 @@ evaluate_compression_impl<PointT>::initialize_options_description ()
     ("color_coding_type,t", po::value<int> ()->default_value (1), "pcl=0,jpeg=1 or graph transform ")
     ("macroblock_size,m",po::value<int> ()->default_value (16), "size of macroblocks used for predictive frame (must be power of 2)")
     ("keep_centroid", po::value<int> ()->default_value (0), "keep voxel grid positions or not ")
-    ("create_scalable", po::value<bool> ()->default_value (false), "create scalable bitstream (not yet implemented)")
-    ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
+// commented out options not implemented
+//  ("create_scalable", po::value<bool> ()->default_value (false), "create scalable bitstream (not yet implemented)")
+//  ("do_connectivity_coding", po::value<bool> ()->default_value (false), "connectivity coding (not yet implemented)")
     ("icp_on_original", po::value<bool> ()->default_value (false),"icp_on_original ") // iterative closest point
     ("jpeg_quality,j", po::value<int> ()->default_value (0), "jpeg quality parameter ")
     ("do_icp_color_offset",po::value<bool> ()->default_value (false), "do color offset coding on predictive frames")
@@ -369,7 +370,8 @@ evaluate_compression_impl<PointT>::assign_option_values ()
     color_coding_type_ = vm_["color_coding_type"].template as<int> ();
     macroblock_size_ = vm_["macroblock_size"].template as<int> ();
     keep_centroid_ = vm_["keep_centroid"].template as<int> ();
-    create_scalable_ = vm_["create_scalable"].template as<bool> ();
+// commented out options not implemented
+//  create_scalable_ = vm_["create_scalable"].template as<bool> ();
     jpeg_quality_ = vm_["jpeg_quality"].template as<int> ();
     quality_as_string = static_cast<std::string> (vm_["quality_method"].template as<string> ());
     quality_method_ = QualityMetric::getQualityMethodFromString(quality_as_string);
