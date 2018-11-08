@@ -59,8 +59,9 @@ The following arguments are recognized by the program 'evaluate_compression':
   -t [ --color_coding_type arg ] (=1)   pcl=0,jpeg=1  
   -m [ --macroblock_size arg ] (=16)    size of macroblocks used for predictive frame (has to be a power of 2)  
   --keep_centroid  arg (=0)             keep voxel grid positions or not  
-  --create_scalable arg (=0)            create scalable bitstream (not yet implemented)  
-  --do_connectivity_coding arg (=0)     connectivity coding (not yet implemented)  
+# commented out options not implemented 
+#--create_scalable arg (=0)            create scalable bitstream (not yet implemented)  
+#--do_connectivity_coding arg (=0)     connectivity coding (not yet implemented)  
   --icp_on_original arg (=0)            icp_on_original  
   -j [ --jpeg_quality ] arg (=0)        jpeg quality parameter  
   -d [ --do_delta_coding ] arg (=0)     use delta (predictive) en(de)coding  
