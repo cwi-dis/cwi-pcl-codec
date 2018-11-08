@@ -67,7 +67,7 @@
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/*!
 	* \brief 
-	*  struct to store achieved coding performance for official evaluation by MPEG committee (3DG)
+	*  class to handle achieved coding performance for evaluation a.o. by MPEG committee (PCC-3DG)
 	* \author Rufael Mekuria (rufael.mekuria@cwi.nl)
 	*/
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,25 +117,26 @@
       decoding_time_ms_(0)
     {}
 
-    template<typename PointT> void convertRGBtoYUV(const PointT &in_rgb, float * out_yuv);
+    template<typename PointT> void
+    convertRGBtoYUV(const PointT &in_rgb, float * out_yuv);
       
     /*! \brief compute the quality metric, we assume the cloud_a is the original
      * and cloud_b the degenerated cloud
      */
-    template<typename PointT>
-    PCL_EXPORTS void
+    template<typename PointT> PCL_EXPORTS void
     computeQualityMetric (boost::shared_ptr<pcl::PointCloud<PointT> > cloud_a, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_b);
 
     // return QualityMethod from string
     static PCL_EXPORTS QualityMethod
-    get_QualityMethod (std::string& method_as_string);
+    getQualityMethodFromString (std::string& method_as_string);
 
     // print the header of a .csv file
     static PCL_EXPORTS void
-    print_csv_header_ (std::ostream &csv_ostream);
+    printCSVHeader (std::ostream &csv_ostream);
 	
     // print results into a .csv file
-    PCL_EXPORTS void print_csv_line_ (const std::string &compression_setting_arg, std::ostream &csv_ostream);
+    PCL_EXPORTS void
+    printCSVLine (const std::string &compression_setting_arg, std::ostream &csv_ostream);
   };
 
 

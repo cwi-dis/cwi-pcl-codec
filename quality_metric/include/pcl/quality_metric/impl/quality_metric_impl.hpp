@@ -331,7 +331,7 @@ QualityMetric::computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > clou
 
 //! function to print a header to csv file for logging the quality characteristics
 void
-QualityMetric::print_csv_line_(const std::string &compression_setting_arg, std::ostream &csv_ostream)
+QualityMetric::printCSVLine(const std::string &compression_setting_arg, std::ostream &csv_ostream)
 {
   csv_ostream << compression_setting_arg << std::string(";")
               << in_point_count_ << std::string(";")
@@ -354,7 +354,7 @@ QualityMetric::print_csv_line_(const std::string &compression_setting_arg, std::
 
 //! function to print a header to csv file for logging the quality characteristics
 void
-QualityMetric::print_csv_header_(std::ostream &csv_ostream)
+QualityMetric::printCSVHeader(std::ostream &csv_ostream)
 {
   csv_ostream << "compression setting; "
 			  << std::string("in point count;")
@@ -378,7 +378,8 @@ QualityMetric::print_csv_header_(std::ostream &csv_ostream)
 
 // return QualityMethod from string
 QualityMethod
-QualityMetric::get_QualityMethod (std::string& method_as_string){
+QualityMetric::getQualityMethodFromString (std::string& method_as_string)
+{
   std::vector<std::string> method_specs;
     
   boost::split(method_specs, method_as_string, boost::is_any_of(","));
