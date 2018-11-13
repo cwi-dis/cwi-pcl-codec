@@ -25,6 +25,23 @@
 
 //CWI_ENCODE_API int fncwi_encode(void);
 //CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
+//Unity compliant point cloud data structure
+struct MyPoint
+{
+	float x;
+	float y;
+	float z;
+	INT8 r;
+	INT8 g;
+	INT8 b;
+};
+
+struct MyPointCloud
+{
+	MyPoint * pointcloud;
+	int size;
+	uint64_t timeStamp;
+};
 class __declspec(dllexport) cwi_encode
 {
 public:
@@ -33,3 +50,7 @@ public:
 };
 __declspec(dllexport) int load_ply_file_XYZRGB(std::string path, void **pc);
 __declspec(dllexport) void delete_ply_data(void *pc);
+
+//extern "C" __declspec(dllexport) int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp);
+extern "C" __declspec(dllexport) MyPointCloud Cwi_decoder(unsigned char * compFrame, int len);
+extern "C" __declspec(dllexport) MyPointCloud Cwi_test2(char* filename, void *p);

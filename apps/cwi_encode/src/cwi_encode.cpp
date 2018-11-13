@@ -1,82 +1,25 @@
 // cwi_encode.cpp : Defines the exported functions for the DLL application.
 //
 #include<cstdint>
+#include<chrono>
 #include <sstream>
 #include <evaluate_comp.h>
 #include <evaluate_comp_impl.hpp>
 #include "cwi_encode.h"
 
 using namespace std;
-// point cloud library
-
-//#include <evaluate_compression_impl.hpp>
-
-/*evaluate_compression_impl<PointT>::assign_option_values()
-{
-	algorithm_ = vm_["algorithm"].template as<std::string>();
-	group_size_ = vm_["group_size"].template as<int>();
-	K_outlier_filter_ = vm_["K_outlier_filter"].template as<int>();
-	radius_ = vm_["radius"].template as<double>();
-	bb_expand_factor_ = vm_["bb_expand_factor"].template as<double>();
-	algorithm_ = vm_["algorithm"].template as<std::string>();
-	show_statistics_ = vm_["show_statistics"].template as<bool>();
-	enh_bits_ = vm_["enh_bits"].template as<int>();
-	octree_bits_ = vm_["octree_bits"].template as<int>();
-	color_bits_ = vm_["color_bits"].template as<int>();
-	visualization_ = vm_["visualization"].template as<bool>();
-	if (vm_.count("input_directories")) {
-		input_directories_ = vm_["input_directories"].template as<std::vector<std::string> >();
-	}
-	output_directory_ = vm_["output_directory"].template as<std::string>();
-	if (algorithm_ == "V2")
-	{
-		color_coding_type_ = vm_["color_coding_type"].template as<int>();
-		macroblock_size_ = vm_["macroblock_size"].template as<int>();
-		keep_centroid_ = vm_["keep_centroid"].template as<int>();
-		create_scalable_ = vm_["create_scalable"].template as<bool>();
-		jpeg_quality_ = vm_["jpeg_quality"].template as<int>();
-		do_delta_coding_ = vm_["do_delta_coding"].template as<bool>();
-		do_quality_computation_ = vm_["do_quality_computation"].template as<bool>();
-		icp_on_original_ = vm_["icp_on_original"].template as<bool>();
-		do_icp_color_offset_ = vm_["do_icp_color_offset"].template as<bool>();
-		num_threads_ = vm_["num_threads"].template as<int>();
-		intra_frame_quality_csv_ = vm_["intra_frame_quality_csv"].template as<string>();
-		predictive_quality_csv_ = vm_["predictive_quality_csv"].template as<string>();
-	}
-}
-
-encoder_V2_->setMacroblockSize(macroblock_size_);
-*/
-// This is an example of an exported variable
-//DebuG
-//CWI_ENCODE_API int ncwi_encode=0;
-
-// This is an example of an exported function.
-//Sample function for Testing
-//CWI_ENCODE_API int fncwi_encode(void)
-//{
-	//evaluate_compression_impl<PointXYZRGB> evaluator(argc, argv);
-	//return evaluator.evaluate() == true ? 0 : -1;
-//}
-
-// This is the constructor of a class that has been exported.
-// see cwi_encode.h for the class definition
-//Ccwi_encode::Ccwi_encode()
-//{
-//   return;
-//}
-//pcl::PointCloud<PointT> & rcloud_out = *p_cloud;
-//pcl::PointCloud<PointT> & rcloud_in = *i_cloud;
-//Final encoding function for signals
-
-//Original Pointer 
-//pcl::PointCloud<PointT> pointcloud
-//New pointer 
-//CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame)
 int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp)
 {
+	std::uint64_t codecStart;
+	codecStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	std::cout << "\nTime since capture :" << codecStart - timeStamp << " ms";
 	evaluate_comp_impl<PointXYZRGB> evaluate;
-	return evaluate.evaluator(param, pc, comp_frame, timeStamp) == true ? 0 : -1;
+	bool enc;
+	enc = evaluate.evaluator(param, pc, comp_frame, timeStamp);
+	std::uint64_t codecEnd;
+	codecEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	std::cout << "Encode took " << codecEnd - codecStart << " ms \n";
+	return enc == true ? 0 : -1;
 }
 
 int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &timeStamp)
@@ -88,4 +31,124 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void)
 {
 	return _iob;
+}
+
+//Exporting  a unity compliant decode function and point cloud data structure
+
+//Test function to receive a filename, read a pointcloud .ply and return the contents in a MyPointcloud structure
+extern "C" __declspec(dllexport) MyPointCloud Cwi_test2(char* filename, void *p)
+{
+	std::string path(filename);
+	std::ofstream log1;
+	log1.open("log.txt");
+	log1 << "\n Entered the function";
+	log1.close();
+	auto pe = new PLYExport;
+	pe->pc = boost::shared_ptr<pcl::PointCloud<PointXYZRGB>>(new PointCloud<PointXYZRGB>());
+	std::ofstream log2;
+	log2.open("log.txt", std::ofstream::app);
+	log2 << "\n Created empty point cloud object :" << path;
+	log2.close();
+	int res = load_ply_file<PointXYZRGB>(path, pe->pc);
+	std::ofstream log3;
+	log3.open("log.txt", std::ofstream::app);
+	log3 << "\n Load PLY complete size is :" << sizeof(pe->pc);
+	log3.close();
+	MyPointCloud ptcld;
+	pcl::PointCloud<PointXYZRGB> cld = *(pe->pc);
+	int size = cld.height * cld.width;
+	ptcld.size = size;
+	std::ofstream log4;
+	log4.open("log.txt", std::ofstream::app);
+	log4 << "\n Point count :" << size;
+	log4.close();
+	ptcld.timeStamp = 0;
+	//ptcld.pointcloud = (MyPoint*)::CoTaskMemAlloc(sizeof(MyPoint) * size);
+	ptcld.pointcloud = (MyPoint*)GlobalAlloc(GPTR, sizeof(MyPoint) * size);
+	for (int i = 0; i < size; i++)
+	{
+		(ptcld.pointcloud[i]).x = cld.points[i].x;
+		(ptcld.pointcloud[i]).y = cld.points[i].y;
+		(ptcld.pointcloud[i]).z = cld.points[i].z;
+		(ptcld.pointcloud[i]).r = cld.points[i].r;
+		(ptcld.pointcloud[i]).g = cld.points[i].g;
+		(ptcld.pointcloud[i]).b = cld.points[i].b;
+	}
+	std::ofstream log5;
+	log4.open("log.txt", std::ofstream::app);
+	log4 << "\n Points Assigned with GlobalAlloc";
+	log4.close();
+	return ptcld;
+}
+//Decode function to receive a compressed point cloud as a c# Byte[] and return a point cloud as a Mypointcloud object
+extern "C" __declspec(dllexport) MyPointCloud Cwi_decoder(unsigned char * compFrame, int len)
+{
+	encoder_params par;
+	std::ofstream log1;
+	log1.open("log.txt");
+	log1 << "\n Decoder Initialised";
+	log1.close();
+	//Default codec parameter values set in signals
+	par.num_threads = 1;
+	par.do_inter_frame = false;
+	par.gop_size = 1;
+	par.exp_factor = 0;
+	par.octree_bits = 7;
+	par.color_bits = 8;
+	par.jpeg_quality = 85;
+	par.macroblock_size = 16;
+	std::ofstream log2;
+	log2.open("log.txt", std::ofstream::app);
+	log2 << "\n Codec params set";
+	log2.close();
+	std::stringstream compfr;
+	//Convert C# bytestream to stringstream for decoding
+	for (int i = 0; i < len; i++)
+	{
+		compfr << compFrame[i];
+	}
+	compfr.seekg(0, ios::end);
+	int sizeReceived = compfr.tellg();
+	compfr.seekg(0, ios::beg);
+	std::ofstream logsize;
+	logsize.open("log.txt", std::ofstream::app);
+	logsize << "\n Compressed frame of size " << sizeReceived << " received ";
+	logsize.close();
+	evaluate_comp_impl<PointXYZRGB> evaluate;
+	boost::shared_ptr<pcl::PointCloud<PointXYZRGB> > decpc(new PointCloud<PointXYZRGB>());
+	decpc->makeShared();
+	void * dpc;
+	dpc = reinterpret_cast<void *> (&decpc);
+	uint64_t tmStmp = 0;
+	std::ofstream logsize1;
+	logsize1.open("log.txt", std::ofstream::app);
+	logsize1 << "\n Decoder called";
+	logsize1.close();
+	evaluate.evaluate_dc(par, dpc, compfr, tmStmp);
+	std::ofstream log3;
+	log3.open("log.txt", std::ofstream::app);
+	log3 << "\n Point cloud extracted size is :" << (*decpc).points.size();
+	log3.close();
+	//Format coversion
+	MyPointCloud ptcld;
+	pcl::PointCloud<PointXYZRGB> cld = *decpc;
+	int size = cld.height * cld.width;
+	ptcld.size = size;
+	ptcld.pointcloud = (MyPoint*)GlobalAlloc(GPTR, sizeof(MyPoint) * size);
+	ptcld.timeStamp = tmStmp;
+	//Store points from PCL pointcloud in MyPointcloud
+	for (int i = 0; i < size; i++)
+	{
+		(ptcld.pointcloud[i]).x = cld.points[i].x;
+		(ptcld.pointcloud[i]).y = cld.points[i].y;
+		(ptcld.pointcloud[i]).z = cld.points[i].z;
+		(ptcld.pointcloud[i]).r = cld.points[i].r;
+		(ptcld.pointcloud[i]).g = cld.points[i].g;
+		(ptcld.pointcloud[i]).b = cld.points[i].b;
+	}
+	std::ofstream log4;
+	log4.open("log.txt", std::ofstream::app);
+	log4 << "\n Created MyPointCloud object";
+	log4.close();
+	return ptcld;
 }

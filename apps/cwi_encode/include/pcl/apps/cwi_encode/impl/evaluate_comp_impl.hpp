@@ -860,9 +860,10 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 	try
 	{
 		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = * reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
-		#ifdef WITH_VTK
-		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
-		#endif
+		std::cout << "\nReceived a point cloud with " << (*pointcloud).points.size() << " points\n";
+		//#ifdef WITH_VTK
+		//std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
+		//#endif
 		assign_option_values(param, captureTimeStamp);
 		//Stays unchanged
 		complete_initialization();
@@ -877,7 +878,7 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 		//cout << "Need to specify a directory containing Point Cloud files (.pcd or .ply).\n";
 		//return (false);
 		//}
-		std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > point_clouds, group, encoder_output_clouds;
+		//std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > point_clouds, group, encoder_output_clouds;
 		int count = 0;
 		std::ofstream intra_frame_quality_csv;
 		std::ofstream predictive_quality_csv;
@@ -961,9 +962,9 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 		//boost::shared_ptr<pcl::PointCloud<PointT> > ptcld(new PointCloud<PointT>());
 		boost::shared_ptr<pcl::PointCloud<PointT> > ptcld = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);	
 		ptcld->makeShared();
-		#ifdef WITH_VTK
-		std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
-		#endif
+		//#ifdef WITH_VTK
+		//std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
+		//#endif
 		//Modified version for lib
 		assign_option_values(param,tmstmp_);
 		//Stays unchanged
