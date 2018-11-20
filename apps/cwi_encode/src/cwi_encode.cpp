@@ -12,13 +12,13 @@ int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& c
 {
 	std::uint64_t codecStart;
 	codecStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	std::cout << "\nTime since capture :" << codecStart - timeStamp << " ms";
+	std::cout << "Entered codec at :" << codecStart << " ms" << "\nTime since capture :" << codecStart - timeStamp << " ms";
 	evaluate_comp_impl<PointXYZRGB> evaluate;
 	bool enc;
 	enc = evaluate.evaluator(param, pc, comp_frame, timeStamp);
 	std::uint64_t codecEnd;
 	codecEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	std::cout << "Encode took " << codecEnd - codecStart << " ms \n";
+	std::cout << "Exiting codec at :" << codecEnd << " ms" << "\nEncode took " << codecEnd - codecStart << " ms \n";
 	return enc == true ? 0 : -1;
 }
 
