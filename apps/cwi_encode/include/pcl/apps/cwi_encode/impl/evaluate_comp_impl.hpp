@@ -701,7 +701,7 @@ __declspec(dllexport) int load_ply_file_XYZRGB(std::string path, void **p)
 }
 __declspec(dllexport) void delete_ply_data(void *pc)
 {
-	//delete[] pc;
+	//delete pc;
 }
 
 int
@@ -859,8 +859,11 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 
 	try
 	{
-		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = * reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
-		std::cout << "\nReceived a point cloud with " << (*pointcloud).points.size() << " points\n";
+		//Removed to be compliant with changes to multiFrame.dll
+		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = * reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
+		//std::cout << "\nReceived a point cloud with " << (*pointcloud).points.size() << " points\n";
+		pcl::PointCloud<pcl::PointXYZRGB> *captured_pc = reinterpret_cast<pcl::PointCloud<pcl::PointXYZRGB>*>(pc);
+		std::cout << "\nReceived a point cloud with " << (*captured_pc).size() << " points\n";
 		//#ifdef WITH_VTK
 		//std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
 		//#endif
@@ -893,6 +896,7 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 		QualityMetric achieved_quality;
 		stringstream ss;
 		//std::cout << "\n Starting to encode\n";
+		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(captured_pc);
 		do_encoding(pointcloud, &ss, achieved_quality);
 		string s = ss.str();
 		std::stringstream coded_stream(s);//ss.str ());
