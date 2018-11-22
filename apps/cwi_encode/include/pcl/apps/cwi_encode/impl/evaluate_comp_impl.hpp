@@ -45,6 +45,10 @@
 #ifndef evaluate_compression_hpp
 #define evaluate_compression_hpp
 
+// Define to use a boost shared pointer to communicate pointclouds between capture and compression.
+// Undefine to use pcl pointclouds directly
+#define WITH_BOOST_SHARED_POINTER
+
 #if defined(_OPENMP)
 #include <omp.h>
 #endif//defined(_OPENMP)
@@ -859,97 +863,43 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 	try
 	{
 		//Removed to be compliant with changes to multiFrame.dll
-		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = * reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
-		//std::cout << "\nReceived a point cloud with " << (*pointcloud).points.size() << " points\n";
+
+		#ifdef WITH_BOOST_SHARED_POINTER
+		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
+		#else
 		pcl::PointCloud<pcl::PointXYZRGB> *captured_pc = reinterpret_cast<pcl::PointCloud<pcl::PointXYZRGB>*>(pc);
-		//std::cout << "\nReceived a point cloud with " << (*captured_pc).size() << " points\n";
-		//#ifdef WITH_VTK
-		//std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
-		//#endif
+		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(captured_pc);
+		#endif
+
+		#ifdef DEBUG
+		std::cout << "\nReceived a point cloud with " << (*pointcloud).points.size() << " points\n";
+		#endif // DEBUG
+
 		assign_option_values(param, captureTimeStamp);
 		//Stays unchanged
 		complete_initialization();
-		//std::cout << "\n Initialisaztion complete \n";
-		//if (input_directories_.size() > 1)
-		//{
-		//cout << "Fusing multiple directories not implemented.\n";
-		//return (false);
-		//}
-		//if (input_directories_.size() < 1)
-		//{
-		//cout << "Need to specify a directory containing Point Cloud files (.pcd or .ply).\n";
-		//return (false);
-		//}
-		//std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > > point_clouds, group, encoder_output_clouds;
+		#ifdef NOTYET
 		int count = 0;
 		std::ofstream intra_frame_quality_csv;
 		std::ofstream predictive_quality_csv;
 		stringstream compression_settings;
 		compression_settings << "octree_bits=" << octree_bits_ << " color_bits=" << color_bits_ << " enh._bits=" << enh_bits_ << "_colortype=" << color_coding_type_ << " centroid=" << keep_centroid_;
-		//std::cout << " \n Compression settings assigned";
-		//Moved evaluate group up
-		//evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
-		//if (K_outlier_filter_ > 0) do_outlier_removal(pointcloud);
-		pcl::io::BoundingBox bb; // bounding box of this working_group
-		//if (bb_expand_factor_ > 0.0) bb = do_bounding_box_normalization(pointcloud);
+		#endif
 		QualityMetric achieved_quality;
 		stringstream ss;
-		//std::cout << "\n Starting to encode\n";
-		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(captured_pc);
 		do_encoding(pointcloud, &ss, achieved_quality);
+
 		string s = ss.str();
 		std::stringstream coded_stream(s);//ss.str ());
-		//DebuG
+
 		comp_frame<<s;
-		//std::cout << " Encoding complete, compressed stream generated";
-		/*vector<std::string> filenames;
-		if (get_filenames_from_dir (*input_directories_.begin(), filenames) != 0) return false;
-		for (std::vector<std::string>::iterator itr = filenames.begin (); itr != filenames.end (); itr++)
-		{
-		std::string filename = *itr;
-		if (output_index_ == -1) { // get index of first file
-		std::stringstream ss(filename);
-		string tmp;
-		ss >> tmp >> output_index_;
-		if (output_index_ == -1) // no index found
-		output_index_ = 0;
-		}
-		boost::shared_ptr<pcl::PointCloud<PointT> > pc (new PointCloud<PointT> ());
-		if ( ! load_input_cloud(filename, pc))
-		{
-		continue;
-		}
-		group.push_back(pc->makeShared());
-		count++;
-		if (group_size_ == 0 && count < point_clouds.size ())
-		{
-		continue;
-		}
-		// encode the group for each set of 'group_size' point_clouds, and the final set
-		if (group_size_ == 0 || count == point_clouds.size () || count % group_size_ == 0)
-		{
-		evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
-		complete_initialization();
-		// start new group
-		group.clear ();
-		count = 0;
-		}
-		}
-		*/
+
 	}
 	catch (boost::exception &e) {
 		std::cerr << boost::diagnostic_information(e) << "\n";
 		return_value = false;
 	}
-	// Visualization not needed in lib
-	/*
-	if (visualization_)
-	{ // remove data structures related to visualzation
-	do_visualization ("Original", boost::shared_ptr<PointCloud<PointT> >());
-	do_visualization ("Decoded",  boost::shared_ptr<PointCloud<PointT> >());
-	do_visualization ("Delta Decoded",  boost::shared_ptr<PointCloud<PointT> >());
-	}
-	*/
+
 	return return_value;
 }
 
