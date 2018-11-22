@@ -6,19 +6,23 @@
 #include <evaluate_comp.h>
 #include <evaluate_comp_impl.hpp>
 #include "cwi_encode.h"
-
 using namespace std;
 int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp)
 {
 	std::uint64_t codecStart;
 	codecStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+#ifdef DEBUG
 	std::cout << "Entered codec at :" << codecStart << " ms" << "\nTime since capture :" << codecStart - timeStamp << " ms";
+#endif // DEBUG
 	evaluate_comp_impl<PointXYZRGB> evaluate;
 	bool enc;
 	enc = evaluate.evaluator(param, pc, comp_frame, timeStamp);
 	std::uint64_t codecEnd;
 	codecEnd = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	std::cout << "Exiting codec at :" << codecEnd << " ms" << "\nEncode took " << codecEnd - codecStart << " ms \n";
+#ifdef DEBUG
+	std::cout << "Exiting codec at :" << codecEnd << " ms" << ", Encode took " << codecEnd - codecStart << " ms \n";
+#endif // DEBUG
+	std::cout.flush();
 	return enc == true ? 0 : -1;
 }
 

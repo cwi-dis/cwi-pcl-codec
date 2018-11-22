@@ -509,7 +509,6 @@ evaluate_comp_impl<PointT>::do_encoding (boost::shared_ptr<pcl::PointCloud<Point
     }
   }
   qualityMetric.compressed_size = (int) stream->tellp () - initial_stream_pos;
-  cout << " octreeCoding " << qualityMetric.compressed_size << " bytes  base layer  " << endl;
 }
     
 template<typename PointT>
@@ -863,7 +862,7 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = * reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
 		//std::cout << "\nReceived a point cloud with " << (*pointcloud).points.size() << " points\n";
 		pcl::PointCloud<pcl::PointXYZRGB> *captured_pc = reinterpret_cast<pcl::PointCloud<pcl::PointXYZRGB>*>(pc);
-		std::cout << "\nReceived a point cloud with " << (*captured_pc).size() << " points\n";
+		//std::cout << "\nReceived a point cloud with " << (*captured_pc).size() << " points\n";
 		//#ifdef WITH_VTK
 		//std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
 		//#endif
