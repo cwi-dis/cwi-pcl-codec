@@ -911,13 +911,9 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 
 	try
 	{
-		//boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(pc);
-		//boost::shared_ptr<pcl::PointCloud<PointT> > ptcld(new PointCloud<PointT>());
+
 		boost::shared_ptr<pcl::PointCloud<PointT> > ptcld = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);	
 		ptcld->makeShared();
-		//#ifdef WITH_VTK
-		//std::cout << "WITH_VTK='" << WITH_VTK << "'\n";
-		//#endif
 		//Modified version for lib
 		assign_option_values(param,tmstmp_);
 		//Stays unchanged
@@ -927,93 +923,16 @@ evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::str
 		std::ofstream predictive_quality_csv;
 		stringstream compression_settings;
 		compression_settings << "octree_bits=" << octree_bits_ << " color_bits=" << color_bits_ << " enh._bits=" << enh_bits_ << "_colortype=" << color_coding_type_ << " centroid=" << keep_centroid_;
-		//std::cout << " Options assigned\n";
-		/*
-		if (intra_frame_quality_csv_ != "")
-		{
-		intra_frame_quality_csv.open(intra_frame_quality_csv_.c_str());
-		QualityMetric::print_csv_header(intra_frame_quality_csv);
-		}
-
-		if (predictive_quality_csv_ != "")
-		{
-		predictive_quality_csv.open(predictive_quality_csv_.c_str());
-		QualityMetric::print_csv_header(predictive_quality_csv);
-		}
-		*/
-		//Moved evaluate group up
-		//evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
-		//if (K_outlier_filter_ > 0) do_outlier_removal(pointcloud);
-		//pcl::io::BoundingBox bb; // bounding box of this working_group
-		//if (bb_expand_factor_ > 0.0) bb = do_bounding_box_normalization(pointcloud);
 		QualityMetric achieved_quality;
-		//boost::shared_ptr<pcl::PointCloud<PointT> > pc(new pcl::PointCloud<PointT>());
-		//stringstream ss;
-		//stringstream *codedstream = &ss;
-
-		//std::cout << "\nDecoding started\n";
-		//std::cout << " \n Size of compressed frame: " << sizeof(comp_frame) << "\n";
 		string s = comp_frame.str();
 		std::stringstream coded_stream(s);
 		std::stringstream *ss = &comp_frame;;
-		//ss << comp_frame.rdbuf();
 		do_decoding(&coded_stream, ptcld, achieved_quality,tmstmp_);
-		//std::cout << "\n Size of decoded point cloud :" << (*ptcld).points.size() << "\n";
-		//std::cout << " Decoding done ";
-		//do_decoding(&coded_stream, output_pointcloud, achieved_quality);
-		//do_encoding(pointcloud, &ss, achieved_quality);
-		//string s = ss.str();
-		//std::stringstream coded_stream(s);//ss.str ());
-		//DebuG
-		//comp_frame<<s;
-		/*vector<std::string> filenames;
-		if (get_filenames_from_dir (*input_directories_.begin(), filenames) != 0) return false;
-		for (std::vector<std::string>::iterator itr = filenames.begin (); itr != filenames.end (); itr++)
-		{
-		std::string filename = *itr;
-		if (output_index_ == -1) { // get index of first file
-		std::stringstream ss(filename);
-		string tmp;
-		ss >> tmp >> output_index_;
-		if (output_index_ == -1) // no index found
-		output_index_ = 0;
-		}
-		boost::shared_ptr<pcl::PointCloud<PointT> > pc (new PointCloud<PointT> ());
-		if ( ! load_input_cloud(filename, pc))
-		{
-		continue;
-		}
-		group.push_back(pc->makeShared());
-		count++;
-		if (group_size_ == 0 && count < point_clouds.size ())
-		{
-		continue;
-		}
-		// encode the group for each set of 'group_size' point_clouds, and the final set
-		if (group_size_ == 0 || count == point_clouds.size () || count % group_size_ == 0)
-		{
-		evaluate_group (group, compression_settings, intra_frame_quality_csv, predictive_quality_csv);
-		complete_initialization();
-		// start new group
-		group.clear ();
-		count = 0;
-		}
-		}
-		*/
 	}
 	catch (boost::exception &e) {
 		std::cerr << boost::diagnostic_information(e) << "\n";
 		return_value = false;
 	}
-	// Visualization not needed in lib
-	/*
-	if (visualization_)
-	{ // remove data structures related to visualzation
-	do_visualization ("Original", boost::shared_ptr<PointCloud<PointT> >());
-	do_visualization ("Decoded",  boost::shared_ptr<PointCloud<PointT> >());
-	do_visualization ("Delta Decoded",  boost::shared_ptr<PointCloud<PointT> >());
-	}
-	*/
 	return return_value;
 }
 
