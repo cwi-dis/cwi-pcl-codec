@@ -40,7 +40,7 @@ extern "C" FILE * __cdecl __iob_func(void)
 //Exporting  a unity compliant decode function and point cloud data structure
 
 //Test function to receive a filename, read a pointcloud .ply and return the contents in a MyPointcloud structure
-extern "C" __declspec(dllexport) MyPointCloud Cwi_test2(char* filename, void *p)
+extern "C" _CWI_DLL_EXPORT MyPointCloud Cwi_test2(char* filename, void *p)
 {
 	std::string path(filename);
 	std::ofstream log1;
@@ -85,7 +85,7 @@ extern "C" __declspec(dllexport) MyPointCloud Cwi_test2(char* filename, void *p)
 	return ptcld;
 }
 //Decode function to receive a compressed point cloud as a c# Byte[] and return a point cloud as a Mypointcloud object
-extern "C" __declspec(dllexport) MyPointCloud Cwi_decoder(unsigned char * compFrame, int len)
+extern "C" _CWI_DLL_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFrame, int len)
 {
 	encoder_params par;
 	#ifdef DEBUG
@@ -149,7 +149,7 @@ extern "C" __declspec(dllexport) MyPointCloud Cwi_decoder(unsigned char * compFr
 	pcl::PointCloud<PointXYZRGB> cld = *decpc;
 	int size = cld.height * cld.width;
 	ptcld.size = size;
-	ptcld.pointcloud = (MyPoint*)GlobalAlloc(GPTR, sizeof(MyPoint) * size);
+	ptcld.pointcloud = (MyPoint*)CSHARP_COMPAT_ALLOC(sizeof(MyPoint) * size);
 	ptcld.timeStamp = tmStmp;
 	//Store points from PCL pointcloud in MyPointcloud
 	for (int i = 0; i < size; i++)
