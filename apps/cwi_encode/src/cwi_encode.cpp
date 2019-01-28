@@ -68,7 +68,7 @@ extern "C" _CWI_DLL_EXPORT MyPointCloud Cwi_test2(char* filename, void *p)
 	log4.close();
 	ptcld.timeStamp = 0;
 	//ptcld.pointcloud = (MyPoint*)::CoTaskMemAlloc(sizeof(MyPoint) * size);
-	ptcld.pointcloud = (MyPoint*)GlobalAlloc(GPTR, sizeof(MyPoint) * size);
+	ptcld.pointcloud = (MyPoint*)CSHARP_COMPAT_ALLOC(sizeof(MyPoint) * size);
 	for (int i = 0; i < size; i++)
 	{
 		(ptcld.pointcloud[i]).x = cld.points[i].x;
