@@ -35,6 +35,59 @@ To use it, several dependencies need to be installed:
 
 ## Installation
 
+### OSX instructions
+
+These instructions are slightly different from Kees' instructions, below. Written up by Jack as he's going along.
+
+- You need XCode.
+- Install Homebrew, from <https://brew.sh>
+- Install a few dependencies needed by our software and some of the third party libraries:
+
+  ```
+  brew install cmake
+  brew install libjpeg-turbo
+  ```
+  
+- Install the PCL, easiest using brew: 
+
+  ```
+  brew install pcl
+  ```
+  
+  - This may not work if your brew already uses PCL 1.9.x. Remove the too-new pcl, manually edit the formula and try to re-install again:
+
+	  ```
+	  brew uninstall pcl
+	  cd /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula
+	  git log pcl.rb
+	  # Note the commit of the last 1.8.1 formula, use that in the next line
+	  git checkout baea3606fce5d96720f631f37d62662ea73d7798 -- pcl.rb
+	  cd
+	  brew install pcl
+	  ```
+- Build the capture library. Its cmakefiles need a little help, because _libjpeg-turbo_ isn't installed system-wide (because of name conflict with the normal libjpeg):
+	
+	```
+	mkdir build-makefiles
+	cd build-makefiles
+	CMAKE_PREFIX_PATH=/usr/local/opt/jpeg-turbo cmake ..
+	make
+	```
+	
+	- Alternatively you can _cmake_ for Xcode projects in stead of Makefiles: append `-G Xcode` to the _cmake_ command line above.
+	
+### Linux instructions
+
+to be provided.
+
+### Windows instructions
+
+to be provided.
+
+### Older instructions
+
+Below are older instructions, with Mac/Win/Linux instructions interspersed.
+
 ### Installation of PointCLoudLibrary PCL-1.8.1 and libjpeg-turbo
 
 To build the package _cwi-pcl-codec_, first the Point Cloud Library (PCL) <http://pointclouds.org> its dependencies and libjpeg-turbo need to be installed:
