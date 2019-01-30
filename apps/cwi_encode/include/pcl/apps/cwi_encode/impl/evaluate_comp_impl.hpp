@@ -694,7 +694,7 @@ load_ply_file (std::string path, boost::shared_ptr<pcl::PointCloud<PointT> > pc)
 struct PLYExport {
 	boost::shared_ptr<pcl::PointCloud<PointXYZRGB>> pc;
 };
-__declspec(dllexport) int load_ply_file_XYZRGB(std::string path, void **p)
+PCL_EXPORTS int load_ply_file_XYZRGB(std::string path, void **p)
 {
 	auto pe = new PLYExport;
 	pe->pc = boost::shared_ptr<pcl::PointCloud<PointXYZRGB>>(new PointCloud<PointXYZRGB>());
@@ -702,7 +702,7 @@ __declspec(dllexport) int load_ply_file_XYZRGB(std::string path, void **p)
 	*p = reinterpret_cast<void *>(pe);
 	return res;
 }
-__declspec(dllexport) void delete_ply_data(void *pc)
+PCL_EXPORTS void delete_ply_data(void *pc)
 {
 	//delete pc;
 }

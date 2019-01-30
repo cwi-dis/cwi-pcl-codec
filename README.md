@@ -45,7 +45,7 @@ These instructions are slightly different from Kees' instructions, below. Writte
 
   ```
   brew install cmake
-  brew install libjpeg-turbo
+  brew install jpeg-turbo
   ```
   
 - Install the PCL, easiest using brew: 
