@@ -54,17 +54,26 @@ These instructions are slightly different from Kees' instructions, below. Writte
   brew install pcl
   ```
   
-  - This may not work if your brew already uses PCL 1.9.x. Remove the too-new pcl, manually edit the formula and try to re-install again:
+  - This may not work if your brew already uses PCL 1.9.x. Remove the too-new pcl, manually edit the formula and try to re-install again. This also requires an older version of vtk:
 
 	  ```
 	  brew uninstall pcl
+	  brew uninstall vtk
 	  cd /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula
 	  git log pcl.rb
 	  # Note the commit of the last 1.8.1 formula, use that in the next line
 	  git checkout baea3606fce5d96720f631f37d62662ea73d7798 -- pcl.rb
+	  git log vtk.rb
+	  # Note the commit of the last 8.1 formula, use that in the next line
+	  git checkout 9aee8759562baac3e3c7b5b766bd2166b34fa0bc -- vtk.rb
 	  cd
+	  brew install vtk
 	  brew install pcl
 	  ```
+	  
+	  Note that as of this writing this builds the library correctly, but not the test propgrams due
+	  to some issues with vtk.
+	  
 - Build the capture library. Its cmakefiles need a little help, because _libjpeg-turbo_ isn't installed system-wide (because of name conflict with the normal libjpeg):
 	
 	```
@@ -78,7 +87,14 @@ These instructions are slightly different from Kees' instructions, below. Writte
 	
 ### Linux instructions
 
-to be provided.
+- These instructions are for Ubuntu 18.04.
+- Install cmake, pcl and other dependencies:
+
+  ```
+  sudo apt-get install cmake
+  sudo apt-get install libturbojpeg0-dev
+  sudo apt-get install libpcl-dev libpcl-common1.8 libpcl-io1.8
+  ```
 
 ### Windows instructions
 
