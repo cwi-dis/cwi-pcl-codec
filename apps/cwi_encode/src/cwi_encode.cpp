@@ -31,11 +31,14 @@ int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& c
 	evaluate_comp_impl<PointXYZRGB> evaluate;
 	return evaluate.evaluate_dc(param, pc, comp_frame, timeStamp) == true ? 0 : -1;
 }
+
+#ifdef XXXJACK_REMOVED
 FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void)
 {
 	return _iob;
 }
+#endif
 
 //Exporting  a unity compliant decode function and point cloud data structure
 

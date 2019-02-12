@@ -45,7 +45,7 @@ project(CWI_PCL_CODEC)
 #   message(SEND_ERROR "In-source builds are not allowed.")
 # endif ()
 
-# set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_COLOR_MAKEFILE   ON)
 
 # You can set this to '1' if you like a lot of CMake messages, e.g. to find a bug
