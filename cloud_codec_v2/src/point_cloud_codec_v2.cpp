@@ -40,9 +40,11 @@
 #include <pcl/cloud_codec_v2/point_cloud_codec_v2.h>
 #include <pcl/cloud_codec_v2/impl/point_cloud_codec_v2_impl.hpp>
 
-using namespace pcl;
-using namespace io;
+namespace pcl {
+namespace io{
 
 template class OctreePointCloudCodecV2<PointXYZRGB>;
 //template class OctreePointCloudCodecV2<PointXYZRGBA>;
 //template class OctreePointCloudCompressionV2<PointXYZ>;
+}
+}
