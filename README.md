@@ -78,7 +78,10 @@ These instructions are slightly different from Kees' instructions, below. Writte
 	
 ### Linux instructions
 
-to be provided.
+- These instructions are for Ubuntu 18.04
+- ```sudo apt-get install cmake```
+- ```sudo apt-get install libturbojpeg```
+- ```sudo apt-get install libusb-1.0 libusb-dev```
 
 ### Windows instructions
 
