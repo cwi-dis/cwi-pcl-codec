@@ -68,6 +68,7 @@ These instructions are slightly different from Kees' instructions, below. Writte
 	  git checkout 9aee8759562baac3e3c7b5b766bd2166b34fa0bc -- vtk.rb
 	  cd
 	  brew install vtk
+	  # If you get errors here find the line needs :cxx11 in vtp.rb and comment it out
 	  brew install pcl
 	  ```
 	  
