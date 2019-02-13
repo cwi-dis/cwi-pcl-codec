@@ -45,6 +45,8 @@ project(CWI_PCL_CODEC)
 #   message(SEND_ERROR "In-source builds are not allowed.")
 # endif ()
 
+include(CTest)
+
 set(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_COLOR_MAKEFILE   ON)
 
@@ -175,3 +177,4 @@ add_subdirectory("jpeg_io")
 add_subdirectory("cloud_codec_v2")
 add_subdirectory("apps/evaluate_compression")
 add_subdirectory("apps/cwi_encode")
+
