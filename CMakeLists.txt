@@ -143,6 +143,7 @@ if(CMAKELISTS_DEBUG)
   message("3.Boost_LIBRARIES=" ${Boost_LIBRARIES})
 endif(CMAKELISTS_DEBUG)
 set(${PROJECT_NAME}_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/lib
+                                 ${JPEG_Turbo_LIBRARY_DIR}
                                  ${VTK_LIBRARY_DIR}
                                  ${Boost_LIBRARY_DIR}
                                  ${PCL_LIBRARY_DIRS}

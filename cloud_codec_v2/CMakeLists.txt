@@ -74,7 +74,7 @@ endif(${PCL_INSTALLED})
 
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRS})
 add_library(${LIB_NAME} SHARED ${srcs} ${incs} ${impl_incs})
-target_link_libraries(${LIB_NAME} ${CWI_PCL_CODEC_LIBRARIES})
+target_link_libraries(${LIB_NAME} ${${PROJECT_NAME}_LIBRARIES})
 
 set(${PROJECT_NAME}_LIBRARY_DIRS
   ${CMAKE_CURRENT_BINARY_DIR}
