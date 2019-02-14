@@ -2,7 +2,10 @@
 cmake_minimum_required(VERSION 3.10.0)
 
 add_executable(cwipc_encode cwipc_encode.cpp)
-include_directories("../../include")
+include_directories(
+	"../../include"
+	${PCL_INCLUDE_DIRS}
+)
 target_link_libraries(cwipc_encode cwipc_codec)
 
 install(TARGETS cwipc_encode RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

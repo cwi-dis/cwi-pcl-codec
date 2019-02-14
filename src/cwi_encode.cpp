@@ -13,8 +13,6 @@
 
 #include "cwipc_codec/api.h"
 
-#ifdef xxxjack_old
-
 using namespace std;
 
 int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp)
@@ -35,7 +33,6 @@ int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& c
 	std::cout.flush();
 	return enc == true ? 0 : -1;
 }
-#endif // xxxjack_old
 
 int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &timeStamp)
 {
