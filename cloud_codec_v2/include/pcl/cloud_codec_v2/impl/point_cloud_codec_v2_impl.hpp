@@ -255,6 +255,12 @@ namespace pcl{
       // read header from input stream
       readFrameHeader (compressed_tree_data_in_arg);
 	  tmstmp = timeStamp;
+	  //TO DO Shishir: Set codec parameteres from frame header before decoding
+	  //
+	  //this->octree_resolution_ = octreeResolution;
+	  //this->color_bit_resolution_ = colorBitResolution;
+	  //this->jpeg_quality_ = jpeg_quality;
+
 	  //std::cout << "\n Frame header read \n ";
       // set the right grid pattern to the JPEG coder
       jp_color_coder_ = ColorCodingJPEG<PointT>(75,color_coding_type_);
@@ -1455,11 +1461,20 @@ namespace pcl{
     {
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (frame_header_identifier_), strlen (frame_header_identifier_));
       //! use the base class and write some extended information on codecV2
+	  /*
+	  int octree_bits;
+	  int color_bits;
+	  int jpeg_quality;
+	  int macroblock_size;
+	  */
       OctreePointCloudCompression<PointT, LeafT, BranchT, OctreeT>::writeFrameHeader(compressed_tree_data_out_arg);
 
       //! write additional fields for cloud codec v2
 	  //std::cout << "\n Input time stamp is: " << timeStamp << "\n";
 	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&timeStamp), sizeof(timeStamp));
+	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&octreeResolution), sizeof(octreeResolution));
+	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&colorBitResolution), sizeof(colorBitResolution));
+	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&jpeg_quality), sizeof(jpeg_quality));
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&do_voxel_centroid_enDecoding_), sizeof (do_voxel_centroid_enDecoding_)); // centroid coding
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&do_connectivity_encoding_), sizeof (do_connectivity_encoding_));        // connectivity coding (not yet added)
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&create_scalable_bitstream_), sizeof (create_scalable_bitstream_));     // scalable bitstream
@@ -1477,6 +1492,9 @@ namespace pcl{
 
       //! read additional fields for cloud codec v2
 	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&timeStamp), sizeof(timeStamp));
+	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&octreeResolution), sizeof(octreeResolution));
+	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&colorBitResolution), sizeof(colorBitResolution));
+	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&jpeg_quality), sizeof(jpeg_quality));
 	  //std::cout << "\n Timestamp is :" << timeStamp;
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&do_voxel_centroid_enDecoding_), sizeof (do_voxel_centroid_enDecoding_));
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&do_connectivity_encoding_), sizeof (do_connectivity_encoding_));

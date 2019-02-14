@@ -286,6 +286,9 @@ namespace pcl{
         uint32_t color_coding_type_; //! color coding with jpeg, graph transform, or differential encodings
 
 		uint64_t timeStamp;
+		double  octreeResolution;
+		unsigned char colorBitResolution;
+		int jpeg_quality;
 
         bool do_voxel_centroid_enDecoding_;  //! encode the centroid in addition
 

@@ -45,12 +45,21 @@ project(CWI_PCL_CODEC)
 #   message(SEND_ERROR "In-source builds are not allowed.")
 # endif ()
 
-# set(CMAKE_VERBOSE_MAKEFILE ON)
+include(CTest)
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_COLOR_MAKEFILE   ON)
 
 # You can set this to '1' if you like a lot of CMake messages, e.g. to find a bug
 set (CMAKELISTS_DEBUG 0
         CACHE INTERNAL "${PROJECT_NAME}: CMakeLists.txt Debug Flag" FORCE)
+
+# Set the following to 1 to enable the -v (visualisation) flag to evaluate_compression. Requires vtk.
+set(ENABLE_VISUALIZATION 0)
+if(ENABLE_VISUALIZATION)
+	set(VISUALIZATION_OPTIONAL visualization)
+	set(VISUALIZATION_DEFINITIONS -DWITH_VTK)
+endif()
 
 set(SUBSYS_NAME cwi_pcl_codec)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/" ${CMAKE_MODULE_PATH})
@@ -60,7 +69,7 @@ if(CMAKELISTS_DEBUG)
 else(CMAKELISTS_DEBUG)
   set(QUIET_FLAG QUIET)
 endif(CMAKELISTS_DEBUG)
-find_package(PCL 1.8 REQUIRED ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
+find_package(PCL 1.8 REQUIRED ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation ${VISUALIZATION_OPTIONAL} kdtree features surface octree registration keypoints tracking search recognition)
 if(NOT PCL_FOUND)
   message(ERROR "PCL >= 1.8 not found.")
 endif(NOT PCL_FOUND)
@@ -73,30 +82,34 @@ if(NOT PCL_ALL_IN_ONE_INSTALLER)
     set(CMAKE_C_FLAGS "(/EHsc /UBOOST_NO_EXCEPTIONS")
     set(CMAKE_CXX_FLAGS "/EHsc")
     set(CMAKE_LD_FLAGS "-g -O0")
-    # On Windows we have VTK 7.0
-    find_package(VTK 7.0 REQUIRED ${QUIET_FLAG})
-    if(NOT VTK_FOUND)
-      message(ERROR "VTK >= 7.0 found.")
-    endif(VTK_FOUND)
+    if(ENABLE_VISUALIZATION)
+		# On Windows we have VTK 7.0
+		find_package(VTK 7.0 REQUIRED ${QUIET_FLAG})
+		if(NOT VTK_FOUND)
+		  message(ERROR "VTK >= 7.0 found.")
+		endif(VTK_FOUND)
+	endif()
   else(WIN32)
     # enable debugging on Linux
     set(CMAKE_C_FLAGS "-g -O0")
     set(CMAKE_CXX_FLAGS "-g -O0")
     set(CMAKE_LD_FLAGS "-g -O0")
-    # On Ubuntu 16.04 we have VTK 6.0, on MacOSX (brew) VTK 8.1
-    find_package(VTK 6.0 ${QUIET_FLAG})
-    if(NOT VTK_FOUND)
-     find_package(VTK 6.1 ${QUIET_FLAG})
-    endif(NOT VTK_FOUND)
-    if(NOT VTK_FOUND)
-     find_package(VTK 8.0 ${QUIET_FLAG})
-    endif(NOT VTK_FOUND)
-    if(NOT VTK_FOUND)
-      find_package(VTK 8.1 REQUIRED)
-    endif(NOT VTK_FOUND)
-    if(NOT VTK_FOUND)
-       message(ERROR "Neither VTK 6.0, 6.1, 8.0 nor 8.1 found.")
-    endif(NOT VTK_FOUND)
+    if(ENABLE_VISUALIZATION)
+		# On Ubuntu 16.04 we have VTK 6.0, on MacOSX (brew) VTK 8.1
+		find_package(VTK 6.0 ${QUIET_FLAG})
+		if(NOT VTK_FOUND)
+		 find_package(VTK 6.1 ${QUIET_FLAG})
+		endif(NOT VTK_FOUND)
+		if(NOT VTK_FOUND)
+		 find_package(VTK 8.0 ${QUIET_FLAG})
+		endif(NOT VTK_FOUND)
+		if(NOT VTK_FOUND)
+		  find_package(VTK 8.1 REQUIRED)
+		endif(NOT VTK_FOUND)
+		if(NOT VTK_FOUND)
+		   message(ERROR "Neither VTK 6.0, 6.1, 8.0 nor 8.1 found.")
+		endif(NOT VTK_FOUND)
+	endif()
   endif(WIN32)
 endif(NOT PCL_ALL_IN_ONE_INSTALLER)
 
@@ -141,6 +154,7 @@ if(CMAKELISTS_DEBUG)
   message("3.Boost_LIBRARIES=" ${Boost_LIBRARIES})
 endif(CMAKELISTS_DEBUG)
 set(${PROJECT_NAME}_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/lib
+                                 ${JPEG_Turbo_LIBRARY_DIR}
                                  ${VTK_LIBRARY_DIR}
                                  ${Boost_LIBRARY_DIR}
                                  ${PCL_LIBRARY_DIRS}
@@ -148,7 +162,9 @@ set(${PROJECT_NAME}_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/lib
 if(CMAKELISTS_DEBUG)
   message("${SUBSYS_NAME}_LIBRARY_DIRS: " ${${PROJECT_NAME}_LIBRARY_DIRS})
   message("${SUBSYS_NAME}_JPEG_Turbo_LIBRARY: " ${JPEG_Turbo_LIBRARY})
-  message("${SUBSYS_NAME}_VTK_LIBRARIES:" ${VTK_LIBRARIES})
+  if(ENABLE_VISUALIZATION)
+	  message("${SUBSYS_NAME}_VTK_LIBRARIES:" ${VTK_LIBRARIES})
+  endif()
   message("${SUBSYS_NAME}_Boost_LIBRARIES: " ${Boost_LIBRARIES})
   message("${SUBSYS_NAME}_PCL_LIBRARIES: " ${PCL_LIBRARIES})
 endif(CMAKELISTS_DEBUG)
@@ -165,6 +181,7 @@ set(${PROJECT_NAME}_DEFINITIONS
                                  ${JPEG_Turbo_DEFINITIONS} -DWITH_JPEG8=1
                                  ${Boost_DEFINITIONS}
                                  ${PCL_DEFINITIONS}
+                                 ${VISUALIZATION_DEFINITIONS}
     CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 if(CMAKELISTS_DEBUG)
   message("${SUBSYS_NAME}-${PROJECT_NAME}_DEFINITIONS: " ${${PROJECT_NAME}_DEFINITIONS})
@@ -175,3 +192,4 @@ add_subdirectory("jpeg_io")
 add_subdirectory("cloud_codec_v2")
 add_subdirectory("apps/evaluate_compression")
 add_subdirectory("apps/cwi_encode")
+

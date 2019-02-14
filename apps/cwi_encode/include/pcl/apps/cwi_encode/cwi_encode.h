@@ -23,13 +23,52 @@
 
 //extern CWI_ENCODE_API int ncwi_encode;
 
+// Note by xxxjack: this is incorrect, really: the dllexport is needed when building the
+// codec library, but it should be a dllimport when using it. To be fixed later.
+#ifndef _CWIPC_CODEC_EXPORT
+#ifdef WIN32
+#define _CWIPC_CODEC_EXPORT __declspec(dllimport)
+#else
+#define _CWIPC_CODEC_EXPORT
+#endif
+#endif
+
+//
+// Memory allocator that allocates blocks that can be transferred to csharp.
+//
+
+#ifdef WIN32
+#define CSHARP_COMPAT_ALLOC(nbytes) GlobalAlloc(GPTR, (nbytes))
+#else
+#define CSHARP_COMPAT_ALLOC(nbytes) malloc(nbytes)
+#endif
+
 //CWI_ENCODE_API int fncwi_encode(void);
 //CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
-class __declspec(dllexport) cwi_encode
+//Unity compliant point cloud data structure
+struct MyPoint
+{
+	float x;
+	float y;
+	float z;
+	int8_t r;
+	int8_t g;
+	int8_t b;
+};
+
+struct MyPointCloud
+{
+	MyPoint * pointcloud;
+	int size;
+	uint64_t timeStamp;
+};
+class _CWIPC_CODEC_EXPORT cwi_encode
 {
 public:
 	int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp);
 	int cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t &timeStamp);
 };
-__declspec(dllexport) int load_ply_file_XYZRGB(std::string path, void **pc);
-__declspec(dllexport) void delete_ply_data(void *pc);
+
+//extern "C" __declspec(dllexport) int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp);
+extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFrame, int len);
+extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_test2(char* filename, void *p);
