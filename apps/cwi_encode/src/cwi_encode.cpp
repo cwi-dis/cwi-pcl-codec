@@ -5,6 +5,12 @@
 #include <sstream>
 #include <evaluate_comp.h>
 #include <evaluate_comp_impl.hpp>
+#ifdef WIN32
+#define _CWIPC_CODEC_EXPORT __declspec(dllexport)
+#else
+#define _CWIPC_CODEC_EXPORT
+#endif
+
 #include "cwi_encode.h"
 using namespace std;
 int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp)
@@ -43,7 +49,7 @@ extern "C" FILE * __cdecl __iob_func(void)
 //Exporting  a unity compliant decode function and point cloud data structure
 
 //Test function to receive a filename, read a pointcloud .ply and return the contents in a MyPointcloud structure
-extern "C" _CWI_DLL_EXPORT MyPointCloud Cwi_test2(char* filename, void *p)
+extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_test2(char* filename, void *p)
 {
 	std::string path(filename);
 	std::ofstream log1;
@@ -88,7 +94,7 @@ extern "C" _CWI_DLL_EXPORT MyPointCloud Cwi_test2(char* filename, void *p)
 	return ptcld;
 }
 //Decode function to receive a compressed point cloud as a c# Byte[] and return a point cloud as a Mypointcloud object
-extern "C" _CWI_DLL_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFrame, int len)
+extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFrame, int len)
 {
 	encoder_params par;
 	#ifdef DEBUG

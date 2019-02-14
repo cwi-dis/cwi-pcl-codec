@@ -25,10 +25,12 @@
 
 // Note by xxxjack: this is incorrect, really: the dllexport is needed when building the
 // codec library, but it should be a dllimport when using it. To be fixed later.
+#ifndef _CWIPC_CODEC_EXPORT
 #ifdef WIN32
-#define _CWI_DLL_EXPORT __declspec(dllexport)
+#define _CWIPC_CODEC_EXPORT __declspec(dllimport)
 #else
-#define _CWI_DLL_EXPORT
+#define _CWIPC_CODEC_EXPORT
+#endif
 #endif
 
 //
@@ -60,15 +62,13 @@ struct MyPointCloud
 	int size;
 	uint64_t timeStamp;
 };
-class _CWI_DLL_EXPORT cwi_encode
+class _CWIPC_CODEC_EXPORT cwi_encode
 {
 public:
 	int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp);
 	int cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t &timeStamp);
 };
-_CWI_DLL_EXPORT int load_ply_file_XYZRGB(std::string path, void **pc);
-_CWI_DLL_EXPORT void delete_ply_data(void *pc);
 
 //extern "C" __declspec(dllexport) int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp);
-extern "C" _CWI_DLL_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFrame, int len);
-extern "C" _CWI_DLL_EXPORT MyPointCloud Cwi_test2(char* filename, void *p);
+extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFrame, int len);
+extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_test2(char* filename, void *p);
