@@ -59,8 +59,9 @@ set(impl_incs
    "include/pcl/io/impl/${SUBSYS_NAME}.hpp"
    )
 include_directories(${${PROJECT_NAME}_INCLUDE_DIRS})
-add_library(${LIB_NAME} SHARED ${srcs} ${incs} ${impl_incs})
-target_link_libraries(${LIB_NAME} ${CWI_PCL_CODEC_LIBS} ${JPEG_Turbo_LIBRARY})
+add_library(${LIB_NAME} ${srcs} ${incs} ${impl_incs})
+set_property(TARGET ${LIB_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(${LIB_NAME} ${CWI_PCL_CODEC_LIBS})
 
 set(${PROJECT_NAME}_LIBRARY_DIRS
   ${CMAKE_CURRENT_BINARY_DIR}
