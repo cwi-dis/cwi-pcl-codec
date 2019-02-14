@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.10.0)
 
-add_executable(cwipc_encode cwipc_decode.c)
+add_executable(cwipc_decode cwipc_decode.cpp)
 include_directories("../../include")
 target_link_libraries(cwipc_decode cwipc_codec)
 

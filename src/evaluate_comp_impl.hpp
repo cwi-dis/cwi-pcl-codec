@@ -84,7 +84,7 @@ namespace po = boost::program_options;
 #include <stdlib.h>
 #include <stdio.h>
 #endif//WIN32
-#include "evaluate_comp.h"
+#include "cwipc_codec/evaluate_comp.h"
 #include "qual_metrics.h"
 #undef max
 #undef min

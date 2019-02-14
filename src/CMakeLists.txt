@@ -43,7 +43,7 @@ add_library(cwipc_codec SHARED cwi_encode.cpp)
 target_sources(cwipc_codec
 	PRIVATE
 	"../include/cwipc_codec/api.h"
-	"evaluate_comp.h"
+	"../include/cwipc_codec/evaluate_comp.h"
 	"qual_metrics.h"
 	"evaluate_comp_impl.hpp"
 	"qual_metrics_impl.hpp"

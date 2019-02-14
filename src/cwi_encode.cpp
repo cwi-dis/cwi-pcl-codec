@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <chrono>
 #include <sstream>
-#include "evaluate_comp.h"
+#include "cwipc_codec/evaluate_comp.h"
 #include "evaluate_comp_impl.hpp"
 #ifdef WIN32
 #define _CWIPC_CODEC_EXPORT __declspec(dllexport)
