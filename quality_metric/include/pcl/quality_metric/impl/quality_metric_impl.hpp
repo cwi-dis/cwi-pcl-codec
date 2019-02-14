@@ -207,15 +207,15 @@ QualityMetric::computeQualityMetric (boost::shared_ptr<PointCloud<PointT> > clou
     rms_dist_a+=sqr_distances[0];
 
     ////////////////////////////////////////////////////////////////
-	// compute quality metric for yuv colors
-	// 1. convert to RGB to YUV
-	// 2. compute accumulated square error colors a to b
-	////////////////////////////////////////////////////////////////
-	float out_yuv[3];
-	float in_yuv[3];
+    // compute quality metric for yuv colors
+    // 1. convert to RGB to YUV
+    // 2. compute accumulated square error colors a to b
+    ////////////////////////////////////////////////////////////////
+    float out_yuv[3];
+    float in_yuv[3];
 
     convertRGBtoYUV<PointT>(cloud_a->points[i],in_yuv);
-	convertRGBtoYUV<PointT>(cloud_b->points[indices[0]],out_yuv);
+    convertRGBtoYUV<PointT>(cloud_b->points[indices[0]],out_yuv);
 		  
     mse_colors_yuv[0]+=((in_yuv[0] - out_yuv[0]) * (in_yuv[0] - out_yuv[0]));
     mse_colors_yuv[1]+=((in_yuv[1] - out_yuv[1]) * (in_yuv[1] - out_yuv[1]));
