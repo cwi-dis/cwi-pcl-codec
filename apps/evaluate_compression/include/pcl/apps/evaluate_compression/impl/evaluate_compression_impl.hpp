@@ -68,7 +68,6 @@ namespace po = boost::program_options;
 #include <pcl/cloud_codec_v2/point_cloud_codec_v2.h>
 #include <pcl/filters/radius_outlier_removal.h>
 
-#define WITH_VTK 31
 #ifdef  WITH_VTK
 #include <pcl/visualization/pcl_visualizer.h>
 #include <vtkRenderWindow.h>
