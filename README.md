@@ -99,7 +99,12 @@ These instructions are slightly different from Kees' instructions, below. Writte
 
 ### Windows instructions
 
-to be provided.
+- Install Windows 10-64
+- Install Visual Studio Community Edition
+- Install Notepad++
+- Install Git (checkout as-is, commit as-is for Unix newlines)
+- Install CMake
+- Install PCL 1.8 from <https://github.com/PointCloudLibrary/pcl/releases/download/pcl-1.8.1/PCL-1.8.1-AllInOne-msvc2017-win64.exe>
 
 ### Older instructions
 
