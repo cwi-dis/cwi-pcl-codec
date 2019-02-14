@@ -191,6 +191,7 @@ endif(CMAKELISTS_DEBUG)
 add_definitions( ${${PROJECT_NAME}_DEFINITIONS})
 add_subdirectory("jpeg_io")
 add_subdirectory("cloud_codec_v2")
-add_subdirectory("apps/evaluate_compression")
 add_subdirectory("src")
+add_subdirectory("apps/evaluate_compression")
+add_subdirectory("apps/cwipc_encode")
 
