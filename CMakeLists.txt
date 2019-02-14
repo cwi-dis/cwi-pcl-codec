@@ -46,6 +46,7 @@ project(CWI_PCL_CODEC)
 # endif ()
 
 include(CTest)
+include(GNUInstallDirs)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_COLOR_MAKEFILE   ON)
@@ -191,5 +192,5 @@ add_definitions( ${${PROJECT_NAME}_DEFINITIONS})
 add_subdirectory("jpeg_io")
 add_subdirectory("cloud_codec_v2")
 add_subdirectory("apps/evaluate_compression")
-add_subdirectory("apps/cwi_encode")
+add_subdirectory("src")
 

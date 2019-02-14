@@ -52,7 +52,7 @@
 #include <pcl/console/parse.h>
 #include <pcl/console/time.h>
 #include <pcl/search/kdtree.h>
-#include <qual_metrics.h>
+#include "qual_metrics.h"
 
 //using namespace std;
 using namespace pcl;

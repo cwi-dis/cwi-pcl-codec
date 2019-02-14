@@ -1,18 +1,22 @@
 // cwi_encode.cpp : Defines the exported functions for the DLL application.
 //
-#include<cstdint>
-#include<chrono>
+#include <cstdint>
+#include <chrono>
 #include <sstream>
-#include <evaluate_comp.h>
-#include <evaluate_comp_impl.hpp>
+#include "evaluate_comp.h"
+#include "evaluate_comp_impl.hpp"
 #ifdef WIN32
 #define _CWIPC_CODEC_EXPORT __declspec(dllexport)
 #else
 #define _CWIPC_CODEC_EXPORT
 #endif
 
-#include "cwi_encode.h"
+#include "cwipc_codec/api.h"
+
+#ifdef xxxjack_old
+
 using namespace std;
+
 int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t timeStamp)
 {
 	std::uint64_t codecStart;
@@ -31,6 +35,7 @@ int cwi_encode::cwi_encoder(encoder_params param, void* pc, std::stringstream& c
 	std::cout.flush();
 	return enc == true ? 0 : -1;
 }
+#endif // xxxjack_old
 
 int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &timeStamp)
 {
@@ -38,16 +43,17 @@ int cwi_encode::cwi_decoder(encoder_params param, void* pc, std::stringstream& c
 	return evaluate.evaluate_dc(param, pc, comp_frame, timeStamp) == true ? 0 : -1;
 }
 
-#ifdef XXXJACK_REMOVED
+#ifdef xxxjack_old
 FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void)
 {
 	return _iob;
 }
-#endif
+#endif // xxxjack_old
 
 //Exporting  a unity compliant decode function and point cloud data structure
 
+#ifdef xxxjack_old
 //Test function to receive a filename, read a pointcloud .ply and return the contents in a MyPointcloud structure
 extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_test2(char* filename, void *p)
 {
@@ -93,16 +99,18 @@ extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_test2(char* filename, void *p)
 	log4.close();
 	return ptcld;
 }
+#endif // xxxjack_old
+
 //Decode function to receive a compressed point cloud as a c# Byte[] and return a point cloud as a Mypointcloud object
-extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFrame, int len)
+MyPointCloud Cwi_decoder(unsigned char * compFrame, int len)
 {
 	encoder_params par;
-	#ifdef DEBUG
+#ifdef DEBUG
 	std::ofstream log1;
 	log1.open("log.txt");
 	log1 << "\n Decoder Initialised";
 	log1.close();
-	#endif // DEBUG
+#endif // DEBUG
 	//Default codec parameter values set in signals
 	par.num_threads = 1;
 	par.do_inter_frame = false;
@@ -112,19 +120,19 @@ extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFram
 	par.color_bits = 8;
 	par.jpeg_quality = 85;
 	par.macroblock_size = 16;
-	#ifdef DEBUG
+#ifdef DEBUG
 	std::ofstream log2;
 	log2.open("log.txt", std::ofstream::app);
 	log2 << "\n Codec params set";
 	log2.close();
-	#endif // DEBUG
+#endif // DEBUG
 	std::stringstream compfr;
 	//Convert C# bytestream to stringstream for decoding
 	for (int i = 0; i < len; i++)
 	{
 		compfr << compFrame[i];
 	}
-	#ifdef DEBUG
+#ifdef DEBUG
 	compfr.seekg(0, ios::end);
 	int sizeReceived = compfr.tellg();
 	compfr.seekg(0, ios::beg);
@@ -132,7 +140,7 @@ extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFram
 	logsize.open("log.txt", std::ofstream::app);
 	logsize << "\n Compressed frame of size " << sizeReceived << " received ";
 	logsize.close();
-	#endif // DEBUG
+#endif // DEBUG
 	compfr.seekg(0, ios::beg);
 	evaluate_comp_impl<PointXYZRGB> evaluate;
 	boost::shared_ptr<pcl::PointCloud<PointXYZRGB> > decpc(new PointCloud<PointXYZRGB>());
@@ -140,19 +148,19 @@ extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFram
 	void * dpc;
 	dpc = reinterpret_cast<void *> (&decpc);
 	uint64_t tmStmp = 0;
-	#ifdef DEBUG
+#ifdef DEBUG
 	std::ofstream logsize1;
 	logsize1.open("log.txt", std::ofstream::app);
 	logsize1 << "\n Decoder called";
 	logsize1.close();
-	#endif // DEBUG
+#endif // DEBUG
 	evaluate.evaluate_dc(par, dpc, compfr, tmStmp);
-	#ifdef DEBUG
+#ifdef DEBUG
 	std::ofstream log3;
 	log3.open("log.txt", std::ofstream::app);
 	log3 << "\n Point cloud extracted size is :" << (*decpc).points.size();
 	log3.close();
-	#endif // DEBUG
+#endif // DEBUG
 	//Format coversion
 	MyPointCloud ptcld;
 	pcl::PointCloud<PointXYZRGB> cld = *decpc;
@@ -170,11 +178,11 @@ extern "C" _CWIPC_CODEC_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFram
 		(ptcld.pointcloud[i]).g = cld.points[i].g;
 		(ptcld.pointcloud[i]).b = cld.points[i].b;
 	}
-	#ifdef DEBUG
+#ifdef DEBUG
 	std::ofstream log4;
 	log4.open("log.txt", std::ofstream::app);
 	log4 << "\n Created MyPointCloud object";
 	log4.close();
-	#endif //DEBUG
+#endif //DEBUG
 	return ptcld;
 }
