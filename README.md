@@ -105,6 +105,15 @@ These instructions are slightly different from Kees' instructions, below. Writte
 - Install Git (checkout as-is, commit as-is for Unix newlines)
 - Install CMake
 - Install PCL 1.8 from <https://github.com/PointCloudLibrary/pcl/releases/download/pcl-1.8.1/PCL-1.8.1-AllInOne-msvc2017-win64.exe>
+- Download libjpeg-turbo via <https://libjpeg-turbo.org/>. Get the windows 64bit binary installer.
+- Configure the cwi codec repository using cmake-gui.
+	- Manually set `JPEG_Turbo_INCLUDE_DIR` to `C:/libjpeg-turbo64/include`
+	- Manually set `JPEG_Turbo_LIBRARY` to `C:/libjpeg-turbo64/lib/jpeg.lib`
+- Generate VS projects and build.
+- To make things run I had to add the following directories to system environment variable PATH:
+	- `c:\Program Files\PCL 1.8.1\bin`
+	- `c:\Program Files\OpenNI2\Tools`
+	- `c:\libjpeg-turbo64\bin`
 
 ### Older instructions
 
