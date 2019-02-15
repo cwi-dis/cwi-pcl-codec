@@ -13,20 +13,16 @@ int main(int argc, char** argv)
         std::cerr << "Usage: " << argv[0] << "pointcloudfile.ply compressedfile.cwicpc" << std::endl;
         return 2;
     }
-    char cwdbuf[200];
-    std::cerr << "cwd:" << getcwd(cwdbuf, sizeof(cwdbuf)) << std::endl;
     //
     // Read pointcloud file
     //
-    pcl::PointCloud<pcl::PointXYZRGB> pc;
+    pcl::PointCloud<pcl::PointXYZRGB> *pc = new pcl::PointCloud<pcl::PointXYZRGB>;
     pcl::PLYReader ply_reader;
-    pcl::PolygonMesh mesh;
-    if (ply_reader.read(argv[1], pc) < 0) {
+    if (ply_reader.read(argv[1], *pc) < 0) {
         std::cerr << argv[0] << ": Error reading pointcloud from " << argv[1] << std::endl;
         return 1;
     }
-    std::cerr << "Read pointcloud successfully, " << pc.size() << " points." << std::endl;
-//    pcl::fromPCLPointCloud2(mesh.cloud, pc);
+    std::cerr << "Read pointcloud successfully, " << pc->size() << " points." << std::endl;
     //
     // Compress
     //
@@ -41,7 +37,12 @@ int main(int argc, char** argv)
 	param.macroblock_size = 16;
     cwi_encode encoder;
     std::stringstream outputBuffer;
-    void *pcVoidPtr = reinterpret_cast<void*>(&pc);
+#ifdef WITH_BOOST_SHARED_POINTER
+	boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > pcBoost(pc);
+    void *pcVoidPtr = reinterpret_cast<void*>(pcBoost);
+#else
+    void *pcVoidPtr = reinterpret_cast<void*>(pc);
+#endif
 //    boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
     
     if (encoder.cwi_encoder(param, pcVoidPtr, outputBuffer, 0) < 0) {
@@ -58,26 +59,3 @@ int main(int argc, char** argv)
     return 0;
 }
 
-#if 0
-nt
-load_ply_file (std::string path, boost::shared_ptr<pcl::PointCloud<PointT> > pc)
-{
-    int rv = 1;
-    PLYReader ply_reader;
-    /* next straighforward code crashes, work around via PolygonMesh *
-     PCLPointCloud2 pc2;
-     if (rv && ply_reader.read (path, pc2) < 0)
-     {
-     fromPCLPointCloud2 (pc2, *pc);
-     rv = 0;
-     }
-     */
-    PolygonMesh mesh;
-    if (rv && ply_reader.read (path, mesh) >= 0) {
-        pcl::fromPCLPointCloud2 (mesh.cloud, *pc);
-    } else {
-        rv= 0;
-    }
-    return rv;
-}
-#endif
