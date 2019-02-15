@@ -47,7 +47,7 @@
 
 // Define to use a boost shared pointer to communicate pointclouds between capture and compression.
 // Undefine to use pcl pointclouds directly
-#define WITH_BOOST_SHARED_POINTER
+#undef WITH_BOOST_SHARED_POINTER
 
 #if defined(_OPENMP)
 #include <omp.h>
@@ -863,27 +863,27 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 	{
 		//Removed to be compliant with changes to multiFrame.dll
 
-		#ifdef WITH_BOOST_SHARED_POINTER
+#ifdef WITH_BOOST_SHARED_POINTER
 		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
-		#else
+#else
 		pcl::PointCloud<pcl::PointXYZRGB> *captured_pc = reinterpret_cast<pcl::PointCloud<pcl::PointXYZRGB>*>(pc);
 		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(captured_pc);
-		#endif
+#endif
 
-		#ifdef DEBUG
+#ifdef DEBUG
 		std::cout << "\nReceived a point cloud with " << (*pointcloud).points.size() << " points\n";
-		#endif // DEBUG
+#endif // DEBUG
 
 		assign_option_values(param, captureTimeStamp);
 		//Stays unchanged
 		complete_initialization();
-		#ifdef NOTYET
+#ifdef NOTYET
 		int count = 0;
 		std::ofstream intra_frame_quality_csv;
 		std::ofstream predictive_quality_csv;
 		stringstream compression_settings;
 		compression_settings << "octree_bits=" << octree_bits_ << " color_bits=" << color_bits_ << " enh._bits=" << enh_bits_ << "_colortype=" << color_coding_type_ << " centroid=" << keep_centroid_;
-		#endif
+#endif
 		QualityMetric achieved_quality;
 		stringstream ss;
 		do_encoding(pointcloud, &ss, achieved_quality);
