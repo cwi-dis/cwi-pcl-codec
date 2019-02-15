@@ -46,15 +46,13 @@ These instructions are slightly different from Kees' instructions, below. Writte
   ```
   brew install cmake
   brew install jpeg-turbo
-  ```
-  
-- Install the PCL, easiest using brew: 
-
-  ```
+  brew unlink jpeg
+  brew link --force jpeg
   brew install pcl
   ```
   
-  - This may not work if your brew already uses PCL 1.9.x. Remove the too-new pcl, manually edit the formula and try to re-install again. This also requires an older version of vtk:
+  - The `brew unlink` and `brew link` are needed to install *jpeg-turbo* in stead of the normal jpeg library. Brew prefers not to do this, but that may lead to problems with some parts of the program linking to normal libjpeg and others to jpeg-turbo and the two getting into each others way.
+  - This *pcl* install may cause failures building if your brew already uses PCL 1.9.x. Remove the too-new pcl, manually edit the formula and try to re-install again. This also requires an older version of vtk:
 
 	  ```
 	  brew uninstall pcl
@@ -80,8 +78,10 @@ These instructions are slightly different from Kees' instructions, below. Writte
 	```
 	mkdir build-makefiles
 	cd build-makefiles
-	CMAKE_PREFIX_PATH=/usr/local/opt/jpeg-turbo cmake ..
+	cmake ..
 	make
+	make test # optional
+	make install # optional
 	```
 	
 	- Alternatively you can _cmake_ for Xcode projects in stead of Makefiles: append `-G Xcode` to the _cmake_ command line above.
