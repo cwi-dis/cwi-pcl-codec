@@ -7,6 +7,8 @@
 
 #include <cwipc_codec/api.h>
 
+#undef WITH_BOOST_SHARED_POINTER
+
 int main(int argc, char** argv)
 {
     if (argc != 3) {
@@ -18,10 +20,20 @@ int main(int argc, char** argv)
     //
     pcl::PointCloud<pcl::PointXYZRGB> *pc = new pcl::PointCloud<pcl::PointXYZRGB>;
     pcl::PLYReader ply_reader;
+#ifdef WITH_PLY_READER_BUG
+	pcl::PolygonMesh mesh;
+    if (ply_reader.read(argv[1], mesh) < 0) {
+        std::cerr << argv[0] << ": Error reading mesh from " << argv[1] << std::endl;
+        return 1;
+    }
+    pcl::fromPCLPointCloud2(mesh.cloud, *pc);
+#else
     if (ply_reader.read(argv[1], *pc) < 0) {
         std::cerr << argv[0] << ": Error reading pointcloud from " << argv[1] << std::endl;
         return 1;
     }
+
+#endif
     std::cerr << "Read pointcloud successfully, " << pc->size() << " points." << std::endl;
     //
     // Compress
@@ -39,7 +51,7 @@ int main(int argc, char** argv)
     std::stringstream outputBuffer;
 #ifdef WITH_BOOST_SHARED_POINTER
 	boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > pcBoost(pc);
-    void *pcVoidPtr = reinterpret_cast<void*>(pcBoost);
+    void *pcVoidPtr = reinterpret_cast<void*>(&pcBoost);
 #else
     void *pcVoidPtr = reinterpret_cast<void*>(pc);
 #endif
