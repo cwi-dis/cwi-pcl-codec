@@ -177,7 +177,7 @@ namespace pcl{
         void
         encodePointCloud (const PointCloudConstPtr &cloud_arg, std::ostream& compressed_tree_data_out_arg);
 
-        void
+        bool
         decodePointCloud (std::istream& compressed_tree_data_in_arg, PointCloudPtr &cloud_arg, uint64_t &tmstmp);
 
         virtual void
@@ -188,7 +188,7 @@ namespace pcl{
         encodePointCloudDeltaFrame (const PointCloudConstPtr &icloud_arg, const PointCloudConstPtr &pcloud_arg, PointCloudPtr &out_cloud_arg, 
         std::ostream& i_coded_data, std::ostream& p_coded_data, bool icp_on_original = false,bool write_out_cloud = false);
 
-        virtual void
+        virtual bool
         decodePointCloudDeltaFrame(const PointCloudConstPtr &icloud_arg, PointCloudPtr &out_cloud_arg,
         std::istream& i_coded_data, std::istream& p_coded_data);
       
@@ -270,7 +270,7 @@ namespace pcl{
         virtual void 
         deserializeTreeCallback (LeafT&, const OctreeKey& key_arg);
 
-        void
+        bool
         syncToHeader (std::istream& compressed_tree_data_in_arg);
 
         void

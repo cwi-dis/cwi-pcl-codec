@@ -221,7 +221,7 @@ namespace pcl{
       * \param  compressed_tree_data_in_arg
       * \param  cloud_arg  decoded point cloud
       */
-    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
+    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> bool
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::decodePointCloud (
       std::istream& compressed_tree_data_in_arg,
       PointCloudPtr &cloud_arg, uint64_t &tmstmp)
@@ -229,7 +229,7 @@ namespace pcl{
 		//std::cout << "\n Entered cloud codec v2 \n";
 		//std::cout << "\n Size of compressed frame" << sizeof(compressed_tree_data_in_arg);
       // synchronize to frame header
-      syncToHeader(compressed_tree_data_in_arg);
+      if (!syncToHeader(compressed_tree_data_in_arg)) return false;
 	  //std::cout << "\n Header synced \n";
       // initialize octree
       switchBuffers ();
@@ -316,6 +316,7 @@ namespace pcl{
         PCL_INFO ("Compression ratio: %f\n\n", static_cast<float> (sizeof (int) + 3.0f * sizeof (float)) / static_cast<float> (bytes_per_XYZ + bytes_per_color));
     }
 	  //std::cout << "\nDecoding done\n";
+    return true;
   }
 
     /**
@@ -1103,7 +1104,7 @@ namespace pcl{
     * \param i_coded_data intra encoded data 
     * \param p_coded_data inter encoded data
     */
-    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
+    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> bool
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::decodePointCloudDeltaFrame( 
       const PointCloudConstPtr &icloud_arg, PointCloudPtr &cloud_out_arg, 
       std::istream& i_coded_data, std::istream& p_coded_data)
@@ -1210,7 +1211,7 @@ namespace pcl{
         do_voxel_centroid_enDecoding_
         );
 	  uint64_t t = 0;
-      intra_coder.decodePointCloud(i_coded_data,intra_coded_points,t);
+        if (!intra_coder.decodePointCloud(i_coded_data,intra_coded_points,t)) return false;
 
       // add the decoded input points to the output cloud
       for(int i=0; i< intra_coded_points->size();i++)
@@ -1218,7 +1219,7 @@ namespace pcl{
 
       // clean up
       delete i_block_tree;
-
+        return true;
     }
 
     // 
@@ -1659,7 +1660,7 @@ namespace pcl{
       * \param compressed_tree_data_in_arg: binary input stream
       * \brief use the new v2 header
       */
-    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
+    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> bool
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::syncToHeader (std::istream& compressed_tree_data_in_arg)
     {
       // sync to frame header
@@ -1669,6 +1670,7 @@ namespace pcl{
       while (header_id_pos < strlen (frame_header_identifier_))
       {
         char readChar;
+        if (compressed_tree_data_in_arg.eof()) return false;
         compressed_tree_data_in_arg.read (static_cast<char*> (&readChar), sizeof (readChar));
         if (readChar != frame_header_identifier_[header_id_pos++])
           header_id_pos = (frame_header_identifier_[0]==readChar)?1:0;
@@ -1678,6 +1680,7 @@ namespace pcl{
 	  //std::cout << " \n Left loop\n";
       //! read the original octree header
       OctreePointCloudCompression<PointT>::syncToHeader (compressed_tree_data_in_arg);
+      return true;
     };
 
     /** \brief Apply entropy encoding to encoded information and output to binary stream, added bitstream scalability and centroid encoding compared to  V1
