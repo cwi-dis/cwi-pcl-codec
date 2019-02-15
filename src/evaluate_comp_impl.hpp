@@ -45,6 +45,11 @@
 #ifndef evaluate_compression_hpp
 #define evaluate_compression_hpp
 
+// Define to use a boost shared pointer to communicate pointclouds between capture and compression.
+// Undefine to use pcl pointclouds directly
+#define WITH_BOOST_SHARED_POINTER
+
+
 #if defined(_OPENMP)
 #include <omp.h>
 #endif//defined(_OPENMP)
@@ -861,8 +866,12 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 	{
 		//Removed to be compliant with changes to multiFrame.dll
 
+#ifdef WITH_BOOST_SHARED_POINTER
+		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
+#else
 		pcl::PointCloud<pcl::PointXYZRGB> *captured_pc = reinterpret_cast<pcl::PointCloud<pcl::PointXYZRGB>*>(pc);
 		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(captured_pc);
+#endif
 
 #ifdef DEBUG
 		std::cout << "\nReceived a point cloud with " << (*pointcloud).points.size() << " points\n";

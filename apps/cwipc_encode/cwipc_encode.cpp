@@ -7,6 +7,8 @@
 
 #include <cwipc_codec/api.h>
 
+#define WITH_BOOST_SHARED_POINTER
+
 int main(int argc, char** argv)
 {
     if (argc != 3) {
@@ -37,7 +39,14 @@ int main(int argc, char** argv)
 	param.macroblock_size = 16;
     cwi_encode encoder;
     std::stringstream outputBuffer;
+#ifdef WITH_BOOST_SHARED_POINTER
+	boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > pcBoost(pc);
+    void *pcVoidPtr = reinterpret_cast<void*>(&pcBoost);
+#else
     void *pcVoidPtr = reinterpret_cast<void*>(pc);
+#endif
+//    boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
+    
     if (encoder.cwi_encoder(param, pcVoidPtr, outputBuffer, 0) < 0) {
         std::cerr << argv[0] << ": Error encoding pointcloud from " << argv[1] << std::endl;
         return 1;
