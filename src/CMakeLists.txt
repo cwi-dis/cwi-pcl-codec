@@ -61,7 +61,8 @@ target_include_directories(
 	${PCL_INCLUDE_DIRS}
 )
 
-target_link_libraries(cwipc_codec PUBLIC cwipc_util PRIVATE cloud_codec_v2 ${PCL_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(cwipc_codec PUBLIC cwipc_util PRIVATE cloud_codec_v2 ${PCL_LIBRARIES} ${Boost_LIBRARIES} ${JPEG_Turbo_LIBRARY})
+# target_link_libraries(cwipc_codec PUBLIC cwipc_util PRIVATE ${${PROJECT_NAME}_LIBRARIES})
 
 install(TARGETS cwipc_codec
     EXPORT cwipc_codec
