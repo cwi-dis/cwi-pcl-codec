@@ -6,7 +6,7 @@ include_directories(
 	"../../include"
 	${PCL_INCLUDE_DIRS}
 )
-target_link_libraries(cwipc_encode cwipc_codec)
+target_link_libraries(cwipc_encode cwipc_codec ${PCL_LIBRARIES})
 
 install(TARGETS cwipc_encode RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

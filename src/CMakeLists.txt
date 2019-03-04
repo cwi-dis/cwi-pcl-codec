@@ -49,32 +49,22 @@ target_sources(cwipc_codec
 	"qual_metrics_impl.hpp"
 )
 
-include_directories(
-	"../include"
+target_include_directories(
+    cwipc_codec PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include> 
+)
+target_include_directories(
+    cwipc_codec PRIVATE
 	"../cloud_codec_v2/include"
 	"../jpeg_io/include"
 	${PCL_INCLUDE_DIRS}
 )
 
-set_target_properties(cwipc_codec PROPERTIES
-	ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/lib/Debug"
-	ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib/Release"
-	ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/lib/MinSizeRel"
-	ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/lib/RelWithDebInfo"
-	LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/lib/Debug"
-	LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/lib/Release"
-	LIBRARY_OUTPUT_DIRECTORY_MINSIZERELG "${CMAKE_BINARY_DIR}/lib/MinSizeRel"
-	LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/lib/RelWithDebInfo"
-	RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin/Debug"
-	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin/Release"
-	RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_BINARY_DIR}/bin/MinSizeRel"
-	RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_BINARY_DIR}/bin/RelWithDebInfo"
-)
-
-target_link_libraries(cwipc_codec ${${PROJECT_NAME}_LIBRARIES})
+target_link_libraries(cwipc_codec PUBLIC cwipc_util PRIVATE cloud_codec_v2 ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 
 install(TARGETS cwipc_codec
-    EXPORT cwipcrsTargets
+    EXPORT cwipc_codec
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -85,62 +75,7 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/cwipc_codec
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
+install(FILES ${PROJECT_SOURCE_DIR}/CMakeFiles/cwipc_codec-config.cmake DESTINATION lib/cmake/cwipc_codec)
 
-#
-#xyzzy
-#
-#cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
-#project(CWI_PCL_CODEC)
-#set(SUBSYS_NAME cwipc_codec)
-#set(SUBSYS_DESC "Encoding Library")
-#
-#set(${PROJECT_NAME}_INCLUDE_DIRS
-#  ${CMAKE_CURRENT_SOURCE_DIR}/include/pcl/apps/${SUBSYS_NAME}
-#  ${CMAKE_CURRENT_SOURCE_DIR}/include/pcl/apps/${SUBSYS_NAME}/impl
-#  ${${PROJECT_NAME}_INCLUDE_DIRS}
-#  CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
-#if(CMAKELISTS_DEBUG)
-#  message("${SUBSYS_NAME}-${PROJECT_NAME}_INCLUDE_DIRS: " ${${PROJECT_NAME}_INCLUDE_DIRS})
-#endif(CMAKELISTS_DEBUG)
-#
-#set(srcs
-#  "src/${SUBSYS_NAME}.cpp"
-#)
-#set(LIB_NAME pcl_${SUBSYS_NAME})
-#set(incs
-#   "include/pcl/apps/${SUBSYS_NAME}/${SUBSYS_NAME}.h"
-#   "include/pcl/apps/${SUBSYS_NAME}/evaluate_comp.h"
-#)
-#set(impl_incs
-#   "include/pcl/apps/${SUBSYS_NAME}/impl/evaluate_comp_impl.hpp"
-#   "include/pcl/apps/${SUBSYS_NAME}/impl/qual_metrics_impl.hpp"
-#   )
-#include_directories(${${PROJECT_NAME}_INCLUDE_DIRS})
-#
-#set(${PROJECT_NAME}_LIBRARY_DIRS
-#  ${CMAKE_CURRENT_BINARY_DIR}
-#  ${${PROJECT_NAME}_LIBRARY_DIRS}
-#  CACHE INTERNAL "${PROJECT_NAME}: Library Directories" FORCE)
-#if(CMAKELISTS_DEBUG)
-#  message("${SUBSYS_NAME}-${PROJECT_NAME}_LIBRARY_DIRS: " ${${PROJECT_NAME}_LIBRARY_DIRS})
-#endif(CMAKELISTS_DEBUG)
-#
-#set(${PROJECT_NAME}_LIBRARIES
-##  ${LIB_NAME}
-#  ${${PROJECT_NAME}_LIBRARIES}  
-#  CACHE INTERNAL "${PROJECT_NAME}:Libraries" FORCE)
-#if(CMAKELISTS_DEBUG)
-#  message("${SUBSYS_NAME}-${PROJECT_NAME}_LIBRARIES: " ${${PROJECT_NAME}_LIBRARIES})
-#endif(CMAKELISTS_DEBUG)
-#
-#add_library(${SUBSYS_NAME} SHARED ${srcs})
-#target_link_libraries(${SUBSYS_NAME} ${${PROJECT_NAME}_LIBRARIES})
-#install(TARGETS ${SUBSYS_NAME}
-#    EXPORT cwipccodecTargets
-#    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-#    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_PREFIX}/include/cwipc_codec"
-#)
-#
-#)
+install(EXPORT cwipc_codec DESTINATION lib/cmake/cwipc_codec)
+

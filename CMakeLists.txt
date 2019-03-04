@@ -48,6 +48,18 @@ project(CWI_PCL_CODEC)
 include(CTest)
 include(GNUInstallDirs)
 
+# Ensure all executable, dll/so and link-library outputs end up in the same directories
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE})
+
+#
+# Find cwipc_util
+#
+find_package(cwipc_util REQUIRED)
+include_directories(${cwipc_util_INCLUDE_DIRS})
+link_directories(${cwipc_util_LIBRARY_DIRS})
+
 set(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_COLOR_MAKEFILE   ON)
 
