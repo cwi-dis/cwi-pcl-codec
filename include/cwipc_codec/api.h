@@ -1,7 +1,9 @@
+#ifndef cwipc_codec_api_h
+#define cwipc_codec_api_h
 #include <stdint.h>
+#include "cwipc_util/api.h"
 #ifdef __cplusplus
 #include <sstream>
-#include <cwipc_codec/evaluate_comp.h>
 #endif
 
 // For Windows ensure that the symbols are imported from a DLL, unless we're compiling the DLL itself.
@@ -24,32 +26,27 @@
 #define CSHARP_COMPAT_ALLOC(nbytes) malloc(nbytes)
 #endif
 
-//CWI_ENCODE_API int fncwi_encode(void);
-//CWI_ENCODE_API int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame);
-//Unity compliant point cloud data structure
-typedef struct _MyPoint
-{
-	float x;
-	float y;
-	float z;
-	int8_t r;
-	int8_t g;
-	int8_t b;
-} MyPoint;
-
-typedef struct _MyPointCloud
-{
-	MyPoint * pointcloud;
-	int size;
-	uint64_t timeStamp;
-} MyPointCloud;
-
 #ifdef __cplusplus
+//
+// Parameters to give to the encoder
+//
+struct cwipc_encoder_params
+{
+    int num_threads;
+    bool do_inter_frame;
+    int gop_size;
+    double exp_factor;
+    int octree_bits;
+    int color_bits;
+    int jpeg_quality;
+    int macroblock_size;
+};
+
 class _CWIPC_CODEC_EXPORT cwi_encode
 {
 public:
-	int cwi_encoder(encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t timeStamp);
-	int cwi_decoder(encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &timeStamp);
+	int cwi_encoder(cwipc_encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t timeStamp);
+	int cwi_decoder(cwipc_encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &timeStamp);
 };
 #endif
 
@@ -57,11 +54,9 @@ public:
 extern "C" {
 #endif
 
-_CWIPC_CODEC_EXPORT MyPointCloud Cwi_decoder(unsigned char * compFrame, int len);
-#ifdef xxxjack_old
-_CWIPC_CODEC_EXPORT MyPointCloud Cwi_test2(char* filename, void *p);
-#endif // xxxjack_old
+_CWIPC_CODEC_EXPORT cwipc* cwipc_decompress(unsigned char * compFrame, int len);
     
 #ifdef __cplusplus
 }
 #endif
+#endif /* cwipc_codec_api_h */

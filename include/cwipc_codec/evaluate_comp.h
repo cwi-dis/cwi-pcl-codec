@@ -48,6 +48,8 @@
 #include <vector>
 #include <string>
 
+#include "cwipc_codec/api.h"
+
 class evaluate_comp {
 protected:
   //evaluate_comp (int argc, char** argv) : argc_(argc), argv_(argv), output_index_(-1) {}
@@ -111,16 +113,5 @@ protected:
     int output_index_;
 	std::uint64_t timeStamp_;
   };
- /* evaluate_compression_h */
-struct encoder_params
-{
-	int num_threads;
-	bool do_inter_frame;
-	int gop_size;
-	double exp_factor;
-	int octree_bits;
-	int color_bits;
-	int jpeg_quality;
-	int macroblock_size;
-};
+
 #endif

@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     //
     // Compress
     //
-    encoder_params param;
+    cwipc_encoder_params param;
 	param.num_threads = 1;
 	param.do_inter_frame = false;
 	param.gop_size = 1;

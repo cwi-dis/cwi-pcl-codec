@@ -101,7 +101,7 @@ class evaluate_comp_impl : evaluate_comp {
     // options handling
     void initialize_options_description ();
     bool get_options (int argc, char** argv);
-    void assign_option_values (encoder_params param, std::uint64_t captureTimeStamp);
+    void assign_option_values (cwipc_encoder_params param, std::uint64_t captureTimeStamp);
   
     po::options_description desc_;
     po::variables_map vm_;
@@ -133,9 +133,9 @@ class evaluate_comp_impl : evaluate_comp {
     boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > decoder_V2_;
   
     bool evaluate (); // TBD need catch exceptions
-	bool evaluator(encoder_params param, void*pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp);
-	bool evaluate_dc(encoder_params param, void*pc, std::stringstream& comp_frame, uint64_t &tmstmp_);
-	//bool evaluator(encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame);
+	bool evaluator(cwipc_encoder_params param, void*pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp);
+	bool evaluate_dc(cwipc_encoder_params param, void*pc, std::stringstream& comp_frame, uint64_t &tmstmp_);
+	//bool evaluator(cwipc_encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame);
     void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud);
     int debug_level_;
 };
@@ -317,14 +317,14 @@ evaluate_comp_impl<PointT>::get_options (int argc, char** argv)
 
 template<typename PointT>
 void
-evaluate_comp_impl<PointT>::assign_option_values(encoder_params param, std::uint64_t captureTimeStamp)
+evaluate_comp_impl<PointT>::assign_option_values(cwipc_encoder_params param, std::uint64_t captureTimeStamp)
 {
 	//algorithm_ = vm_["algorithm"].template as<std::string> ();
 	algorithm_ = "V2";
 	//group_size_ = vm_["group_size"].template as<int> ();
 	group_size_ = 1;
 	//Uncomment if inter frame/ p frame
-	//group_size_ = encoder_params.gop_size;
+	//group_size_ = cwipc_encoder_params.gop_size;
 	//K_outlier_filter_ = vm_["K_outlier_filter"].template as<int> ();
 	K_outlier_filter_ = 0;
 	//radius_ = vm_["radius"].template as<double> ();
@@ -363,7 +363,7 @@ evaluate_comp_impl<PointT>::assign_option_values(encoder_params param, std::uint
 		//do_delta_coding_ = vm_["do_delta_coding"].template as<bool> ();
 		do_delta_coding_ = false;
 		//Uncomment if  inter frame/ p frame
-		//do_delta_coding_ = encoder_params.do_inter_frame;
+		//do_delta_coding_ = cwipc_encoder_params.do_inter_frame;
 		//do_quality_computation_ = vm_["do_quality_computation"].template as<bool> ();
 		do_quality_computation_ = false;
 		//icp_on_original_ = vm_["icp_on_original"].template as<bool> ();
@@ -858,7 +858,7 @@ evaluate_comp_impl<PointT>::evaluate ()
 }
 template<typename PointT>
 bool
-evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp)
+evaluate_comp_impl<PointT>::evaluator(cwipc_encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp)
 {
 	bool return_value = true;
 
@@ -907,7 +907,7 @@ evaluate_comp_impl<PointT>::evaluator(encoder_params param, void* pc, std::strin
 
 template<typename PointT>
 bool
-evaluate_comp_impl<PointT>::evaluate_dc(encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &tmstmp_)
+evaluate_comp_impl<PointT>::evaluate_dc(cwipc_encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &tmstmp_)
 {
 	bool return_value = true;
 
