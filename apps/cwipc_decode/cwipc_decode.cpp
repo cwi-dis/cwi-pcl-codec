@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 	param.jpeg_quality = 85;
 	param.macroblock_size = 16;
     cwi_encode encoder;
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> pc(new pcl::PointCloud<pcl::PointXYZRGB>());
+    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > pc(new pcl::PointCloud<pcl::PointXYZRGB>());
     void *pcVoidPtr = reinterpret_cast<void*>(&pc);
 	uint64_t timeStamp;
 	if (encoder.cwi_decoder(param, pcVoidPtr, inputBuffer, timeStamp) < 0) {
