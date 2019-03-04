@@ -4,9 +4,8 @@
 #include <pcl/point_cloud.h>
 #include <pcl/io/ply_io.h>
 
-#include <cwipc_codec/api.h>
-
-#define WITH_BOOST_SHARED_POINTER
+#include "cwipc_util/api_pcl.h"
+#include "cwipc_codec/api.h"
 
 int main(int argc, char** argv)
 {
@@ -17,7 +16,7 @@ int main(int argc, char** argv)
     //
     // Read pointcloud file
     //
-    pcl::PointCloud<pcl::PointXYZRGB> *pc = new pcl::PointCloud<pcl::PointXYZRGB>;
+    cwipc_pcl_pointcloud pc = new_cwipc_pcl_pointcloud();
     pcl::PLYReader ply_reader;
     if (ply_reader.read(argv[1], *pc) < 0) {
         std::cerr << argv[0] << ": Error reading pointcloud from " << argv[1] << std::endl;
@@ -38,15 +37,9 @@ int main(int argc, char** argv)
 	param.macroblock_size = 16;
     cwi_encode encoder;
     std::stringstream outputBuffer;
-#ifdef WITH_BOOST_SHARED_POINTER
-	boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > pcBoost(pc);
-    void *pcVoidPtr = reinterpret_cast<void*>(&pcBoost);
-#else
-    void *pcVoidPtr = reinterpret_cast<void*>(pc);
-#endif
 //    boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
     
-    if (encoder.cwi_encoder(param, pcVoidPtr, outputBuffer, 0) < 0) {
+    if (encoder.cwi_encoder(param, pc, outputBuffer, 0) < 0) {
         std::cerr << argv[0] << ": Error encoding pointcloud from " << argv[1] << std::endl;
         return 1;
     }

@@ -4,7 +4,8 @@
 #include <pcl/point_cloud.h>
 #include <pcl/io/ply_io.h>
 
-#include <cwipc_codec/api.h>
+#include "cwipc_util/api_pcl.h"
+#include "cwipc_codec/api.h"
 
 int main(int argc, char** argv)
 {
@@ -32,10 +33,9 @@ int main(int argc, char** argv)
 	param.jpeg_quality = 85;
 	param.macroblock_size = 16;
     cwi_encode encoder;
-    boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > pc(new pcl::PointCloud<pcl::PointXYZRGB>());
-    void *pcVoidPtr = reinterpret_cast<void*>(&pc);
+    cwipc_pcl_pointcloud pc = new_cwipc_pcl_pointcloud();
 	uint64_t timeStamp;
-	if (encoder.cwi_decoder(param, pcVoidPtr, inputBuffer, timeStamp) < 0) {
+	if (encoder.cwi_decoder(param, pc, inputBuffer, timeStamp) < 0) {
         std::cerr << argv[0] << ": Error decoding pointcloud from " << argv[1] << std::endl;
         return 1;
 	}

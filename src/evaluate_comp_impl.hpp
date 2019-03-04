@@ -45,11 +45,6 @@
 #ifndef evaluate_compression_hpp
 #define evaluate_compression_hpp
 
-// Define to use a boost shared pointer to communicate pointclouds between capture and compression.
-// Undefine to use pcl pointclouds directly
-#define WITH_BOOST_SHARED_POINTER
-
-
 #if defined(_OPENMP)
 #include <omp.h>
 #endif//defined(_OPENMP)
@@ -133,8 +128,8 @@ class evaluate_comp_impl : evaluate_comp {
     boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointT> > decoder_V2_;
   
     bool evaluate (); // TBD need catch exceptions
-	bool evaluator(cwipc_encoder_params param, void*pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp);
-	bool evaluate_dc(cwipc_encoder_params param, void*pc, std::stringstream& comp_frame, uint64_t &tmstmp_);
+	bool evaluator(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp);
+	bool evaluate_dc(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t &tmstmp_);
 	//bool evaluator(cwipc_encoder_params param, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, std::stringstream& comp_frame);
     void do_visualization (std::string id, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud);
     int debug_level_;
@@ -858,7 +853,7 @@ evaluate_comp_impl<PointT>::evaluate ()
 }
 template<typename PointT>
 bool
-evaluate_comp_impl<PointT>::evaluator(cwipc_encoder_params param, void* pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp)
+evaluate_comp_impl<PointT>::evaluator(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, std::uint64_t captureTimeStamp)
 {
 	bool return_value = true;
 
@@ -866,15 +861,8 @@ evaluate_comp_impl<PointT>::evaluator(cwipc_encoder_params param, void* pc, std:
 	{
 		//Removed to be compliant with changes to multiFrame.dll
 
-#ifdef WITH_BOOST_SHARED_POINTER
-		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
-#else
-		pcl::PointCloud<pcl::PointXYZRGB> *captured_pc = reinterpret_cast<pcl::PointCloud<pcl::PointXYZRGB>*>(pc);
-		boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud(captured_pc);
-#endif
-
 #ifdef DEBUG
-		std::cout << "\nReceived a point cloud with " << (*pointcloud).points.size() << " points\n";
+		std::cout << "\nReceived a point cloud with " << (*pc).points.size() << " points\n";
 #endif // DEBUG
 
 		assign_option_values(param, captureTimeStamp);
@@ -889,7 +877,7 @@ evaluate_comp_impl<PointT>::evaluator(cwipc_encoder_params param, void* pc, std:
 #endif
 		QualityMetric achieved_quality;
 		stringstream ss;
-		do_encoding(pointcloud, &ss, achieved_quality);
+		do_encoding(pc, &ss, achieved_quality);
 
 		string s = ss.str();
 		std::stringstream coded_stream(s);//ss.str ());
@@ -907,15 +895,13 @@ evaluate_comp_impl<PointT>::evaluator(cwipc_encoder_params param, void* pc, std:
 
 template<typename PointT>
 bool
-evaluate_comp_impl<PointT>::evaluate_dc(cwipc_encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &tmstmp_)
+evaluate_comp_impl<PointT>::evaluate_dc(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t &tmstmp_)
 {
 	bool return_value = true;
 
 	try
 	{
 
-		boost::shared_ptr<pcl::PointCloud<PointT> > ptcld = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);	
-		ptcld->makeShared();
 		//Modified version for lib
 		assign_option_values(param,tmstmp_);
 		//Stays unchanged
@@ -929,7 +915,7 @@ evaluate_comp_impl<PointT>::evaluate_dc(cwipc_encoder_params param, void* pc, st
 		string s = comp_frame.str();
 		std::stringstream coded_stream(s);
 		std::stringstream *ss = &comp_frame;;
-        if (!do_decoding(&coded_stream, ptcld, achieved_quality,tmstmp_)) return_value = false;
+        if (!do_decoding(&coded_stream, pc, achieved_quality,tmstmp_)) return_value = false;
 	}
 	catch (boost::exception &e) {
 		std::cerr << boost::diagnostic_information(e) << "\n";

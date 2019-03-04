@@ -45,8 +45,8 @@ struct cwipc_encoder_params
 class _CWIPC_CODEC_EXPORT cwi_encode
 {
 public:
-	int cwi_encoder(cwipc_encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t timeStamp);
-	int cwi_decoder(cwipc_encoder_params param, void* pc, std::stringstream& comp_frame, uint64_t &timeStamp);
+	int cwi_encoder(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t timeStamp);
+	int cwi_decoder(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t &timeStamp);
 };
 #endif
 
