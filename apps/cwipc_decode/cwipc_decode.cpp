@@ -32,10 +32,10 @@ int main(int argc, char** argv)
 	param.color_bits = 8;
 	param.jpeg_quality = 85;
 	param.macroblock_size = 16;
-    cwi_encode encoder;
-    cwipc_pcl_pointcloud pc = new_cwipc_pcl_pointcloud();
+    cwipc_codec encoder(param);
 	uint64_t timeStamp;
-	if (encoder.cwi_decoder(param, pc, inputBuffer, timeStamp) < 0) {
+    cwipc_pcl_pointcloud pc = new_cwipc_pcl_pointcloud();
+	if ( encoder.decompress_from_stream(pc, inputBuffer, timeStamp) < 0) {
         std::cerr << argv[0] << ": Error decoding pointcloud from " << argv[1] << std::endl;
         return 1;
 	}

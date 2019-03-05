@@ -17,7 +17,8 @@
 
 using namespace std;
 
-int cwi_encode::cwi_encoder(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, std::uint64_t timeStamp)
+int 
+cwipc_codec::compress_to_stream(cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, std::uint64_t timeStamp)
 {
 	std::uint64_t codecStart;
 	codecStart = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -36,7 +37,8 @@ int cwi_encode::cwi_encoder(cwipc_encoder_params param, cwipc_pcl_pointcloud pc,
 	return enc == true ? 0 : -1;
 }
 
-int cwi_encode::cwi_decoder(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t &timeStamp)
+int 
+cwipc_codec::decompress_from_stream(cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t &timeStamp)
 {
 	evaluate_comp_impl<PointXYZRGB> evaluate;
 	return evaluate.evaluate_dc(param, pc, comp_frame, timeStamp) == true ? 0 : -1;
@@ -46,7 +48,8 @@ int cwi_encode::cwi_decoder(cwipc_encoder_params param, cwipc_pcl_pointcloud pc,
 
 
 //Decode function to receive a compressed point cloud as a c# Byte[] and return a point cloud as a Mypointcloud object
-cwipc* cwipc_decompress(unsigned char * compFrame, int len)
+cwipc* 
+cwipc_decompress(unsigned char * compFrame, int len)
 {
 	cwipc_encoder_params par;
 #ifdef DEBUG

@@ -35,11 +35,11 @@ int main(int argc, char** argv)
 	param.color_bits = 8;
 	param.jpeg_quality = 85;
 	param.macroblock_size = 16;
-    cwi_encode encoder;
+    cwipc_codec encoder(param);
     std::stringstream outputBuffer;
 //    boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
     
-    if (encoder.cwi_encoder(param, pc, outputBuffer, 0) < 0) {
+    if (encoder.compress_to_stream(pc, outputBuffer, 0) < 0) {
         std::cerr << argv[0] << ": Error encoding pointcloud from " << argv[1] << std::endl;
         return 1;
     }

@@ -42,11 +42,14 @@ struct cwipc_encoder_params
     int macroblock_size;
 };
 
-class _CWIPC_CODEC_EXPORT cwi_encode
+class _CWIPC_CODEC_EXPORT cwipc_codec
 {
 public:
-	int cwi_encoder(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t timeStamp);
-	int cwi_decoder(cwipc_encoder_params param, cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t &timeStamp);
+	cwipc_codec(cwipc_encoder_params& _param) : param(_param) {}
+	int compress_to_stream(cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t timeStamp);
+	int decompress_from_stream(cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t &timeStamp);
+protected:
+   cwipc_encoder_params param;
 };
 #endif
 
