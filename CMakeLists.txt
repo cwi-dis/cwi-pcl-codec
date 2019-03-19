@@ -53,13 +53,14 @@ set (CMAKELISTS_DEBUG 0
         CACHE INTERNAL "${PROJECT_NAME}: CMakeLists.txt Debug Flag" FORCE)
 
 set(SUBSYS_NAME cwi_pcl_codec)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/;${CMAKE_MODULE_PATH}")
 if(CMAKELISTS_DEBUG)
   message("CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
   set(QUIET_FLAG "")
 else(CMAKELISTS_DEBUG)
   set(QUIET_FLAG QUIET)
 endif(CMAKELISTS_DEBUG)
+
 find_package(PCL 1.8 REQUIRED ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
 if(NOT PCL_FOUND)
   message(ERROR "PCL >= 1.8 not found.")
