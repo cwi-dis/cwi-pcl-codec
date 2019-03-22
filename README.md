@@ -47,7 +47,7 @@ These instructions are slightly different from Kees' instructions, below. Writte
   brew install cmake
   brew install jpeg-turbo
   brew unlink jpeg
-  brew link --force jpeg
+  brew link --force jpeg-turbo
   brew install pcl
   ```
   
