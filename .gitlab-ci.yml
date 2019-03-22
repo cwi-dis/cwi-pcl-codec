@@ -1,0 +1,134 @@
+stages:
+  - build
+  - test
+  - deploy
+ 
+build_linux:
+  stage: build
+  tags:
+    - ubuntu1804
+  variables:
+    DEBIAN_FRONTEND: noninteractive
+  before_script:
+# Install and update debian packages
+    - apt-get update
+    - apt-get install -y tzdata
+    - apt-get install -y software-properties-common
+    - apt-get install -y git
+    - apt-get install -y cmake
+    - apt-get install -y libpcl-dev libpcl-common1.8 libpcl-io1.8
+    - apt-get install -y libturbojpeg0-dev
+
+# For now, build cwipc_util from source and install
+    - mkdir dependencies
+    - cd dependencies
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_util
+    - cd cwipc_util
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+    - make install
+    - cd .. # cwipc_util
+    - cd .. # dependencies
+    - cd .. # toplevel directory
+  script:
+    - mkdir -p build
+    - mkdir -p dist-ubuntu1804
+    - cd build
+    - cmake ..
+    - make
+    - make test
+    - make install DESTDIR=../dist-ubuntu1804
+    - cd ..
+    - tar --directory dist-ubuntu1804 -cvaf cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz .
+  artifacts:
+    paths:
+      - cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz
+      
+build_osx:
+  stage: build
+  tags:
+  - osx1012
+  allow_failure: true
+  before_script:
+    - brew install pkg-config || brew upgrade pkg-config
+    - brew install cmake || brew upgrade cmake
+    - brew install jpeg-turbo || brew upgrade jpeg-turbo
+    - brew unlink jpeg
+    - brew link --force jpeg-turbo
+    - brew install pcl || brew upgrade pcl
+# For now, build cwipc_util from source and install
+    - mkdir dependencies
+    - cd dependencies
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_util
+    - cd cwipc_util
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+    - make install
+    - cd .. # cwipc_util
+    - cd .. # dependencies
+    - cd .. # toplevel directory
+  script:
+    - mkdir -p build
+    - mkdir -p dist-osx1012
+    - cd build
+    - cmake ..
+    - make
+    - make test
+    - make install DESTDIR=../dist-osx1012
+    - cd ..
+    - tar --directory dist-osx1012 -z -cvf cwipc_codec_osx1012_$CI_BUILD_TAG.tgz .
+  artifacts:
+    paths:
+      - cwipc_codec_osx1012_$CI_BUILD_TAG.tgz
+      
+build_win:
+  stage: build
+  tags:
+    - win10
+  before_script:
+    - mkdir -p /cygdrive/c/dist-win/installed
+    - mkdir -p dependencies
+    - cd dependencies
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_util
+    - cd cwipc_util
+    - mkdir -p build
+    - cd build
+    - cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX="C:/dist-win/installed"
+    - cmake --build . --config Release
+    - cmake --build . --config Release --target INSTALL
+    - cd .. # cwipc_util
+    - cd .. # dependencies
+    - cd .. # toplevel directory
+  script:
+    - ls -l
+    - pwd
+    - mkdir -p build
+    - export ziplocation=$(pwd)/cwipc_codec_win1064_$CI_BUILD_TAG.zip
+    - cd build
+    - cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX="C:/dist-win/installed" -DJPEG_Turbo_INCLUDE_DIR="C:/libjpeg-turbo64/include" -DJPEG_Turbo_LIBRARY="C:/libjpeg-turbo64/lib/jpeg.lib"
+    - cmake --build . --config Release
+#    - cmake --build . --config Release --target RUN_TESTS
+    - cmake --build . --config Release --target INSTALL
+    - (cd /cygdrive/c/dist-win && zip -r $ziplocation installed)
+  artifacts:
+    paths:
+      - cwipc_codec_win1064_$CI_BUILD_TAG.zip
+      
+deploy_all:
+  stage: deploy
+  image: inetprocess/gitlab-release
+  tags:
+    - linux
+  only: 
+    - tags
+  dependencies: 
+    - build_linux
+#    - build_osx
+    - build_win
+  script:
+#    - gitlab-release --message 'New release' cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
+    - gitlab-release --message 'New release' cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
