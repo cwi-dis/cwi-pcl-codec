@@ -755,7 +755,7 @@ evaluate_compression_impl<PointT>::evaluate ()
       std::string filename = *itr;
       if (output_index_ == -1) { // get index of first file, 
         boost::filesystem::path p(filename);
-        std::stringstream ss(p.stem().native());
+        std::stringstream ss(filename);
         ss >> output_index_;
         if (output_index_ == -1) // no index found
           output_index_ = 0;
@@ -828,7 +828,7 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
     // decode the string stream
     string s = ss.str ();
     std::stringstream coded_stream (s);//ss.str ());
-    int group_size = group.size ();
+    size_t group_size = group.size ();
     boost::shared_ptr<pcl::PointCloud<PointT> > output_pointcloud (new pcl::PointCloud<PointT> ()), opc (new pcl::PointCloud<PointT> ());
     opc = group[i];
     do_decoding (&coded_stream, output_pointcloud, achieved_quality);
