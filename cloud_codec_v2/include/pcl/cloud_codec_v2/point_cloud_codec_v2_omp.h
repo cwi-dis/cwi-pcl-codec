@@ -98,6 +98,7 @@ namespace pcl{
           bool doColorEncoding_arg = true,
           const unsigned char colorBitResolution_arg = 6,
           const unsigned char colorCodingType_arg = 0,
+			const unsigned char timeStamp = 0,
           bool doVoxelGridCentroid_arg = true, 
           bool createScalebleStream_arg = true, 
           bool codeConnectivity_arg = false,
@@ -113,6 +114,7 @@ namespace pcl{
           doColorEncoding_arg,
           colorBitResolution_arg, 
           colorCodingType_arg, 
+			timeStamp_arg,
           doVoxelGridCentroid_arg,
           createScalebleStream_arg,
           codeConnectivity_arg,
@@ -147,12 +149,14 @@ namespace pcl{
         using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::octree_resolution_;
         using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::color_bit_resolution_;
         using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::color_coding_type_;
+		using pcl::io::OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::timeStamp;
         using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::do_voxel_centroid_enDecoding_;
         using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::shared_macroblock_percentage_;
         using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::shared_macroblock_convergence_percentage_;
         using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::simplifyPCloud;
         using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::generate_macroblock_tree;
         using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::do_icp_prediction;
+		using pcl::io::OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::timeStamp;
 //      using pcl::io:: OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::;
 /*
         using pcl::octree::Octree2BufBase<LeafT, BranchT>::deleteCurrentBuffer;

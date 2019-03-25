@@ -221,15 +221,16 @@ namespace pcl{
       * \param  compressed_tree_data_in_arg
       * \param  cloud_arg  decoded point cloud
       */
-    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
+    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> bool
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::decodePointCloud (
       std::istream& compressed_tree_data_in_arg,
-      PointCloudPtr &cloud_arg)
+      PointCloudPtr &cloud_arg, uint64_t &tmstmp)
     {
-
+		//std::cout << "\n Entered cloud codec v2 \n";
+		//std::cout << "\n Size of compressed frame" << sizeof(compressed_tree_data_in_arg);
       // synchronize to frame header
-      syncToHeader(compressed_tree_data_in_arg);
-
+      if (!syncToHeader(compressed_tree_data_in_arg)) return false;
+	  //std::cout << "\n Header synced \n";
       // initialize octree
       switchBuffers ();
 
@@ -237,7 +238,7 @@ namespace pcl{
       deleteCurrentBuffer();
       deleteTree();
       setOutputCloud (cloud_arg);
-
+	  //std::cout << " \n Octree buffers switched \n";
       // color field analysis
       cloud_with_color_ = false;
       std::vector<pcl::PCLPointField> fields;
@@ -253,13 +254,20 @@ namespace pcl{
 
       // read header from input stream
       readFrameHeader (compressed_tree_data_in_arg);
+	  tmstmp = timeStamp;
+	  //TO DO Shishir: Set codec parameteres from frame header before decoding
+	  //
+	  //this->octree_resolution_ = octreeResolution;
+	  //this->color_bit_resolution_ = colorBitResolution;
+	  //this->jpeg_quality_ = jpeg_quality;
 
+	  //std::cout << "\n Frame header read \n ";
       // set the right grid pattern to the JPEG coder
       jp_color_coder_ = ColorCodingJPEG<PointT>(75,color_coding_type_);
 
       // decode data vectors from stream
       entropyDecoding(compressed_tree_data_in_arg, compressed_tree_data_in_arg);
-
+	  //std::cout << "\n Entropy coding done \n";
       // initialize color and point encoding
       if(!color_coding_type_)
         color_coder_.initializeDecoding ();
@@ -272,7 +280,7 @@ namespace pcl{
       // initialize output cloud
       output_->points.clear ();
       output_->points.reserve (static_cast<std::size_t> (point_count_));
-
+	  //std::cout << "\n Starting to deserialize \n";
       if (i_frame_)
         // i-frame decoding - decode tree structure without referencing previous buffer
         deserializeTree (binary_tree_data_vector_, false);
@@ -284,7 +292,7 @@ namespace pcl{
       output_->height = 1;
       output_->width = static_cast<uint32_t> (cloud_arg->points.size ());
       output_->is_dense = false;
-
+	  //std::cout << "\n Pointcloud properties assigned \n";
       if (b_show_statistics_)
       {
         float bytes_per_XYZ = static_cast<float> (compressed_point_data_len_) / static_cast<float> (point_count_);
@@ -307,6 +315,8 @@ namespace pcl{
         PCL_INFO ("Total compression percentage: %f%%\n", (bytes_per_XYZ + bytes_per_color) / (sizeof (int) + 3.0f * sizeof (float)) * 100.0f);
         PCL_INFO ("Compression ratio: %f\n\n", static_cast<float> (sizeof (int) + 3.0f * sizeof (float)) / static_cast<float> (bytes_per_XYZ + bytes_per_color));
     }
+	  //std::cout << "\nDecoding done\n";
+    return true;
   }
 
     /**
@@ -329,7 +339,7 @@ namespace pcl{
         true,
         0,
         true,
-        color_bit_resolution_ /*,0,do_voxel_centroid_enDecoding_*/
+        color_bit_resolution_   /*,0,do_voxel_centroid_enDecoding_*/
         );
 
       // use bounding box and obtain the octree grid
@@ -756,6 +766,7 @@ namespace pcl{
         true,
         color_bit_resolution_,
         color_coding_type_, 
+			timeStamp,
         do_voxel_centroid_enDecoding_
         );
 
@@ -1097,6 +1108,7 @@ namespace pcl{
 				true,
 				color_bit_resolution_,
 				color_coding_type_,
+				timeStamp,
 				do_voxel_centroid_enDecoding_
 				);
 		intra_coder.defineBoundingBox(0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
@@ -1117,7 +1129,7 @@ namespace pcl{
     * \param i_coded_data intra encoded data 
     * \param p_coded_data inter encoded data
     */
-    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
+    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> bool
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::decodePointCloudDeltaFrame( 
       const PointCloudConstPtr &icloud_arg, PointCloudPtr &cloud_out_arg, 
       std::istream& i_coded_data, std::istream& p_coded_data)
@@ -1219,11 +1231,12 @@ namespace pcl{
         0,
         true,
         color_bit_resolution_,
-        color_coding_type_, 
+        color_coding_type_,
+			timeStamp,
         do_voxel_centroid_enDecoding_
         );
-
-      intra_coder.decodePointCloud(i_coded_data,intra_coded_points);
+	  uint64_t t = 0;
+        if (!intra_coder.decodePointCloud(i_coded_data,intra_coded_points,t)) return false;
 
       // add the decoded input points to the output cloud
       for(int i=0; i< intra_coded_points->size();i++)
@@ -1231,7 +1244,7 @@ namespace pcl{
 
       // clean up
       delete i_block_tree;
-
+        return true;
     }
 
     // 
@@ -1474,9 +1487,20 @@ namespace pcl{
     {
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (frame_header_identifier_), strlen (frame_header_identifier_));
       //! use the base class and write some extended information on codecV2
+	  /*
+	  int octree_bits;
+	  int color_bits;
+	  int jpeg_quality;
+	  int macroblock_size;
+	  */
       OctreePointCloudCompression<PointT, LeafT, BranchT, OctreeT>::writeFrameHeader(compressed_tree_data_out_arg);
 
       //! write additional fields for cloud codec v2
+	  //std::cout << "\n Input time stamp is: " << timeStamp << "\n";
+	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&timeStamp), sizeof(timeStamp));
+	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&octreeResolution), sizeof(octreeResolution));
+	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&colorBitResolution), sizeof(colorBitResolution));
+	  compressed_tree_data_out_arg.write(reinterpret_cast<const char*> (&jpeg_quality), sizeof(jpeg_quality));
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&do_voxel_centroid_enDecoding_), sizeof (do_voxel_centroid_enDecoding_)); // centroid coding
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&do_connectivity_encoding_), sizeof (do_connectivity_encoding_));        // connectivity coding (not yet added)
       compressed_tree_data_out_arg.write (reinterpret_cast<const char*> (&create_scalable_bitstream_), sizeof (create_scalable_bitstream_));     // scalable bitstream
@@ -1493,6 +1517,11 @@ namespace pcl{
       OctreePointCloudCompression<PointT>::readFrameHeader(compressed_tree_data_in_arg);
 
       //! read additional fields for cloud codec v2
+	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&timeStamp), sizeof(timeStamp));
+	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&octreeResolution), sizeof(octreeResolution));
+	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&colorBitResolution), sizeof(colorBitResolution));
+	  compressed_tree_data_in_arg.read(reinterpret_cast<char*> (&jpeg_quality), sizeof(jpeg_quality));
+	  //std::cout << "\n Timestamp is :" << timeStamp;
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&do_voxel_centroid_enDecoding_), sizeof (do_voxel_centroid_enDecoding_));
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&do_connectivity_encoding_), sizeof (do_connectivity_encoding_));
       compressed_tree_data_in_arg.read (reinterpret_cast<char*> (&create_scalable_bitstream_), sizeof (create_scalable_bitstream_));
@@ -1656,20 +1685,27 @@ namespace pcl{
       * \param compressed_tree_data_in_arg: binary input stream
       * \brief use the new v2 header
       */
-    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
+    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> bool
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::syncToHeader (std::istream& compressed_tree_data_in_arg)
     {
       // sync to frame header
+		//std::cout << " \n Entered sync to frame header\n";
       unsigned int header_id_pos = 0;
+	  //std::cout << "\n Frame header identifier is :" << frame_header_identifier_;
       while (header_id_pos < strlen (frame_header_identifier_))
       {
         char readChar;
+        if (compressed_tree_data_in_arg.eof()) return false;
         compressed_tree_data_in_arg.read (static_cast<char*> (&readChar), sizeof (readChar));
         if (readChar != frame_header_identifier_[header_id_pos++])
           header_id_pos = (frame_header_identifier_[0]==readChar)?1:0;
+		//std::cout << "\n Header_id_pos is: " << header_id_pos;
+		//std::cout << "\n Read char is:" << readChar << "   Current frame header char is :" << frame_header_identifier_[header_id_pos];
       }
+	  //std::cout << " \n Left loop\n";
       //! read the original octree header
       OctreePointCloudCompression<PointT>::syncToHeader (compressed_tree_data_in_arg);
+      return true;
     };
 
     /** \brief Apply entropy encoding to encoded information and output to binary stream, added bitstream scalability and centroid encoding compared to  V1

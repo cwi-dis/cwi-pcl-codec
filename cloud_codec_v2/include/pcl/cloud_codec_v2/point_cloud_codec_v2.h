@@ -105,15 +105,17 @@ namespace pcl{
         * \param codeConnectivity_arg:  connectivity coding (not yet implemented)
         * \param jpeg_quality_arg:  quality of the jpeg encoder (jpeg quality)
         */
-        OctreePointCloudCodecV2 (compression_Profiles_e compressionProfile_arg = MED_RES_ONLINE_COMPRESSION_WITH_COLOR,
-          bool showStatistics_arg = false,
-          const double pointResolution_arg = 0.001,
-          const double octreeResolution_arg = 0.01,
-          bool doVoxelGridDownDownSampling_arg = false,
-          const unsigned int iFrameRate_arg = 0, /* NO PCL P Frames in this version of the codec !! */
-          bool doColorEncoding_arg = true,
-          const unsigned char colorBitResolution_arg = 6,
-          const unsigned char colorCodingType_arg = 0,
+		OctreePointCloudCodecV2(compression_Profiles_e compressionProfile_arg = MED_RES_ONLINE_COMPRESSION_WITH_COLOR,
+			bool showStatistics_arg = false,
+			const double pointResolution_arg = 0.001,
+			const double octreeResolution_arg = 0.01,
+			bool doVoxelGridDownDownSampling_arg = false,
+			const unsigned int iFrameRate_arg = 0, /* NO PCL P Frames in this version of the codec !! */
+			bool doColorEncoding_arg = true,
+			const unsigned char colorBitResolution_arg = 6,
+			const unsigned char colorCodingType_arg = 0,
+			uint64_t timeStamp_arg = 0,
+			//const unsigned char timeStamp_arg = 0,
           bool doVoxelGridCentroid_arg = true, 
           bool createScalableStream_arg = true, 
           bool codeConnectivity_arg = false,
@@ -129,6 +131,7 @@ namespace pcl{
           doColorEncoding_arg,
           colorBitResolution_arg), 
           color_coding_type_(colorCodingType_arg), 
+			timeStamp(timeStamp_arg),
           do_voxel_centroid_enDecoding_(doVoxelGridCentroid_arg),
           create_scalable_bitstream_(createScalableStream_arg),
           do_connectivity_encoding_(codeConnectivity_arg),
@@ -174,8 +177,8 @@ namespace pcl{
         void
         encodePointCloud (const PointCloudConstPtr &cloud_arg, std::ostream& compressed_tree_data_out_arg);
 
-        void
-        decodePointCloud (std::istream& compressed_tree_data_in_arg, PointCloudPtr &cloud_arg);
+        bool
+        decodePointCloud (std::istream& compressed_tree_data_in_arg, PointCloudPtr &cloud_arg, uint64_t &tmstmp);
 
         virtual void
         generatePointCloudDeltaFrame (const PointCloudConstPtr &icloud_arg, const PointCloudConstPtr &pcloud_arg, PointCloudPtr &out_cloud_arg, 
@@ -185,7 +188,7 @@ namespace pcl{
         encodePointCloudDeltaFrame (const PointCloudConstPtr &icloud_arg, const PointCloudConstPtr &pcloud_arg, PointCloudPtr &out_cloud_arg, 
         std::ostream& i_coded_data, std::ostream& p_coded_data, bool icp_on_original = false,bool write_out_cloud = false);
 
-        virtual void
+        virtual bool
         decodePointCloudDeltaFrame(const PointCloudConstPtr &icloud_arg, PointCloudPtr &out_cloud_arg,
         std::istream& i_coded_data, std::istream& p_coded_data);
       
@@ -267,7 +270,7 @@ namespace pcl{
         virtual void 
         deserializeTreeCallback (LeafT&, const OctreeKey& key_arg);
 
-        void
+        bool
         syncToHeader (std::istream& compressed_tree_data_in_arg);
 
         void
@@ -281,6 +284,11 @@ namespace pcl{
         // protected variables cloud codec v2
 
         uint32_t color_coding_type_; //! color coding with jpeg, graph transform, or differential encodings
+
+		uint64_t timeStamp;
+		double  octreeResolution;
+		unsigned char colorBitResolution;
+		int jpeg_quality;
 
         bool do_voxel_centroid_enDecoding_;  //! encode the centroid in addition
 

@@ -68,7 +68,6 @@ namespace po = boost::program_options;
 #include <pcl/cloud_codec_v2/point_cloud_codec_v2.h>
 #include <pcl/filters/radius_outlier_removal.h>
 
-#define WITH_VTK 31
 #ifdef  WITH_VTK
 #include <pcl/visualization/pcl_visualizer.h>
 #include <vtkRenderWindow.h>
@@ -111,9 +110,9 @@ class evaluate_compression_impl : evaluate_compression {
     void do_outlier_removal (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > >& pointcloud);
     pcl::io::BoundingBox do_bounding_box_normalization (std::vector<boost::shared_ptr<pcl::PointCloud<PointT> > >& pointcloud);
     void do_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > point_cloud, stringstream* coded_stream, QualityMetric & achieved_quality);
-    void do_decoding (stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & achieved_quality);
+    bool do_decoding (stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & achieved_quality);
     void do_delta_encoding (boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > p_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > out_cloud, stringstream* i_stream, stringstream* p__stream, QualityMetric & quality_metric);
-    void do_delta_decoding (stringstream* i_stream, stringstream* p_stream, boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > out_cloud, QualityMetric & qualityMetric);
+    bool do_delta_decoding (stringstream* i_stream, stringstream* p_stream, boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud, boost::shared_ptr<pcl::PointCloud<PointT> > out_cloud, QualityMetric & qualityMetric);
     void do_quality_computation (boost::shared_ptr<pcl::PointCloud<PointT> > & pointcloud, boost::shared_ptr<pcl::PointCloud<PointT> > &reference_pointcloud, QualityMetric & quality_metric);
     void do_output (std::string path, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & qualityMetric);
     // V1 (common) settings
@@ -473,23 +472,25 @@ evaluate_compression_impl<PointT>::do_encoding (boost::shared_ptr<pcl::PointClou
 }
     
 template<typename PointT>
-void
+bool
 evaluate_compression_impl<PointT>::do_decoding (std::stringstream* coded_stream, boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud, QualityMetric & qualityMetric)
 {
   pcl::console::TicToc tt;
   tt.tic ();
   if (algorithm_ == "V1")
   {
-    decoder_V1_->decodePointCloud (*coded_stream, pointcloud);
+      decoder_V1_->decodePointCloud (*coded_stream, pointcloud);
   }
   else
   {
     if (algorithm_ == "V2")
     {
-      decoder_V2_->decodePointCloud (*coded_stream, pointcloud);
+		uint64_t t = 0;
+        if (!decoder_V2_->decodePointCloud (*coded_stream, pointcloud, t)) return false;
     }
   }
   qualityMetric.decoding_time_ms = tt.toc ();
+  return true;
 }
 
 template<typename PointT>
@@ -512,7 +513,7 @@ evaluate_compression_impl<PointT>::do_delta_encoding (boost::shared_ptr<pcl::Poi
 }
     
 template<typename PointT>
-void
+bool
 evaluate_compression_impl<PointT>::do_delta_decoding (std::stringstream* i_stream,
                                                      std::stringstream* p_stream,
                                                      boost::shared_ptr<pcl::PointCloud<PointT> > i_cloud,
@@ -521,8 +522,9 @@ evaluate_compression_impl<PointT>::do_delta_decoding (std::stringstream* i_strea
 {
   pcl::console::TicToc tt;
   tt.tic ();
-  encoder_V2_->decodePointCloudDeltaFrame (i_cloud, out_cloud, *i_stream, *p_stream);
+  if( !encoder_V2_->decodePointCloudDeltaFrame (i_cloud, out_cloud, *i_stream, *p_stream)) return false;
   qualityMetric.decoding_time_ms = tt.toc ();
+  return true;
 }
     
     
@@ -753,12 +755,12 @@ evaluate_compression_impl<PointT>::evaluate ()
     for (std::vector<std::string>::iterator itr = filenames.begin (); itr != filenames.end (); itr++)
     {
       std::string filename = *itr;
-      if (output_index_ == -1) { // get index of first file, 
-        boost::filesystem::path p(filename);
+      if (output_index_ == -1) { // get index of first file
         std::stringstream ss(filename);
-        ss >> output_index_;
+        string tmp;
+        ss >> tmp >> output_index_;
         if (output_index_ == -1) // no index found
-          output_index_ = 0;
+        output_index_ = 0;
       }
       boost::shared_ptr<pcl::PointCloud<PointT> > pc (new PointCloud<PointT> ());
       if ( ! load_input_cloud(filename, pc))
@@ -828,10 +830,10 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
     // decode the string stream
     string s = ss.str ();
     std::stringstream coded_stream (s);//ss.str ());
-    size_t group_size = group.size ();
+    int group_size = group.size ();
     boost::shared_ptr<pcl::PointCloud<PointT> > output_pointcloud (new pcl::PointCloud<PointT> ()), opc (new pcl::PointCloud<PointT> ());
     opc = group[i];
-    do_decoding (&coded_stream, output_pointcloud, achieved_quality);
+    if (!do_decoding (&coded_stream, output_pointcloud, achieved_quality)) return false;
     if (do_quality_computation_)
     {
       do_quality_computation (pc, output_pointcloud, achieved_quality);
@@ -869,7 +871,7 @@ evaluate_compression_impl<PointT>::evaluate_group(std::vector<boost::shared_ptr<
       i_strm_pos_cur = p_frame_idat.tellp ();
       cout << " encoded a predictive frame: coded " << (i_strm_pos_cur - i_strm_pos_prev) << " bytes intra and " << (p_strm_pos_cur - p_strm_pos_prev) << " inter frame encoded " <<endl;
       // create a deep copy of original pointcloud, for comparison
-      do_delta_decoding (&p_frame_idat, &p_frame_pdat, output_pointcloud, predicted_pc, predictive_quality);
+      if (!do_delta_decoding (&p_frame_idat, &p_frame_pdat, output_pointcloud, predicted_pc, predictive_quality)) return false;
 //    compute the quality of the resulting predictive frame
       if (do_quality_computation_)
       {
