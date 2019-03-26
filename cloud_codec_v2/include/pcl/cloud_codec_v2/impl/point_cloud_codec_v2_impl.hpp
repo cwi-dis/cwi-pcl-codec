@@ -611,7 +611,7 @@ namespace pcl{
 
       //////////// iterate the predictive frame and find common macro blocks /////////////
 #if PCL_VERSION >= 100901
-	  octree::OctreeDepthFirstIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
+	  octree::OctreeDepthFirstIterator<OctreeT> it_predictive = p_block_tree->leaf_depth_begin();
 
 	  for (; *it_predictive; ++it_predictive)
 	  {
