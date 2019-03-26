@@ -22,9 +22,9 @@ This package contains:
 
 To use it, several dependencies (Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) need to be installed:  
 
-* for Ubuntu 18.04 by installing a number of Debian packages
 * for Windows 10, most of this can be done using an all-in-one installer
 * for macOS Mojave 14.3 using Homebrew.
+* for Ubuntu 18.04 by installing a number of Debian packages
 * for all other supported systems by downloading, building and installing PCL 
   and its necessary Third Party Package (TPP's) as described at:
   http://pointclouds.org/downloads -> 'Compiling from source'.
@@ -32,23 +32,26 @@ To use it, several dependencies (Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) 
 Installation
 ============
 
-Easy Ubuntu 18.04 Install PCL 1.8.1 using binary packages:
-----------------------------------------------------------
+Mac OSX 10.14.3 Installation:
+-----------------------------
 
-* On a clean Ubuntu 18.04 installation, start 'Terminal' and install the Point Cloud Library (PCL) and its dependencies:
-   sudo apt install pcl-tools libpcl-dev  libjpeg-turbo8-dev
+* On a clean Mac OSX 10.14.3 installation install Xcode 10.1, Cmake 10.13.4 and Homebrew 2.0.6
 
-  
-* Start 'cmake-gui', specify the directory where this file is located in 'Where is the source code',
-  another empty directory 'Where to build the binaries', and select 'Unix Makefiles' in the 'CMakeSetup'
-  pop-up window. Click(tap) 'Configure', and 'Generate'.
-  For JPEG_Turbo_INCLUDE_DIR and JPEG_Turbo_LIBRARY, select '/usr/include' and '/usr/lib/x86_64-linux-gnu/libjpeg.so'.
+* brew unlink jpeg
+  brew install --HEAD jpeg-turbo
+  brew install vtk pcl
 
-Now the codec libraries and evaluation tools can be build by typing 'make' in the directory
-that was specified in 'cmake-gui' to build the binaries. Thr application can be found in 'apps/evaluate_compression'.
+* Start 'CMake', specify the directory where this file is located in 'Where is the source code',                            
+  another empty directory 'Where to build the binaries', and select 'Xcode'  in the 'CMakeSetup'                        
+  pop-up window. Then click(tap) 'Configure', and 'Generate'.
+  Now an Xcode project should be generated in the directory specified for 'build the binaries':
+  CWI-PCL-CODEC.xcodeproj.
 
-Easy install on Windows 10:
--------------------------------
+* Start 'Xcode' and use it to open the new Xcode-project, select 'Project->Build'.
+  The resulting application can be found in 'apps/evaluate_compression' and is self-documenting.
+
+Installation on Windows 10 (older versions won't work):
+-------------------------------------------------------
 
 * Install 'Visual Studio (2017)' Compiler Version 15.9  and 'cmake-gui' Version 3.13
 
@@ -77,6 +80,21 @@ Easy install on Windows 10:
   Most of these data sets are huge; unpack some and specify the full directory path as an argument
   to the program:
   evaluate_compression --input_directories=<full path to directory with datafiles>
+
+Ubuntu 18.04 Install PCL 1.8.1 using binary packages:
+-----------------------------------------------------
+
+* On a clean Ubuntu 18.04 installation, start 'Terminal' and install the Point Cloud Library (PCL) and its dependencies:
+   sudo apt install pcl-tools libpcl-dev  libjpeg-turbo8-dev
+
+  
+* Start 'cmake-gui', specify the directory where this file is located in 'Where is the source code',
+  another empty directory 'Where to build the binaries', and select 'Unix Makefiles' in the 'CMakeSetup'
+  pop-up window. Click(tap) 'Configure', and 'Generate'.
+  For JPEG_Turbo_INCLUDE_DIR and JPEG_Turbo_LIBRARY, select '/usr/include' and '/usr/lib/x86_64-linux-gnu/libjpeg.s§o'.
+
+Now the codec libraries and evaluation tools can be build by typing 'make' in the directory
+that was specified in 'cmake-gui' to build the binaries. The application can be found in 'apps/evaluate_compression'.
 
 Not so easy (tedious, but not difficult) install PCL 1.9.1 from source: (all platforms):
 ----------------------------------------------------------------------------------------
