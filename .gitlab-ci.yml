@@ -98,7 +98,6 @@ build_win:
     - cd build
     - cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX="C:/dist-win/installed"
     - cmake --build . --config Release
-    - cmake --build . --config Release --target RUN_TESTS
     - cmake --build . --config Release --target INSTALL
     - cd .. # cwipc_util
     - cd .. # dependencies
@@ -111,7 +110,7 @@ build_win:
     - cd build
     - cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX="C:/dist-win/installed" -DJPEG_Turbo_INCLUDE_DIR="C:/libjpeg-turbo64/include" -DJPEG_Turbo_LIBRARY="C:/libjpeg-turbo64/lib/jpeg.lib"
     - cmake --build . --config Release
-#    - cmake --build . --config Release --target RUN_TESTS
+    - cmake --build . --config Release --target RUN_TESTS
     - cmake --build . --config Release --target INSTALL
     - (cd /cygdrive/c/dist-win && zip -r $ziplocation installed)
   artifacts:
