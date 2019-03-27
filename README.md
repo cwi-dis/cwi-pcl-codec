@@ -131,6 +131,14 @@ Three test programs are included:
 
 ## Running the evaluation program
 
+Suitable input files for the program can be downloaded from: http://vcl.iti.gr/reconstruction/
+Most of these data sets are huge; unpack some and specify the full directory path as an argument
+to the program:
+
+```
+evaluate_compression --input_directories=<full path to directory with datafiles>
+```
+
 The following arguments are recognized by the program `evaluate_compression`:  
 (long version arguments without '--' can also be put in a file 'parameter_config.txt' in the working directory or its parent)
 
