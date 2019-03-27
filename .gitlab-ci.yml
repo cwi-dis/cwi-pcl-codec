@@ -50,7 +50,6 @@ build_osx:
   stage: build
   tags:
   - osx1012
-  allow_failure: true
   before_script:
     - brew install pkg-config || brew upgrade pkg-config
     - brew install cmake || brew upgrade cmake
@@ -99,6 +98,7 @@ build_win:
     - cd build
     - cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX="C:/dist-win/installed"
     - cmake --build . --config Release
+    - cmake --build . --config Release --target RUN_TESTS
     - cmake --build . --config Release --target INSTALL
     - cd .. # cwipc_util
     - cd .. # dependencies
@@ -127,7 +127,7 @@ deploy_all:
     - tags
   dependencies: 
     - build_linux
-#    - build_osx
+    - build_osx
     - build_win
   script:
 #    - gitlab-release --message 'New release' cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
