@@ -9,9 +9,13 @@
 
 int main(int argc, char** argv)
 {
-    if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << "pointcloudfile.ply compressedfile.cwicpc" << std::endl;
+	uint64_t timestamp = 0LL;
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << "pointcloudfile.ply compressedfile.cwicpc [timestamp]" << std::endl;
         return 2;
+    }
+    if (argc > 3) {
+    	timestamp = (uint64_t)atoll(argv[3]);
     }
     //
     // Read pointcloud file
@@ -39,7 +43,7 @@ int main(int argc, char** argv)
     std::stringstream outputBuffer;
 //    boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
     
-    if (encoder.compress_to_stream(pc, outputBuffer, 0) < 0) {
+    if (encoder.compress_to_stream(pc, outputBuffer, timestamp) < 0) {
         std::cerr << argv[0] << ": Error encoding pointcloud from " << argv[1] << std::endl;
         return 1;
     }
