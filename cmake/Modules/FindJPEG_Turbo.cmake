@@ -36,13 +36,14 @@ find_path(JPEG_Turbo_INCLUDE_DIR turbojpeg.h)
 set(JPEG_Turbo_NAMES ${JPEG_Turbo_NAMES} turbojpeg)
 find_library(JPEG_Turbo_LIBRARY NAMES ${JPEG_Turbo_NAMES} )
 
-find_library(JPEG_Turbo_JPEG_LIBRARY NAMES jpeg)
-set(JPEG_Turbo_LIBRARIES ${JPEG_Turbo_LIBRARY} ${JPEG_Turbo_JPEG_LIBRARY})
-
 # handle the QUIETLY and REQUIRED arguments and set JPEG_FOUND to TRUE if
 # all listed variables are TRUE
 #include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(JPEG_Turbo DEFAULT_MSG JPEG_Turbo_LIBRARY JPEG_Turbo_LIBRARIES JPEG_Turbo_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(JPEG_Turbo DEFAULT_MSG JPEG_Turbo_LIBRARY JPEG_Turbo_INCLUDE_DIR)
+
+if(JPEG_Turbo_FOUND)
+  set(JPEG_Turbo_LIBRARIES ${JPEG_Turbo_LIBRARY})
+endif()
 
 # Deprecated declarations.
 set (NATIVE_JPEG_Turbo_INCLUDE_PATH ${JPEG_Turbo_INCLUDE_DIR} )

@@ -184,7 +184,7 @@ if(CMAKELISTS_DEBUG)
   message("${SUBSYS_NAME}_PCL_LIBRARIES: " ${PCL_LIBRARIES})
 endif(CMAKELISTS_DEBUG)
 set(${PROJECT_NAME}_LIBRARIES
-                                 ${JPEG_Turbo_LIBRARIES}
+                                 ${JPEG_Turbo_LIBRARY}
                                  ${VTK_LIBRARIES}
                                  ${Boost_LIBRARIES}
                                  ${PCL_LIBRARIES}
