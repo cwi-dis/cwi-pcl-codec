@@ -90,15 +90,16 @@ To use it, several dependencies need to be installed:
 
 ### Windows instructions
 
-- Install Windows 10-64
-- Install Visual Studio Community Edition
-- Install Notepad++
-- Install Git (checkout as-is, commit as-is for Unix newlines)
-- Install CMake
+- Make sure you have the following on your development machine:
+	- Install Windows 10-64
+	- Install Visual Studio Community Edition
+	- Install Notepad++
+	- Install Git (checkout as-is, commit as-is for Unix newlines)
+	- Install CMake
 - Install PCL 1.9.1 using the all-in-one installer.
 	- Project homepage is at <https://github.com/PointCloudLibrary/pcl>, go to release, pick the latest 1.9 one, download the 64bit all-in-one. 
 	- Currently that is <https://github.com/PointCloudLibrary/pcl/releases/download/pcl-1.9.1/PCL-1.9.1-AllInOne-msvc2017-win64.exe>
-- Download libjpeg-turbo via <https://libjpeg-turbo.org/>. Get the windows 64bit binary installer.
+- Download libjpeg-turbo via <https://libjpeg-turbo.org/>. Get the windows 64bit binary installer. Install in the standard location `C:\libjpeg-turbo64`.
 - Download and the *cwipc_util* helper library from <https://github.com/cwi-dis/cwipc_util>.
 	- By the time you read this there may be installers, otherwise download the source and build and install according to the instructions there.
 - Create a `build` subdirectory of the source directory (of this repo).
@@ -110,7 +111,7 @@ To use it, several dependencies need to be installed:
 	- Using the command line:
 
 		```
-		cmake .. -G "Visual Studio 15 2017 Win64"
+		cmake .. -G "Visual Studio 15 2017 Win64" -DJPEG_Turbo_INCLUDE_DIR="C:\libjpeg-turbo64\include" -DJPEG_Turbo_LIBRARY="C:\libjpeg-turbo64\lib\jpeg.lib"
 		cmake --build . --config Release
 		cmake --build . --config Release --target RUN_TESTS
 		cmake --build . --config Release --target INSTALL
