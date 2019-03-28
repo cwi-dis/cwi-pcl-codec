@@ -233,8 +233,16 @@ namespace pcl{
 
       // structures to store the resulting compressed data
       unsigned long out_data_size=0;
-      unsigned char * out_buffer;
-
+      unsigned char * out_buffer = 0;
+#ifdef _WIN32
+	  // Note by Jack: this is a workaround for some problem with the turbojpeg library on windows
+	  // (as of march 2019). I think the turbojpeg DLL is linked against a different type of CRT which has
+	  // a different malloc() which leads to a crash later in free() as this file tries to free
+	  // memory allocated by turbojpeg. We work around this by allocating a chunk of memory
+	  // and hoping it is going to be large enough.
+	  out_buffer = (unsigned char *)malloc(1024 * 1024);
+	  if (out_buffer) out_data_size = 1024 * 1024;
+#endif
         // Now we can initialize the JPEG compression object.
       jpeg_create_compress(&cinfo);
 
@@ -318,13 +326,15 @@ namespace pcl{
       {
         cdat.resize(out_data_size);
         std::copy( (charT *) out_buffer, (charT *) (out_buffer +out_data_size) , cdat.data());
-	free(out_buffer);
-      }
+		free(out_buffer);
+		out_buffer = 0;
+	  }
       // destroy the libjpeg compression object
       jpeg_destroy_compress(&cinfo);
       // close the output file
       if (write_file)
         fclose(l_o_file);
+	  // free the memory buffer
 
       return true;
     }
