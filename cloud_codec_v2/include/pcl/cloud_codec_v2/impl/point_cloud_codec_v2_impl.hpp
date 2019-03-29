@@ -1961,4 +1961,4 @@ namespace pcl{
     }
   }
 }
-#endif
+#endif// POINT_CLOUD_CODECV2_IMPL_HPP
