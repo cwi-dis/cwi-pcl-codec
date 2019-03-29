@@ -34,7 +34,59 @@ To use it, several dependencies need to be installed:
 * VTK
 * libjpeg-turbo
 
-## Installation
+
+## Installing
+
+For use within VRtogether you can get pre-built zipfiles (or tgzfiles for Mac/Linux) from <https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_codec/releases>. Download the most recent release with a normal v_X_._Y_._Z_ name. You will also need the accompanying _cwipc\_util_ installer from 
+<https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_util/releases>.
+
+### Windows
+
+- Install PCL 1.8 from <https://github.com/PointCloudLibrary/pcl/releases/download/pcl-1.8.1/PCL-1.8.1-AllInOne-msvc2017-win64.exe>. Make sure you select the "add to %PATH% for all users" option.
+- Download libjpeg-turbo via <https://libjpeg-turbo.org/>. Get the windows 64bit binary installer. Install in the standard location `C:\libjpeg-turbo64`. Add `C:\libjpeg-turbo64\bin` to %PATH% for all users.
+- Create a folder where you will install _all_ VRtogether DLLs and EXEs, for example `C:\vrtogether`.
+- Extract the `cwipc_util_win1064_vX.Y.zip` file into this folder. This will create `bin`, `lib` and `include` folders inside the `C:\vrtogether` folder.
+- Extract the `cwipc_codec_win1064_vX.Y.zip` file into this folder. This will put extra files in the `bin`, `lib` and `include` folders inside the `C:\vrtogether` folder and it should not remove the _util_ stuff from the previous step.
+- Add the `c:\vrtogether\bin` folder to the `%PATH%` system environment variable.
+
+### OSX
+
+- Install _brew_, and then
+
+  ```
+  brew install pcl
+  brew install jpeg-turbo
+  brew unlink jpeg
+  brew link --force jpeg-turbo
+  ```
+
+- Extract both gzip files in the root directory, `/`. This will put the actual contents into `/usr/local`:
+
+  ```
+  cd /
+  [sudo] tar xfv .../cwipc_util_osx1012_vX.Y.tgz
+  [sudo] tar xfv .../cwipc_codec_osx1012_vX.Y.tgz
+  ```
+  
+### Ubuntu 18.04
+
+- Install _PCL_ and _jpegturbo_ with 
+
+  ```
+  apt-get install libpcl-dev
+  sudo apt-get install libturbojpeg0-dev
+  ```
+
+- Extract the gzip files in the root directory, `/`. This will put the actual contents into `/usr/local`:
+
+  ```
+  cd /
+  [sudo] tar xfv .../cwipc_util_osx1012_vX.Y.tgz
+  [sudo] tar xfv .../cwipc_codec_osx1012_vX.Y.tgz
+  ```
+
+## Building from source
+
 
 ### OSX instructions
 
