@@ -906,7 +906,6 @@ evaluate_comp_impl<PointT>::evaluate_dc(cwipc_encoder_params param, cwipc_pcl_po
 		assign_option_values(param,tmstmp_);
 		//Stays unchanged
 		complete_initialization();
-		int count = 0;
 		std::ofstream intra_frame_quality_csv;
 		std::ofstream predictive_quality_csv;
 		stringstream compression_settings;
@@ -914,7 +913,6 @@ evaluate_comp_impl<PointT>::evaluate_dc(cwipc_encoder_params param, cwipc_pcl_po
 		QualityMetric achieved_quality;
 		string s = comp_frame.str();
 		std::stringstream coded_stream(s);
-		std::stringstream *ss = &comp_frame;;
         if (!do_decoding(&coded_stream, pc, achieved_quality,tmstmp_)) return_value = false;
 	}
 	catch (boost::exception &e) {
