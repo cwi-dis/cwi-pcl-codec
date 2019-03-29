@@ -48,22 +48,21 @@ project(CWI_PCL_CODEC)
 # set(CMAKE_VERBOSE_MAKEFILE ON)
 # set(CMAKE_COLOR_MAKEFILE   ON)
 
-# You can set this to '1' if you like a lot of CMake messages, e.g. to find a bug
+# You can set this to '1' if you like a lot of CMake messages, e.g. to find a bug in the CMakelists.txt
 set (CMAKELISTS_DEBUG 0
         CACHE INTERNAL "${PROJECT_NAME}: CMakeLists.txt Debug Flag" FORCE)
 
 set(SUBSYS_NAME cwi_pcl_codec)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/"; ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/" ${CMAKE_MODULE_PATH})
 if(CMAKELISTS_DEBUG)
   message("CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
   set(QUIET_FLAG "")
 else(CMAKELISTS_DEBUG)
   set(QUIET_FLAG QUIET)
 endif(CMAKELISTS_DEBUG)
-# Use PCL 1.9 (preferred) or 1.8
-find_package(PCL 1.9 ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
+find_package(PCL 1.8 REQUIRED ${QUIET_FLAG} COMPONENTS common geometry io features filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
 if(NOT PCL_FOUND)
- find_package(PCL 1.8 REQUIRED ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
+  message(ERROR "PCL >= 1.8 not found.")
 endif(NOT PCL_FOUND)
 
 if(NOT PCL_ALL_IN_ONE_INSTALLER)
@@ -80,11 +79,20 @@ if(NOT PCL_ALL_IN_ONE_INSTALLER)
     if(NOT VTK_FOUND)
       message(ERROR "VTK >= 7.0 found.")
     endif(VTK_FOUND)
-  else(WIN32)
-    # enable debugging
-    set(CMAKE_C_FLAGS "-g -O0")
-    set(CMAKE_CXX_FLAGS "-g -O0")
-    set(CMAKE_LD_FLAGS "-g -O0")
+  elseif(WIN32) # Mac,Linux
+    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" )
+      # enable debugging on MacOSX
+      set(CMAKE_C_FLAGS "-g -O0")
+      set(CMAKE_CXX_FLAGS "-g -O0 -Wno-inconsistent-missing-override")
+      set(CMAKE_LD_FLAGS "-g -O0")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux" )
+      # enable debugging on Linux
+      set(CMAKE_C_FLAGS "-g -O0")
+      set(CMAKE_CXX_FLAGS "-g -O0")
+      set(CMAKE_LD_FLAGS "-g -O0")
+    else()
+      message(${CMAKE_SYSTEM_NAME} " not supported")
+    endif()
     # On Ubuntu 16.04 we have VTK 6.0, on MacOSX (brew) VTK 8.1
     find_package(VTK 6.0 ${QUIET_FLAG})
     if(NOT VTK_FOUND)
