@@ -100,9 +100,6 @@ using namespace pcl::search;
 		double psnr_colors_yuv[3] = {0.0,0.0,0.0};
 		double mse_colors_yuv[3]  = {0.0,0.0,0.0};
 
-		// maximum color values needed to compute PSNR
-		double peak_yuv[3] = {0.0,0.0,0.0};
-
 		//! compute the maximum and mean square distance between each point in a to the nearest point in b 
 		//! compute the mean square color error for each point in a to the nearest point in b 
 		for (size_t i = 0; i < cloud_a.points.size (); ++i)
@@ -130,11 +127,6 @@ using namespace pcl::search;
 
 		  convertRGBtoYUV<PointT>(cloud_a.points[i],in_yuv);
 		  convertRGBtoYUV<PointT>(cloud_b.points[indices[0]],out_yuv);
-
-		  // calculate the maximum YUV components
-		  for(int cc=0;cc<3;cc++)
-			if((in_yuv[cc] * in_yuv[cc])  > (peak_yuv[cc] * peak_yuv[cc]))
-				peak_yuv[cc] = in_yuv[cc];
 		  
 		  mse_colors_yuv[0]+=((in_yuv[0] - out_yuv[0]) * (in_yuv[0] - out_yuv[0]));
 		  mse_colors_yuv[1]+=((in_yuv[1] - out_yuv[1]) * (in_yuv[1] - out_yuv[1]));
@@ -142,7 +134,7 @@ using namespace pcl::search;
 		}
 
 		// compare geometry of B to A (needed for symmetric metric)
-    pcl::search::KdTree<PointT> tree_a;
+        pcl::search::KdTree<PointT> tree_a;
 		tree_a.setInputCloud (cloud_a.makeShared ());
 		float max_dist_b = -std::numeric_limits<float>::max ();
 		double rms_dist_b = 0;
@@ -201,9 +193,9 @@ using namespace pcl::search;
 		mse_colors_yuv[2] /= cloud_a.points.size ();
 
 		// compute PSNR for YUV colors
-		psnr_colors_yuv[0] = 10 * std::log10( (peak_yuv[0] * peak_yuv[0] )/mse_colors_yuv[0]);
-		psnr_colors_yuv[1] = 10 * std::log10( (peak_yuv[1] * peak_yuv[1] )/mse_colors_yuv[1]);
-		psnr_colors_yuv[2] = 10 * std::log10( (peak_yuv[2] * peak_yuv[2] )/mse_colors_yuv[2]);
+		psnr_colors_yuv[0] = 10 * std::log10( 1.0 /mse_colors_yuv[0]);
+		psnr_colors_yuv[1] = 10 * std::log10( 1.0 /mse_colors_yuv[1]);
+		psnr_colors_yuv[2] = 10 * std::log10( 1.0 /mse_colors_yuv[2]);
 
 		print_info ("[done, "); print_value ("%g", tt.toc ()); print_info (" ms \n");
 		//print_info ("A->B: "); print_value ("%f\n", max_dist_a);

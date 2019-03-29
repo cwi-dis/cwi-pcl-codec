@@ -53,16 +53,18 @@ set (CMAKELISTS_DEBUG 0
         CACHE INTERNAL "${PROJECT_NAME}: CMakeLists.txt Debug Flag" FORCE)
 
 set(SUBSYS_NAME cwi_pcl_codec)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/;${CMAKE_MODULE_PATH}")
 if(CMAKELISTS_DEBUG)
   message("CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
   set(QUIET_FLAG "")
 else(CMAKELISTS_DEBUG)
   set(QUIET_FLAG QUIET)
 endif(CMAKELISTS_DEBUG)
-find_package(PCL 1.8 REQUIRED ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
+
+# Use PCL 1.9 (preferred) or 1.8
+find_package(PCL 1.9 ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
 if(NOT PCL_FOUND)
-  message(ERROR "PCL >= 1.8 not found.")
+	find_package(PCL 1.8 REQUIRED ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
 endif(NOT PCL_FOUND)
 
 if(NOT PCL_ALL_IN_ONE_INSTALLER)
@@ -174,3 +176,14 @@ add_definitions( ${${PROJECT_NAME}_DEFINITIONS})
 add_subdirectory("jpeg_io")
 add_subdirectory("cloud_codec_v2")
 add_subdirectory("apps/evaluate_compression")
+
+# uninstall target
+if(NOT TARGET uninstall)
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY)
+
+    add_custom_target(uninstall
+        COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()

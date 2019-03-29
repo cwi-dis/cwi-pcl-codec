@@ -8,7 +8,7 @@ The codec is described in detail in a journal paper(R. Mekuria, K. Blom, and P. 
 The codec has served as the software to generate the anchors for the Call for Proposals for Point Cloud Compression by  the MPEG working group 3DG-PCC on PointCloud Compression
 (http://mpeg.chiariglione.org/standards/exploration/point-cloud-compression).
 
-This version can be build on  Ubuntu 16.04 (64 bit) or Windows 32 bit, using pre-build PointCloudLibrary(PCL)
+This version can be build on  MacOSX 10.14.3 macOS Mojave (using Homebrew), Ubuntu 18.04 (64 bit) (using 'apt') or Windows 10 bit, using pre-build PointCloudLibrary(PCL)
 installers, or on many other systems by downloading and building PCL and its dependencies.
 
 This package contains:
@@ -18,12 +18,13 @@ This package contains:
 * quality metrics
 * evaluation library
 * tools for testing and evaluation of several aspects of this codec
-* installation instruction
+* installation instructions
 
 To use it, several dependencies (Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) need to be installed:  
 
- * for Ubuntu 16.04 by installing a number of Debian packages
-* for Windows 7,8 and 10, most of this can be done using an all-in-one installer
+* for Windows 10, most of this can be done using an all-in-one installer
+* for macOS Mojave 14.3 using Homebrew.
+* for Ubuntu 18.04 by installing a number of Debian packages
 * for all other supported systems by downloading, building and installing PCL 
   and its necessary Third Party Package (TPP's) as described at:
   http://pointclouds.org/downloads -> 'Compiling from source'.
@@ -31,55 +32,40 @@ To use it, several dependencies (Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) 
 Installation
 ============
 
-Easy Ubuntu 16.04 Install PCL 1.8.0 using binary packages:
-----------------------------------------------------------
+Mac OSX 10.14.3 Installation:
+-----------------------------
 
-* On a clean Ubuntu 16.04 installation, start 'Terminal' and install the basic tools and 3rd party packages packages:  
-   sudo apt-get install -y git build-essential linux-libc-dev cmake cmake-gui cmake cmake-gui libusb-1.0-0-dev libusb-dev libudev-dev mpi-default-dev openmpi-bin openmpi-common libflann1.8 libflann-dev libeigen3-dev libboost-all-dev libvtk6.2-qt libvtk6.2 libvtk6-dev libvtk6-qt-dev libqhull* libgtest-dev freeglut3-dev pkg-config libxmu-dev libxi-dev mono-complete qt-sdk openjdk-8-jdk openjdk-8-jre libopenni0 libopenni-sensor-pointclouds0  libopenni-dev libopenni-sensor-pointclouds-dev libproj-dev libjpeg-turbo8-dev
-   
-* Get the PCL-1.8 (Point CLoud Librarry) installer for Ubuntu 16.04 64-bit:  
-wget https://www.dropbox.com/s/9llzm20pc4opdn9/PCL-1.8.0-Linux.deb   
-(see also: 'https://larrylisky.com/2014/03/03/installing-pcl-on-ubuntu/')   
-(prior versions of PCL are not recommended, e.g. in PCL1.7 visualization does not work properly)
+* On a clean Mac OSX 10.14.3 installation install Xcode 10.1, Cmake 10.13.4 and Homebrew 2.0.6
 
-* Install PCL-1.8:
-  sudo dpkg -i PCL-1.8.0-Linux.deb
+* brew unlink jpeg
+  brew install --HEAD jpeg-turbo
+  brew install vtk pcl
 
-* This installer has a bug, for which a patch is to be used: 'cd' to the directory 'cwi-pcl-codec'
-  (where this file README.md was distributed), and type:
-  (PATCH=$PWD/PCLConfig-Ubuntu16.04.patch;cd /;sudo patch -p1 < $PATCH)
-  
-* Start 'cmake-gui', specify the directory where this file is located in 'Where is the source code',
-  another empty directory 'Where to build the binaries', and select 'Unix Makefiles' in the 'CMakeSetup'
-  pop-up window. Click(tap) 'Configure', and 'Generate'.
+* Start 'CMake', specify the directory where this file is located in 'Where is the source code',                            
+  another empty directory 'Where to build the binaries', and select 'Xcode'  in the 'CMakeSetup'                        
+  pop-up window. Then click(tap) 'Configure', and 'Generate'.
+  Now an Xcode project should be generated in the directory specified for 'build the binaries':
+  CWI-PCL-CODEC.xcodeproj.
 
-Now the codec libraries and evaluation tools can be build by typing 'make' in the directory
-that was specified in 'cmake-gui' to build the binaries.
+* Start 'Xcode' and use it to open the new Xcode-project, select 'Project->Build'.
+  The resulting application can be found in 'apps/evaluate_compression' and is self-documenting.
 
-Less easy install on Windows 7,8,10:
-------------------------------------
+Installation on Windows 10 (older versions won't work):
+-------------------------------------------------------
 
-* Install 'Visual Studio (2015)' and 'cmake-gui'
+* Install 'Visual Studio (2017)' Compiler Version 15.9  and 'cmake-gui' Version 3.13
 
-* Install PCL-1.8 and all 3rd party packages that it needs using its
-   All-In-One Installer from 'http://unanancyowen.com/en/pcl18/':
-  'https://1drv.ms/u/s!ApoY_0Ymu57sg5QkeGyAxxAmuI4j0g' (32 bit installer)
+* Install PCL-1.9 and all 3rd party packages that it needs using the
+  All-In-One Installer from 'https://github.com/PointCloudLibrary/pcl/releases'
+  Select (if possible) 64-bit version (PointClouds can be huge data sets, too big for 32-bit addressing)
 
-* Download source tarball for 'libjpeg-turbo' from 'www.libjpeg-turbo.org':
-  https://sourceforge.net/projects/libjpeg-turbo/files/1.5.3/libjpeg-turbo-1.5.3.tar.gz/download
-  Unpack the tarball and start 'cmake_gui', select for 'source code' directory the top-level directory
-  of 'libturbo-jpeg' (contains 'CMakelists.txt'), and for 'binaries' another directory, click 'Configure' and 'Generate'.
-  Now in your 'binaries' directory open the file 'libjpeg-turbo-1.5.3.sln' with Visual Studio 2015.
-  In the Solution Explorer click Project 'INSTALL'. 
-  Select Build->Build Solution, if this is successful  select 'Build->Build INSTALL'.
-  By default this installs the include files and libraries libraries in 'C:\libjpeg-turbo\include' and
-  'C:\libjpeg-turbo\lib'
+* Download 'libjpeg-turbo64' from https://sourceforge.net/projects/libjpeg-turbo/files/1.5.3/
 
 * Next start 'cmake-gui', select for 'source code' the directory 'cwi-pcl-codec' (where this file README.md
   distributed), and for 'binaries' another directory
 
-* Search for 'jpeg', for JPEG_INCLUDES specify 'C:/libjpeg-turbo/include' and for 'JPEG_LIBRARY'
-  'C:/libjpeg-turbo/lib/turbojpeg-static.lib'.
+* Search for 'jpeg', for JPEG_INCLUDES specify 'C:/libjpeg-turbo64/include' and for 'JPEG_LIBRARY'
+  'C:/libjpeg-turbo64/lib/turbojpeg-static.lib'.
   Next select 'Configure' and 'Generate', and you'll find a Microsoft Visual Studio Solution
   in the directory that was specified for 'binaries'.
  
@@ -95,7 +81,22 @@ Less easy install on Windows 7,8,10:
   to the program:
   evaluate_compression --input_directories=<full path to directory with datafiles>
 
-Not so easy (tedious, but not difficult) install PCL 1.8.0 from source: (all platforms):
+Ubuntu 18.04 Install PCL 1.8.1 using binary packages:
+-----------------------------------------------------
+
+* On a clean Ubuntu 18.04 installation, start 'Terminal' and install the Point Cloud Library (PCL) and its dependencies:
+   sudo apt install pcl-tools libpcl-dev  libjpeg-turbo8-dev
+
+  
+* Start 'cmake-gui', specify the directory where this file is located in 'Where is the source code',
+  another empty directory 'Where to build the binaries', and select 'Unix Makefiles' in the 'CMakeSetup'
+  pop-up window. Click(tap) 'Configure', and 'Generate'.
+  For JPEG_Turbo_INCLUDE_DIR and JPEG_Turbo_LIBRARY, select '/usr/include' and '/usr/lib/x86_64-linux-gnu/libjpeg.s§o'.
+
+Now the codec libraries and evaluation tools can be build by typing 'make' in the directory
+that was specified in 'cmake-gui' to build the binaries. The application can be found in 'apps/evaluate_compression'.
+
+Not so easy (tedious, but not difficult) install PCL 1.9.1 from source: (all platforms):
 ----------------------------------------------------------------------------------------
 
 * Get PCL source code from 'https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.8.0'
@@ -149,7 +150,8 @@ The following arguments are recognized by the program 'evaluate_compression':
 
 The precise meanings of these parameters are explained in the journal paper mentioned above.
 
-Apr.6, 2017, updated: Jun 25, 2017 and Apr. 23, 2018.   
+Apr.6, 2017, updated: Jun 25, 2017, Apr. 23, 2018 and Mar.19, 2019.
+   
 Kees Blom (Kees.Blom@cwi.nl) CWI, Amsterdam, The Netherlands
 
 

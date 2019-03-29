@@ -347,11 +347,19 @@ namespace pcl{
       ////////////////////////////////////////////////////////////////////////////
 
       ///////////// compute the simplified cloud by iterating the octree ////////
-      octree::OctreeLeafNodeIterator<OctreeT> it_ = octree_simplifier->leaf_begin();
-      octree::OctreeLeafNodeIterator<OctreeT> it_end = octree_simplifier->leaf_end();
+#if PCL_VERSION >= 100901
+	octree::OctreeDepthFirstIterator<OctreeT> it_ = octree_simplifier->leaf_depth_begin();
+
+	  for (int l_index = 0; *it_; it_++, l_index++)
+	  {
+		  if (it_.isBranchNode()) continue;
+#else//PCL_VERSION >= 100901
+	  octree::OctreeDepthFirstIterator<OctreeT> it_ = octree_simplifier->leaf_begin();
+	  octree::OctreeLeafNodeIterator<OctreeT> it_end = octree_simplifier->leaf_end();
 
       for(int l_index =0;it_ !=it_end; it_++, l_index++)
       {
+#endif//PCL_VERSION >= 100901
         // new point for the simplified cloud
         PointT l_new_point;
 
@@ -602,11 +610,19 @@ namespace pcl{
       MacroBlockTree * p_block_tree = generate_macroblock_tree(icp_on_original ? pcloud_arg:simp_pcloud);
 
       //////////// iterate the predictive frame and find common macro blocks /////////////
-      octree::OctreeLeafNodeIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
-      octree::OctreeLeafNodeIterator<OctreeT> it_predictive_end = p_block_tree->leaf_end();
+#if PCL_VERSION >= 100901
+	  octree::OctreeDepthFirstIterator<OctreeT> it_predictive = p_block_tree->leaf_depth_begin();
+
+	  for (; *it_predictive; ++it_predictive)
+	  {
+	    if (it_predictive.isBranchNode()) continue;
+#else//PCL_VERSION >= 100901
+	  octree::OctreeDepthFirstIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
+	  octree::OctreeDepthFirstIterator<OctreeT> it_predictive_end = p_block_tree->leaf_end();
 
       for(;it_predictive!=it_predictive_end;++it_predictive)
       {
+#endif//PCL_VERSION >= 100901
         macro_block_count++;
         const octree::OctreeKey current_key = it_predictive.getCurrentOctreeKey();
         pcl::octree::OctreeContainerPointIndices *i_leaf;
@@ -804,13 +820,22 @@ namespace pcl{
 		MacroBlockTree * p_block_tree = generate_macroblock_tree(icp_on_original ? pcloud_arg : simp_pcloud);
 
 		//////////// iterate the predictive frame and find common macro blocks /////////////
-		octree::OctreeLeafNodeIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
-		octree::OctreeLeafNodeIterator<OctreeT> it_predictive_end = p_block_tree->leaf_end();
+#if PCL_VERSION >= 100901
+		octree::OctreeDepthFirstIterator<OctreeT> it_predictive = p_block_tree->leaf_depth_begin();
+		if (num_threads_ == 0)
+		{
+			for (; *it_predictive; ++it_predictive)
+			{
+				if (!(it_predictive.isLeafNode())) continue;
+#else//PCL_VERSION >= 100901
+		octree::OctreeDepthFirstIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
+		octree::OctreeDepthFirstIterator<OctreeT> it_predictive_end = p_block_tree->leaf_end();
 		if (num_threads_ == 0)
 		{
 			for (; it_predictive != it_predictive_end; ++it_predictive)
 			{
-				const octree::OctreeKey current_key = it_predictive.getCurrentOctreeKey();
+#endif//PCL_VERSION >= 100901
+					const octree::OctreeKey current_key = it_predictive.getCurrentOctreeKey();
 				pcl::octree::OctreeContainerPointIndices *i_leaf;
 				typename pcl::PointCloud<PointT>::Ptr cloud_out(new pcl::PointCloud<PointT>(icp_on_original ? *pcloud_arg : *simp_pcloud, it_predictive.getLeafContainer().getPointIndicesVector()));
 				macro_block_count++;
@@ -833,7 +858,6 @@ namespace pcl{
 						icp_success,
 						rgb_offsets
 						);
-
 					if (icp_success)
 					{
 						convergence_count++;
@@ -912,7 +936,7 @@ namespace pcl{
 					}
 				}
 			}
-    }
+		}
 		else // num_threads > 0 --> parallelization
 /* For _OPENMP, the previous loop over the common macro blocks of a frame must be converted in an equivalent one,
 * where the number of iterations is known before the loop starts.
@@ -922,7 +946,8 @@ namespace pcl{
 */
 		{
 			// store the input arguments for 'do_icp_prediction'
-			for (; it_predictive != it_predictive_end; ++it_predictive) {
+			for (; *it_predictive; ++it_predictive) {
+				if (it_predictive.isBranchNode()) continue;
 				const octree::OctreeKey current_key = it_predictive.getCurrentOctreeKey();
 				pcl::octree::OctreeContainerPointIndices* i_leaf = i_block_tree->findLeaf(current_key.x, current_key.y, current_key.z);
 				cloudInfoT<PointT> ci;
@@ -961,7 +986,7 @@ namespace pcl{
 						p_result_list[i].rgb_offsets
 						);
 				}
-			} // #pragma omp for				
+			} // #pragma omp for
 #pragma omp barrier // wait until all threads finished
 			for (int i = 0; i < p_result_list.size(); i++)
 			{

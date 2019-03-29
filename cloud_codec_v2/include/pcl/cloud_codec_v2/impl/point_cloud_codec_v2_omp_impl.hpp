@@ -82,7 +82,7 @@ namespace pcl
 	  
       if (!icp_on_original)
       {
-	simplifyPCloud(pcloud_arg, simp_pcloud);
+		simplifyPCloud(pcloud_arg, simp_pcloud);
       }
 
       // initialize output cloud
@@ -94,29 +94,22 @@ namespace pcl
       MacroBlockTree * p_block_tree = generate_macroblock_tree(icp_on_original ? pcloud_arg : simp_pcloud);
 
       //////////// iterate the predictive frame and find common macro blocks /////////////
-      octree::OctreeLeafNodeIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
-      octree::OctreeLeafNodeIterator<OctreeT> it_predictive_end = p_block_tree->leaf_end();
+#if PCL_VERSION >= 100901
+	  octree::OctreeLeafDepthFirstNodeIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
+#else//PCL_VERSION >= 100901
+	  octree::OctreeLeafNodeIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
+	  octree::OctreeLeafNodeIterator<OctreeT> it_predictive_end = p_block_tree->leaf_end();
+#endif//PCL_VERSION >= 100901
       std::vector<cloudInfoT<PointT> > p_info_list;
       std::vector<cloudResultT<PointT> > p_result_list;
       // store the input arguments for 'do_icp_prediction'
-      for (; it_predictive != it_predictive_end; ++it_predictive) {
-	const octree::OctreeKey current_key = it_predictive.getCurrentOctreeKey();
-	pcl::octree::OctreeContainerPointIndices* i_leaf = i_block_tree->findLeaf(current_key.x,current_key.y,current_key.z);
-	cloudInfoT<PointT> ci;
-	cloudResultT<PointT> cr;
-	ci.i_leaf = i_leaf;
-	ci.current_key = current_key;
-	ci.indices = &it_predictive.getLeafContainer().getPointIndicesVector();
-	cr.leaf_found = i_leaf != NULL;
-	cr.icp_success = false;
-	for (int j=0; j < 3; j++)
-	{
-	  cr.rgb_offsets[j] = 0;
+#if PCL_VERSION >= 100901
+	  octree::OctreeLeafDepthFirstNodeIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
+#else//PCL_VERSION >= 100901
+	  octree::OctreeLeafNodeIterator<OctreeT> it_predictive = p_block_tree->leaf_begin();
+	  octree::OctreeLeafNodeIterator<OctreeT> it_predictive_end = p_block_tree->leaf_end();
+#endif//PCL_VERSION >= 100901
 	}
-	p_info_list.push_back(ci);
-	p_result_list.push_back(cr);
-	macro_block_count++;
-      }
 #if defined(_OPENMP)
       std::cout << " the number of threads is " << num_threads_ << std::endl;
       omp_set_num_threads(num_threads_);
@@ -124,25 +117,25 @@ namespace pcl
 //#pragma omp barrier // wait until all threads finished
 #pragma omp parallel for shared(p_info_list,p_result_list)
       for (int i = 0; i < p_info_list.size(); i++) {
-	pcl::octree::OctreeContainerPointIndices* i_leaf = p_info_list[i].i_leaf;
-	typename pcl::PointCloud<PointT>::Ptr cloud_out (new pcl::PointCloud<PointT>(icp_on_original ? *pcloud_arg : *simp_pcloud , *p_info_list[i].indices));
+		pcl::octree::OctreeContainerPointIndices* i_leaf = p_info_list[i].i_leaf;
+		typename pcl::PointCloud<PointT>::Ptr cloud_out (new pcl::PointCloud<PointT>(icp_on_original ? *pcloud_arg : *simp_pcloud , *p_info_list[i].indices));
         p_result_list[i].out_cloud = cloud_out;
-	if (i_leaf != NULL)
-	{
-	  //const octree::OctreeKey current_key = p_info_list[i].current_key;
-	  p_result_list[i].in_cloud =  (PointCloudPtr) new pcl::PointCloud<PointT>(*icloud_arg, i_leaf->getPointIndicesVector());
-	  do_icp_prediction(
-	    p_result_list[i].rt,
-	    (PointCloudPtr) p_result_list[i].in_cloud,
-	    (PointCloudPtr) p_result_list[i].out_cloud,
-	    p_result_list[i].icp_success,
-	    p_result_list[i].rgb_offsets
-	  );
+		if (i_leaf != NULL)
+		{
+		  //const octree::OctreeKey current_key = p_info_list[i].current_key;
+		  p_result_list[i].in_cloud =  (PointCloudPtr) new pcl::PointCloud<PointT>(*icloud_arg, i_leaf->getPointIndicesVector());
+	      do_icp_prediction(
+			p_result_list[i].rt,
+			(PointCloudPtr) p_result_list[i].in_cloud,
+			(PointCloudPtr) p_result_list[i].out_cloud,
+			p_result_list[i].icp_success,
+			p_result_list[i].rgb_offsets
+		);
 	}
-      } // #pragma omp for				
+  } // #pragma omp for				
 #pragma omp barrier // wait until all threads finished
-      for (int i = 0; i < p_result_list.size(); i++)
-      {
+  for (int i = 0; i < p_result_list.size(); i++)
+  {
 	typename pcl::PointCloud<PointT>::Ptr cloud_out = p_result_list[i].out_cloud;
 	if (p_result_list[i].leaf_found)
 	{
