@@ -209,4 +209,5 @@ add_subdirectory("src")
 add_subdirectory("apps/evaluate_compression")
 add_subdirectory("apps/cwipc_encode")
 add_subdirectory("apps/cwipc_decode")
+add_subdirectory("python")
 
