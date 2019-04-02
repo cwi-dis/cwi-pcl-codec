@@ -829,7 +829,7 @@ namespace pcl{
       {
         for (; it_predictive != it_predictive_end; ++it_predictive)
         {
-  ndif//PCL_VERSION >= 100901
+#endif//PCL_VERSION >= 100901
           const octree::OctreeKey current_key = it_predictive.getCurrentOctreeKey();
           pcl::octree::OctreeContainerPointIndices *i_leaf;
           typename pcl::PointCloud<PointT>::Ptr cloud_out(new pcl::PointCloud<PointT>(icp_on_original ? *pcloud_arg : *simp_pcloud, it_predictive.getLeafContainer().getPointIndicesVector()));
