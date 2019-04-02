@@ -33,14 +33,14 @@
  */
 struct cwipc_encoder_params
 {
-    int num_threads;        /**< How many concurrent threads to use. */
-    bool do_inter_frame;	/**< (unimplemented) do inter-frame compression */
-    int gop_size;			/**< (unimplemented) spacing of I frames for inter-frame compression */
-    double exp_factor;		/**< Bounding box expansion factor */
-    int octree_bits;		/**< Octree resolution */
-    int color_bits;			/**< Color resolution */
+    int num_threads;        /**< (unused in this version) How many concurrent threads to use. */
+    bool do_inter_frame;	/**< (unused in this version) do inter-frame compression */
+    int gop_size;			/**< (unused in this version) spacing of I frames for inter-frame compression */
+    double exp_factor;		/**< (unused in this version) Must be 1.0. Bounding box expansion factor for inter-frame coding */
+    int octree_bits;		/**< Octree depth: a fully populated octree will have 8**octree_bits points */
+    int color_bits;			/**< Color resolution: Must set to 8 */
     int jpeg_quality;		/**< JPEG encoding quality */
-    int macroblock_size;	/**< JPEG macroblock size */
+    int macroblock_size;	/**< (unused in this version) macroblock size for inter-frame prediction */
 };
 
 /** \brief Version of cwipc_encoder_params structure.
