@@ -40,14 +40,15 @@ To use it, several dependencies need to be installed:
 For use within VRtogether you can get pre-built zipfiles (or tgzfiles for Mac/Linux) from <https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_codec/releases>. Download the most recent release with a normal v_X_._Y_._Z_ name. You will also need the accompanying _cwipc\_util_ installer from 
 <https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_util/releases>.
 
+[![pipeline status](https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_codec/badges/master/pipeline.svg)](https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_codec/commits/master)
+
 ### Windows
 
 - Install PCL 1.8 from <https://github.com/PointCloudLibrary/pcl/releases/download/pcl-1.8.1/PCL-1.8.1-AllInOne-msvc2017-win64.exe>. Make sure you select the "add to %PATH% for all users" option.
 - Download libjpeg-turbo via <https://libjpeg-turbo.org/>. Get the windows 64bit binary installer. Install in the standard location `C:\libjpeg-turbo64`. Add `C:\libjpeg-turbo64\bin` to %PATH% for all users.
-- Create a folder where you will install _all_ VRtogether DLLs and EXEs, for example `C:\vrtogether`.
-- Extract the `cwipc_util_win1064_vX.Y.zip` file into this folder. This will create `bin`, `lib` and `include` folders inside the `C:\vrtogether` folder.
-- Extract the `cwipc_codec_win1064_vX.Y.zip` file into this folder. This will put extra files in the `bin`, `lib` and `include` folders inside the `C:\vrtogether` folder and it should not remove the _util_ stuff from the previous step.
-- Add the `c:\vrtogether\bin` folder to the `%PATH%` system environment variable.
+- Create a folder where you will install _all_ VRtogether DLLs and EXEs, for example `C:\vrtogether\installed`.
+- Extract both the `cwipc_util_win1064_vX.Y.zip` and `cwipc_codec_win1064_vX.Y.zip` files into `c:\vrtogether`. This will create `bin`, `lib` and `include` folders inside the `C:\vrtogether\installed` folder.
+- Add the `c:\vrtogether\installed\bin` folder to the `%PATH%` system environment variable.
 
 ### OSX
 
@@ -60,10 +61,10 @@ For use within VRtogether you can get pre-built zipfiles (or tgzfiles for Mac/Li
   brew link --force jpeg-turbo
   ```
 
-- Extract both gzip files in the root directory, `/`. This will put the actual contents into `/usr/local`:
+- Extract both gzip files into `/usr/local`:
 
   ```
-  cd /
+  cd /usr/local
   [sudo] tar xfv .../cwipc_util_osx1012_vX.Y.tgz
   [sudo] tar xfv .../cwipc_codec_osx1012_vX.Y.tgz
   ```
@@ -77,10 +78,10 @@ For use within VRtogether you can get pre-built zipfiles (or tgzfiles for Mac/Li
   sudo apt-get install libturbojpeg0-dev
   ```
 
-- Extract the gzip files in the root directory, `/`. This will put the actual contents into `/usr/local`:
+- Extract both gzip files into `/usr/local`:
 
   ```
-  cd /
+  cd /usr/local
   [sudo] tar xfv .../cwipc_util_osx1012_vX.Y.tgz
   [sudo] tar xfv .../cwipc_codec_osx1012_vX.Y.tgz
   ```
@@ -103,8 +104,9 @@ For use within VRtogether you can get pre-built zipfiles (or tgzfiles for Mac/Li
   ```
   
   - The `brew unlink` and `brew link` are needed to install *jpeg-turbo* in stead of the normal jpeg library. Brew prefers not to do this, but that may lead to problems with some parts of the program linking to normal libjpeg and others to jpeg-turbo and the two getting into each others way.
-- Download and the *cwipc_util* helper library from <https://github.com/cwi-dis/cwipc_util>.
-	- By the time you read this there may be installers, otherwise download the source and build and install according to the instructions there.
+- Download and install the *cwipc_util* helper library.
+	- Use the *cwipc_util* binary distribution explained above, or 
+	- clone from <https://github.com/cwi-dis/cwipc_util> and build it from source according to the instructions in there.
 - Build the compression library. Its cmakefiles need a little help, because _libjpeg-turbo_ isn't installed system-wide (because of name conflict with the normal libjpeg):
 	
 	```

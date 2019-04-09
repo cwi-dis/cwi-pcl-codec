@@ -2,7 +2,9 @@ stages:
   - build
   - test
   - deploy
- 
+
+variables:
+  REL_CWIPC_UTIL: v1.4
 build_linux:
   stage: build
   tags:
@@ -18,20 +20,16 @@ build_linux:
     - apt-get install -y cmake
     - apt-get install -y libpcl-dev libpcl-common1.8 libpcl-io1.8
     - apt-get install -y libturbojpeg0-dev
-
-# For now, build cwipc_util from source and install
-    - mkdir dependencies
-    - cd dependencies
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_util
-    - cd cwipc_util
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make
-    - make install
-    - cd .. # cwipc_util
-    - cd .. # dependencies
-    - cd .. # toplevel directory
+# Install Deployment repo and dependencies
+    - apt-get install -y python3-pip
+    - python3 -m pip install requests mechanize
+    - mkdir deployment-helpers
+    - cd deployment-helpers
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
+    - cd ..
+# Get and install cwipc_util
+    - python3 deployment-helpers/Deployment/getReleaseFromGitLab --cicd --project_name cwipc_util --release_name $REL_CWIPC_UTIL cwipc_util_ubuntu1804_$REL_CWIPC_UTIL
+    - tar --directory /usr/local -xvf cwipc_util_ubuntu1804_$REL_CWIPC_UTIL.tgz
   script:
     - mkdir -p build
     - mkdir -p dist-ubuntu1804
@@ -41,7 +39,7 @@ build_linux:
     - make test
     - make install DESTDIR=../dist-ubuntu1804
     - cd ..
-    - tar --directory dist-ubuntu1804 -cvaf cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz .
+    - tar --directory dist-ubuntu1804/usr/local -cvaf cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz .
   artifacts:
     paths:
       - cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz
@@ -51,25 +49,21 @@ build_osx:
   tags:
   - osx1012
   before_script:
-    - brew install pkg-config || brew upgrade pkg-config
-    - brew install cmake || brew upgrade cmake
-    - brew install jpeg-turbo || brew upgrade jpeg-turbo
+    - brew install pkg-config || true # brew upgrade pkg-config
+    - brew install cmake || true # brew upgrade cmake
+    - brew install jpeg-turbo || true # brew upgrade jpeg-turbo
     - brew unlink jpeg
     - brew link --force jpeg-turbo
-    - brew install pcl || brew upgrade pcl
-# For now, build cwipc_util from source and install
-    - mkdir dependencies
-    - cd dependencies
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_util
-    - cd cwipc_util
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make
-    - make install
-    - cd .. # cwipc_util
-    - cd .. # dependencies
-    - cd .. # toplevel directory
+    - brew install pcl || true # brew upgrade pcl
+# Install Deployment repo and dependencies
+    - python3 -m pip install requests mechanize
+    - mkdir deployment-helpers
+    - cd deployment-helpers
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
+    - cd ..
+# Get and install cwipc_util
+    - python3 deployment-helpers/Deployment/getReleaseFromGitLab --cicd --project_name cwipc_util --release_name $REL_CWIPC_UTIL cwipc_util_osx1012_$REL_CWIPC_UTIL
+    - tar --directory /usr/local -xvmf cwipc_util_osx1012_$REL_CWIPC_UTIL.tgz
   script:
     - mkdir -p build
     - mkdir -p dist-osx1012
@@ -79,7 +73,7 @@ build_osx:
     - make test
     - make install DESTDIR=../dist-osx1012
     - cd ..
-    - tar --directory dist-osx1012 -z -cvf cwipc_codec_osx1012_$CI_BUILD_TAG.tgz .
+    - tar --directory dist-osx1012/usr/local -z -cvf cwipc_codec_osx1012_$CI_BUILD_TAG.tgz .
   artifacts:
     paths:
       - cwipc_codec_osx1012_$CI_BUILD_TAG.tgz
@@ -90,21 +84,16 @@ build_win:
     - win10
   before_script:
     - mkdir -p /cygdrive/c/dist-win/installed
-    - mkdir -p dependencies
-    - cd dependencies
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_util
-    - cd cwipc_util
-    - mkdir -p build
-    - cd build
-    - cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_INSTALL_PREFIX="C:/dist-win/installed"
-    - cmake --build . --config Release
-    - cmake --build . --config Release --target INSTALL
-    - cd .. # cwipc_util
-    - cd .. # dependencies
-    - cd .. # toplevel directory
+# Install Deployment repo and dependencies
+    - python -m pip install requests mechanize
+    - mkdir deployment-helpers
+    - cd deployment-helpers
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
+    - cd ..
+# Get and install cwipc_util
+    - python deployment-helpers/Deployment/getReleaseFromGitLab --cicd --project_name cwipc_util --release_name $REL_CWIPC_UTIL cwipc_util_win1064_$REL_CWIPC_UTIL
+    - (zipfile=$PWD/cwipc_util_win1064_$REL_CWIPC_UTIL.zip && cd /cygdrive/c/dist-win && unzip $zipfile)
   script:
-    - ls -l
-    - pwd
     - mkdir -p build
     - export ziplocation=$(pwd)/cwipc_codec_win1064_$CI_BUILD_TAG.zip
     - cd build
@@ -119,7 +108,6 @@ build_win:
       
 deploy_all:
   stage: deploy
-  image: inetprocess/gitlab-release
   tags:
     - linux
   only: 
@@ -128,6 +116,15 @@ deploy_all:
     - build_linux
     - build_osx
     - build_win
+  before_script:
+  - apt-get update
+  - apt-get install -y python3-pip
+  - python3 -m pip install requests
+  - mkdir deployment-helpers
+  - cd deployment-helpers
+  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
+  - cd ..
   script:
-#    - gitlab-release --message 'New release' cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
-    - gitlab-release --message 'New release' cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
+    - mkdir deliverables
+    - mv cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip deliverables
+    - python3 deployment-helpers/Deployment/addReleaseToGitLab --cicd --notag cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
