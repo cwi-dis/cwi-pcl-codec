@@ -2,7 +2,7 @@
 Installation
 ============
 
-PointCLoudLibrary PCL-1.8.1 and liblpeg-turbo:
+PointCLoudLibrary PCL-1.8.1 and libjpeg-turbo:
 ----------------------------------------------
 
 To build the package 'cwi-pcl-codec', first the Point Cloud Library (PCL) (http://pointclouds.org)
@@ -11,17 +11,17 @@ its dependencies and libjpeg-turbo need to be installed:
 * for Ubuntu 18.04 by installing 2 Debian packages ('gcc', 'cmake' and 'make' required):  
   libpcl-dev and libturbojpeg0-dev using the package manger 'synaptic'
 
-* for Windows 8 and 10 with VisualStudio 2015/2017, use the all-in-one installer for PCL-1.8.1 for your system  
-  and Visual Studio version available at: http://unanancyowen.com/en/pcl181/.
-  Make sure you also set the System Environment Variable 'PCL_ROOT' en 'PATH' as detailed at the download webrite !  
-  In addition, get and install 'libjpeg-turbo', from 'libjpeg-turbo.org'
+* for Windows 10 with VisualStudio 2017, use the all-in-one installer for PCL-1.9.1 for your system  
+  and Visual Studio version available at: http://unanancyowen.com/en/pcl191/.
+  Make sure you also set the System Environment Variable 'PCL_ROOT' en 'PATH' as detailed at the download website !  
+  In addition, get and install 'libjpeg-turbo', from 'https://sourceforge.net/projects/libjpeg-turbo/files/2.0.2/libjpeg-turbo-2.0.2.tar.gz/download'
 
-* For MacOS 10.13.8 High Sierra type in a terminal window: brew install jpeg-turbo pcl  
+* For MacOS 10.14.4 Mojave type in a terminal window: brew install --HEAD jpeg-turbo; brew install pcl  
 
 * for all other supported systems by downloading, building and installing PCL
   and its necessary Third Party Package (TPP's: Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) as described at:  
   http://pointclouds.org/downloads -> 'Compiling from source'.
-
+  Make sure that the versions numbers of these TPP's match with those needed by the PCL version used. 
 
 Ubuntu 18.04 Build & Install:
 -----------------------------
@@ -33,15 +33,15 @@ Ubuntu 18.04 Build & Install:
 Now the codec libraries and evaluation tools can be build by typing 'make' in the directory
 that was specified in 'cmake-gui' to build the binaries.
 
- Windows 8,10 Build & Install:
-------------------------------
+ Windows 10 Build & Install:
+----------------------------
 
-* Install 'Visual Studio (2015 or 2017)' and 'cmake-gui'  
+* Install 'Visual Studio 2017' and 'cmake-gui'  
   Download source tarball for 'libjpeg-turbo' from 'www.libjpeg-turbo.org':  
   https://sourceforge.net/projects/libjpeg-turbo/files/1.5.3/libjpeg-turbo-1.5.3.tar.gz/download  
   Unpack the tarball and start 'cmake_gui', select for 'source code' directory the top-level directory  
   of 'libturbo-jpeg' (contains 'CMakelists.txt'), and for 'binaries' another directory, click 'Configure' and 'Generate'.  
-  Now in your 'binaries' directory open the file 'libjpeg-turbo-1.5.3.sln' with Visual Studio 2015.  
+  Now in your 'binaries' directory open the file 'libjpeg-turbo-2.0.2.sln' with Visual Studio 2017.  
   In the Solution Explorer click Project 'INSTALL'.
   Select Build->Build Solution, if this is successful  select 'Build->Build INSTALL'.
   By default this installs the include files and libraries libraries in 'C:\libjpeg-turbo\include' and
@@ -67,10 +67,10 @@ that was specified in 'cmake-gui' to build the binaries.
   to the program:
   evaluate_compression --input_directories=<full path to directory with datafiles>
 
-Other platforms: install PCL 1.8.1 from source:
+Other platforms: install PCL 1.9.1 from source:
 ----------------------------------------------------------------------------------------
 
-* Get PCL source code from 'https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.8.1'
+* Get PCL source code from 'https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.9.1'
   (note that the source code in the PCL development tree is not compatible with this package).
 
 * Get 3rd party packages:
@@ -79,14 +79,14 @@ Other platforms: install PCL 1.8.1 from source:
   Be aware that the version numbers of some 3rd party packages are outdated and should match those used in the
   'apt-install' commands above.
 
-* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building each of the additional libraries and excutables in these package;
+* Use 'cmake-gui (>= 3.13.4)' to configure and generate the files for building each of the additional libraries and excutables in these package;
   build and install each of the libraries using the build system selected by 'cmake'
 
-* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building PCL;
+* Use 'cmake-gui (>= 3.13.4)' to configure and generate the files for building PCL;
   build and install the libraries using the build system selected by 'cmake'
 
 * Download libjpeg-turbo  https://sourceforge.net/projects/libjpeg-turbo/files/1.5.3/libjpeg-turbo-1.5.3.tar.gz/download
   Use: 'configure; make install' to install the libraries
 
-* Use 'cmake-gui (>= 3.10)' to configure and generate the files for building cwi-pcl-codec;
+* Use 'cmake-gui (>= 3.13.4)' to configure and generate the files for building cwi-pcl-codec;
   build and install the libraries using the build system selected by 'cmake'
