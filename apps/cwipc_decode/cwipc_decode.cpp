@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     //
     // Read compressed file
     //
-    std::ifstream input(argv[1]);
+    std::ifstream input(argv[1], std::ifstream::binary);
     // Determine data size and allocate a buffer
     input.seekg(0, std::ios::end);
     size_t filesize = input.tellg();

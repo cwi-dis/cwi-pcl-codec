@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     //
     // Save to output
     //
-    std::ofstream output(argv[2]);
+    std::ofstream output(argv[2], std::ofstream::binary);
     output << buffer;
     output.close();
     return 0;
