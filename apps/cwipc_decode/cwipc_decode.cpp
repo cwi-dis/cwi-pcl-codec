@@ -1,10 +1,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <pcl/point_cloud.h>
-#include <pcl/io/ply_io.h>
-
-#include "cwipc_util/api_pcl.h"
 #include "cwipc_codec/api.h"
 
 int main(int argc, char** argv)
@@ -17,33 +13,48 @@ int main(int argc, char** argv)
     // Read compressed file
     //
     std::ifstream input(argv[1]);
-	std::stringstream inputBuffer;
-	inputBuffer << input.rdbuf();
-	std::cerr << "Read " << input.tellg() << " compressed bytes." << std::endl;
+    // Determine data size and allocate a buffer
+    input.seekg(0, std::ios::end);
+    size_t filesize = input.tellg();
+    char *inputBuffer = (char *)malloc(filesize);
+    if (inputBuffer == NULL) {
+    	std::cerr << argv[0] << ": could not allocate " << filesize << " bytes." << std::endl;
+    	return 1;
+    }
+    // Read all data
+    input.seekg(0, std::ios::beg);
+    input.read(inputBuffer, filesize);
+    input.close();
+	std::cerr << "Read " << filesize << " compressed bytes." << std::endl;
     //
     // Uncompress
     //
-     cwipc_encoder_params param;
-	param.num_threads = 1;
-	param.do_inter_frame = false;
-	param.gop_size = 1;
-	param.exp_factor = 0;
-	param.octree_bits = 7;
-	param.color_bits = 8;
-	param.jpeg_quality = 85;
-	param.macroblock_size = 16;
-    cwipc_codec encoder(param);
-	uint64_t timeStamp;
-    cwipc_pcl_pointcloud pc = new_cwipc_pcl_pointcloud();
-	if ( encoder.decompress_from_stream(pc, inputBuffer, timeStamp) < 0) {
-        std::cerr << argv[0] << ": Error decoding pointcloud from " << argv[1] << std::endl;
-        return 1;
-	}
-	std::cerr << "Decoded successfully, " << pc->size() << " points." << std::endl;
+    cwipc_decoder *decoder = cwipc_new_decoder();
+    if (decoder == NULL) {
+    	std::cerr << argv[0] << ": Could not create decoder" << std::endl;
+    	return 1;
+    }
+    decoder->feed(inputBuffer, filesize);
+    free((void *)inputBuffer); // After feed() we can free the input buffer
+    bool ok = decoder->available(true);
+    if (!ok) {
+    	std::cerr << argv[0] << ": Decoder did not create pointcloud" << std::endl;
+    	return 1;
+    }
+    cwipc *pc = decoder->get();
+    if (pc == NULL) {
+    	std::cerr << argv[0] << ": Decoder did not return cwipc" << std::endl;
+    	return 1;
+    }
+    decoder->free(); // We don't need the encoder anymore
+	std::cerr << "Decoded successfully, " <<pc->get_uncompressed_size(CWIPC_POINT_VERSION) << " bytes (uncompressed)" << std::endl;
     //
     // Save pointcloud file
     //
-    pcl::PLYWriter writer;
-	writer.write(argv[2], *pc);
+    if (cwipc_write(argv[2], pc, NULL) < 0) {
+    	std::cerr << argv[0] << ": Error writing PLY file " << argv[2] << std::endl;
+    	return 1;
+    }
+	pc->free(); // We no longer need to pointcloud
     return 0;
 }

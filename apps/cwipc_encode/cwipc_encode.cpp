@@ -1,10 +1,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <pcl/point_cloud.h>
-#include <pcl/io/ply_io.h>
-
-#include "cwipc_util/api_pcl.h"
 #include "cwipc_codec/api.h"
 
 int main(int argc, char** argv)
@@ -20,13 +16,14 @@ int main(int argc, char** argv)
     //
     // Read pointcloud file
     //
-    cwipc_pcl_pointcloud pc = new_cwipc_pcl_pointcloud();
-    pcl::PLYReader ply_reader;
-    if (ply_reader.read(argv[1], *pc) < 0) {
-        std::cerr << argv[0] << ": Error reading pointcloud from " << argv[1] << std::endl;
+    char *errorMessage = NULL;
+    cwipc *pc = cwipc_read(argv[1], 0LL, &errorMessage);
+
+    if (pc == NULL || errorMessage) {
+        std::cerr << argv[0] << ": Error reading pointcloud from " << argv[1] << ": " << errorMessage << std::endl;
         return 1;
     }
-    std::cerr << "Read pointcloud successfully, " << pc->size() << " points." << std::endl;
+    std::cerr << "Read pointcloud successfully, " << pc->get_uncompressed_size(CWIPC_POINT_VERSION) << " bytes (uncompressed)" << std::endl;
     //
     // Compress
     //
@@ -39,20 +36,37 @@ int main(int argc, char** argv)
 	param.color_bits = 8;
 	param.jpeg_quality = 85;
 	param.macroblock_size = 16;
-    cwipc_codec encoder(param);
-    std::stringstream outputBuffer;
-//    boost::shared_ptr<pcl::PointCloud<PointT> > pointcloud = *reinterpret_cast<boost::shared_ptr<pcl::PointCloud<PointT> >*>(pc);
-    
-    if (encoder.compress_to_stream(pc, outputBuffer, timestamp) < 0) {
-        std::cerr << argv[0] << ": Error encoding pointcloud from " << argv[1] << std::endl;
-        return 1;
+	
+    cwipc_encoder *encoder = cwipc_new_encoder(CWIPC_ENCODER_PARAM_VERSION, &param);
+    if (encoder == NULL) {
+    	std::cerr << argv[0] << ": Could not create encoder" << std::endl;
+    	return 1;
     }
-    std::cerr << "Encoded successfully, " << outputBuffer.tellp() << " bytes." << std::endl;
+    encoder->feed(pc);
+    pc->free();	// After feeding the pointcloud into the encoder we can free it.
+    bool ok = encoder->available(true);
+    if (!ok) {
+    	std::cerr << argv[0] << ": Encoder did not create compressed data" << std::endl;
+    	return 1;
+    }
+    size_t bufSize = encoder->get_encoded_size();
+    char *buffer = (char *)malloc(bufSize);
+    if (buffer == NULL) {
+    	std::cerr << argv[0] << ": Could not allocate " << bufSize << " bytes." << std::endl;
+    	return 1;
+    }
+    ok = encoder->copy_data(buffer, bufSize);
+    if (!ok) {
+    	std::cerr << argv[0] << ": Encoder could not copy compressed data" << std::endl;
+    	return 1;
+    }
+    encoder->free(); // We don't need the encoder anymore.
+    std::cerr << "Encoded successfully, " << bufSize << " bytes." << std::endl;
     //
     // Save to output
     //
     std::ofstream output(argv[2]);
-    output << outputBuffer.rdbuf();
+    output << buffer;
     output.close();
     return 0;
 }
