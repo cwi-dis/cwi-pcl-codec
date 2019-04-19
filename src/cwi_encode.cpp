@@ -35,21 +35,39 @@ public:
     bool available(bool wait) { return m_result != NULL; };
     void feed(cwipc *pc) {
         std::stringstream comp_frame;
-        evaluate_comp_impl<PointXYZRGB> evaluate;
-        bool enc;
+        double point_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
+        double octree_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
+        boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointXYZRGB> > encoder_V2_;
+        encoder_V2_ = boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointXYZRGB> > (
+            new pcl::io::OctreePointCloudCodecV2<PointXYZRGB> (
+                  pcl::io::MANUAL_CONFIGURATION,
+                  false,
+                  point_resolution,
+                  octree_resolution,
+                  true, // no intra voxel coding in this first version of the codec
+                  0, // i_frame_rate,
+                  m_params.color_bits > 0 ? true : false,
+                  m_params.color_bits,
+                  1,
+                  pc->timestamp(),
+                  false,
+                  false, // not implemented
+                  false, // do_connectivity_coding_ not implemented
+                  m_params.jpeg_quality,
+                  m_params.num_threads
+                  ));
+        encoder_V2_->setMacroblockSize(m_params.macroblock_size);
         cwipc_pcl_pointcloud pcl_pc = pc->access_pcl_pointcloud();
-        enc = evaluate.evaluator(m_params, pcl_pc, comp_frame, pc->timestamp());
+        encoder_V2_->encodePointCloud(pcl_pc, comp_frame);
         /* xxxjack should lock here */
         if (m_result) {
             ::free(m_result);
             m_result = NULL;
             m_result_size = 0;
         }
-        if (enc) {
-            m_result_size = comp_frame.str().length();
-            m_result = (void *)malloc(m_result_size);
-            comp_frame.str().copy((char *)m_result, m_result_size);
-        }
+        m_result_size = comp_frame.str().length();
+        m_result = (void *)malloc(m_result_size);
+        comp_frame.str().copy((char *)m_result, m_result_size);
     };
     size_t get_encoded_size() { return m_result_size; };
     bool copy_data(void *buffer, size_t bufferSize) {
