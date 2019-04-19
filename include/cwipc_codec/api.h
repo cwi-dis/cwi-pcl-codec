@@ -53,15 +53,6 @@ struct cwipc_encoder_params
 #define CWIPC_ENCODER_PARAM_VERSION 0x20190330
 
 #ifdef __cplusplus
-class _CWIPC_CODEC_EXPORT cwipc_codec
-{
-public:
-	cwipc_codec(cwipc_encoder_params& _param) : param(_param) {}
-	int compress_to_stream(cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t timeStamp);
-	int decompress_from_stream(cwipc_pcl_pointcloud pc, std::stringstream& comp_frame, uint64_t &timeStamp);
-protected:
-   cwipc_encoder_params param;
-};
 
 /** \brief Pointcloud encoder, abstract C++ interface.
  *
@@ -159,16 +150,6 @@ typedef struct _cwipc_decoder {
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/** \brief Decompress a single pointcloud.
- *
- * (This API should be considered deprecated)
- * C-compatible API call to decompress a single pointcloud.
- * \param compFrame A pointer to a buffer with the compressed pointcloud data.
- * \param len Size of he compFrame buffer (in bytes)
- * \returns a cwipc object representing the pointcloud.
- */
-_CWIPC_CODEC_EXPORT cwipc* cwipc_decompress(unsigned char * compFrame, int len);
 
 /** \brief Create pointcloud decompressor.
  *
