@@ -111,6 +111,10 @@ cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params *params) {
     if (version != CWIPC_ENCODER_PARAM_VERSION) {
         return NULL;
     }
+    if (params == NULL) {
+    	static cwipc_encoder_params dft = { 1, false, 1, 1.0, 8, 8, 85, 16};
+    	params = &dft;
+	}
     return new cwipc_encoder_impl(params);
 }
 
