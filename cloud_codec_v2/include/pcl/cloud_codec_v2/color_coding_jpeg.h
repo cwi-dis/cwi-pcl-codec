@@ -228,8 +228,11 @@ namespace pcl{
       void
       decodeJPEGSnake(std::vector<char> &in_vec)
       {
-        PCLImage im_out; 
-        io::JPEGReader<char>::readJPEG(in_vec,im_out);  
+        PCLImage im_out;
+        // This is not elegant. The JPEGReader wants uint8_t, but we have a char vector.
+        // We do a nasty cast here so we don't have to make the jpeg reader templated.
+        std::vector<uint8_t> *casted_in_vec_ptr = reinterpret_cast<std::vector<uint8_t> *>(&in_vec);
+        io::JPEGReader<uint8_t>::readJPEG(*casted_in_vec_ptr,im_out);
 
         SnakeGridMapping<uint8_t,char> un_m(im_out.width,im_out.height);
         std::vector<char> res2 = un_m.undoSnakeGridMapping(im_out.data);
