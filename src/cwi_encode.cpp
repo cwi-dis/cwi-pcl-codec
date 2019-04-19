@@ -109,12 +109,35 @@ public:
         //Convert buffer to stringstream for encoding
         std::string str((char *)buffer, bufferSize);
         std::stringstream istream(str);
-
+        boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointXYZRGB> > decoder_V2_;
+        decoder_V2_ = boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointXYZRGB> > (
+            new pcl::io::OctreePointCloudCodecV2<PointXYZRGB> (
+                pcl::io::MANUAL_CONFIGURATION,
+                false,
+                std::pow ( 2.0, -1.0 * par.octree_bits ),
+                std::pow ( 2.0, -1.0 * par.octree_bits),
+                true, // no intra voxel coding in this first version of the codec
+                0, // i_frame_rate,
+                true,
+                par.color_bits,
+                1,
+                0,
+                false,
+                false, // not implemented
+                false, // do_connectivity_coding_, not implemented
+                par.jpeg_quality,
+                par.num_threads
+                ));
         evaluate_comp_impl<cwipc_pcl_point> evaluate;
         cwipc_pcl_pointcloud decpc = new_cwipc_pcl_pointcloud();
         uint64_t tmStmp = 0;
-        evaluate.evaluate_dc(par, decpc, istream, tmStmp);
-        m_result = cwipc_from_pcl(decpc, tmStmp, NULL);
+        //evaluate.evaluate_dc(par, decpc, istream, tmStmp);
+        bool ok = decoder_V2_->decodePointCloud(istream, decpc, tmStmp);
+        if (ok) {
+            m_result = cwipc_from_pcl(decpc, tmStmp, NULL);
+        } else {
+            m_result = NULL;
+        }
     };
     cwipc *get() {
         cwipc *rv = m_result;
