@@ -11,9 +11,9 @@
 
 #include "cwipc_util/api_pcl.h"
 #include "cwipc_codec/api.h"
-#include "cwipc_codec/evaluate_comp.h"
-#include "evaluate_comp_impl.hpp"
 
+#include <pcl/point_cloud.h>
+#include <pcl/cloud_codec_v2/point_cloud_codec_v2.h>
 
 using namespace std;
 
@@ -37,9 +37,9 @@ public:
         std::stringstream comp_frame;
         double point_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
         double octree_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
-        boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointXYZRGB> > encoder_V2_;
-        encoder_V2_ = boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointXYZRGB> > (
-            new pcl::io::OctreePointCloudCodecV2<PointXYZRGB> (
+        boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> > encoder_V2_;
+        encoder_V2_ = boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> > (
+            new pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> (
                   pcl::io::MANUAL_CONFIGURATION,
                   false,
                   point_resolution,
@@ -109,9 +109,9 @@ public:
         //Convert buffer to stringstream for encoding
         std::string str((char *)buffer, bufferSize);
         std::stringstream istream(str);
-        boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointXYZRGB> > decoder_V2_;
-        decoder_V2_ = boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<PointXYZRGB> > (
-            new pcl::io::OctreePointCloudCodecV2<PointXYZRGB> (
+        boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> > decoder_V2_;
+        decoder_V2_ = boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> > (
+            new pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> (
                 pcl::io::MANUAL_CONFIGURATION,
                 false,
                 std::pow ( 2.0, -1.0 * par.octree_bits ),
@@ -128,10 +128,8 @@ public:
                 par.jpeg_quality,
                 par.num_threads
                 ));
-        evaluate_comp_impl<cwipc_pcl_point> evaluate;
         cwipc_pcl_pointcloud decpc = new_cwipc_pcl_pointcloud();
         uint64_t tmStmp = 0;
-        //evaluate.evaluate_dc(par, decpc, istream, tmStmp);
         bool ok = decoder_V2_->decodePointCloud(istream, decpc, tmStmp);
         if (ok) {
             m_result = cwipc_from_pcl(decpc, tmStmp, NULL);
