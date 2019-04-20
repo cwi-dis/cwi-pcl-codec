@@ -36,7 +36,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
-project(CWI_PCL_CODEC)
+project(cwipc_codec)
 # -- From: https://stackoverflow.com/questions/16398937/cmake-and-finding-other-projects-and-their-dependencies
 # set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 # set(CMAKE_DISABLE_SOURCE_CHANGES  ON)

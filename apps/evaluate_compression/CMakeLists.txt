@@ -36,7 +36,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
-project(CWI_PCL_CODEC)
 set(SUBSYS_NAME evaluate_compression)
 set(SUBSYS_DESC "Evaluation program for Point Cloud Compression V2 (using JPEG compression")
 
