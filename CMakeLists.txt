@@ -53,13 +53,6 @@ find_package(cwipc_util REQUIRED)
 include_directories(${cwipc_util_INCLUDE_DIRS})
 link_directories(${cwipc_util_LIBRARY_DIRS})
 
-# Set the following to 1 to enable the -v (visualisation) flag to evaluate_compression. Requires vtk.
-set(ENABLE_VISUALIZATION 0)
-if(ENABLE_VISUALIZATION)
-	set(VISUALIZATION_OPTIONAL visualization)
-	set(VISUALIZATION_DEFINITIONS -DWITH_VTK)
-endif()
-
 set(SUBSYS_NAME cwi_pcl_codec)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/;${CMAKE_MODULE_PATH}")
 set(QUIET_FLAG QUIET)
@@ -70,59 +63,13 @@ if(NOT PCL_FOUND)
 	find_package(PCL 1.8 REQUIRED ${QUIET_FLAG} COMPONENTS common geometry io filters sample_consensus segmentation visualization kdtree features surface octree registration keypoints tracking search recognition)
 endif(NOT PCL_FOUND)
 
-if(NOT PCL_ALL_IN_ONE_INSTALLER)
-  # search for 3rd party packages
-  if(WIN32)
-    # Remove 'lib' prefix for shared libraries on Windows
-    set(CMAKE_SHARED_LIBRARY_PREFIX "")
-    set(CMAKE_C_FLAGS "(/EHsc /UBOOST_NO_EXCEPTIONS")
-    set(CMAKE_CXX_FLAGS "/EHsc")
-    set(CMAKE_LD_FLAGS "-g -O0")
-    if(ENABLE_VISUALIZATION)
-		# On Windows we have VTK 7.0
-		find_package(VTK 7.0 REQUIRED ${QUIET_FLAG})
-		if(NOT VTK_FOUND)
-		  message(ERROR "VTK >= 7.0 found.")
-		endif(VTK_FOUND)
-	endif()
-  else(WIN32)
-    # enable debugging on Linux
-    set(CMAKE_C_FLAGS "-g -O0")
-    set(CMAKE_CXX_FLAGS "-g -O0")
-    set(CMAKE_LD_FLAGS "-g -O0")
-    if(ENABLE_VISUALIZATION)
-		# On Ubuntu 16.04 we have VTK 6.0, on MacOSX (brew) VTK 8.1
-		find_package(VTK 6.0 ${QUIET_FLAG})
-		if(NOT VTK_FOUND)
-		 find_package(VTK 6.1 ${QUIET_FLAG})
-		endif(NOT VTK_FOUND)
-		if(NOT VTK_FOUND)
-		 find_package(VTK 8.0 ${QUIET_FLAG})
-		endif(NOT VTK_FOUND)
-		if(NOT VTK_FOUND)
-		  find_package(VTK 8.1 REQUIRED)
-		endif(NOT VTK_FOUND)
-		if(NOT VTK_FOUND)
-		   message(ERROR "Neither VTK 6.0, 6.1, 8.0 nor 8.1 found.")
-		endif(NOT VTK_FOUND)
-	endif()
-  endif(WIN32)
-endif(NOT PCL_ALL_IN_ONE_INSTALLER)
-
-#include(${CMAKE_SOURCE_DIR}/cmake/pcl_find_boost.cmake)
-set(BOOST_REQUIRED_MODULES system filesystem thread date_time iostreams chrono program_options)
-find_package(Boost 1.47.0 ${QUIET_FLAG} REQUIRED COMPONENTS ${BOOST_REQUIRED_MODULES})
+find_package(Boost 1.47.0 ${QUIET_FLAG} REQUIRED COMPONENTS system filesystem thread date_time iostreams chrono program_options)
 find_package(Eigen 4.3 ${QUIET_FLAG} REQUIRED)
 find_package(JPEG_Turbo ${QUIET_FLAG} REQUIRED)
-
-if(EXISTS "${PCL_ROOT}/include/pcl-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}/pcl/io/impl/entropy_range_coder.hpp")
-    set(PCL_INSTALLED ON CACHE INTERNAL "PCL Installed" FORCE)
-endif()
 
 # Expose public includes and libraries to subprojects
 set(${PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include
                                  ${JPEG_Turbo_INCLUDE_DIR}
-                                 ${VTK_INCLUDE_DIR}
                                  ${Boost_INCLUDE_DIR}
                                  ${PCL_INCLUDE_DIRS}
                                  ${EIGEN_INCLUDE_DIRS}
@@ -130,7 +77,6 @@ set(${PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/include
 
 set(${PROJECT_NAME}_LIBRARY_DIRS ${PROJECT_SOURCE_DIR}/lib
                                  ${JPEG_Turbo_LIBRARY_DIR}
-                                 ${VTK_LIBRARY_DIR}
                                  ${Boost_LIBRARY_DIR}
                                  ${PCL_LIBRARY_DIRS}
     CACHE INTERNAL "${PROJECT_NAME}: Library Directories" FORCE)
@@ -146,7 +92,6 @@ set(${PROJECT_NAME}_DEFINITIONS
                                  ${JPEG_Turbo_DEFINITIONS} -DWITH_JPEG8=1
                                  ${Boost_DEFINITIONS}
                                  ${PCL_DEFINITIONS}
-                                 ${VISUALIZATION_DEFINITIONS}
     CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 
 add_definitions( ${${PROJECT_NAME}_DEFINITIONS})

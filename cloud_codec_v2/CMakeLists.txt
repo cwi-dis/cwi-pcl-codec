@@ -39,6 +39,11 @@ cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 set(SUBSYS_NAME cloud_codec_v2)
 set(SUBSYS_DESC "Extensions for Point Cloud Compression for JPEG I/O")
 
+
+if(EXISTS "${PCL_ROOT}/include/pcl-${PCL_VERSION_MAJOR}.${PCL_VERSION_MINOR}/pcl/io/impl/entropy_range_coder.hpp")
+    set(PCL_INSTALLED ON CACHE INTERNAL "PCL Installed" FORCE)
+endif()
+
 set(${PROJECT_NAME}_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${${PROJECT_NAME}_INCLUDE_DIRS}
