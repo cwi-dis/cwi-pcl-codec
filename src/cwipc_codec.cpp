@@ -25,14 +25,20 @@ public:
         m_result(NULL),
         m_result_size(0)
     {}
+    
     ~cwipc_encoder_impl() {}
     void free() {
         if (m_result) ::free(m_result);
         m_result = NULL;
         m_result_size = 0;
     };
+    
     bool eof() { return false; };
+    
     bool available(bool wait) { return m_result != NULL; };
+    
+    bool at_gop_boundary() { return true; };
+    
     void feed(cwipc *pc) {
         std::stringstream comp_frame;
         double point_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
@@ -69,7 +75,9 @@ public:
         m_result = (void *)malloc(m_result_size);
         comp_frame.str().copy((char *)m_result, m_result_size);
     };
+    
     size_t get_encoded_size() { return m_result_size; };
+    
     bool copy_data(void *buffer, size_t bufferSize) {
         if (m_result == NULL || bufferSize < m_result_size) return false;
         memcpy(buffer, m_result, m_result_size);
@@ -78,6 +86,7 @@ public:
         m_result_size = 0;
         return true;
     };
+    
 private:
     cwipc_encoder_params m_params;
     void *m_result;
@@ -90,10 +99,15 @@ public:
     cwipc_decoder_impl() 
     : m_result(NULL)
     {}
+    
     ~cwipc_decoder_impl() {}
+    
     void free() {};
+    
     bool eof() {return false; };
+    
     bool available(bool wait) { return m_result != NULL; };
+    
     void feed(void *buffer, size_t bufferSize) {
         cwipc_encoder_params par;
         //Default codec parameter values set in signals
@@ -137,6 +151,7 @@ public:
             m_result = NULL;
         }
     };
+    
     cwipc *get() {
         cwipc *rv = m_result;
         m_result = NULL;
@@ -180,6 +195,11 @@ size_t cwipc_encoder_get_encoded_size(cwipc_encoder *obj) {
 bool cwipc_encoder_copy_data(cwipc_encoder *obj, void *buffer, size_t bufferSize) {
     return obj->copy_data(buffer, bufferSize);
 }
+
+bool cwipc_encoder_at_gop_boundary(cwipc_encoder *obj) {
+    return obj->at_gop_boundary();
+}
+
 
 cwipc_decoder* cwipc_new_decoder() {
     return new cwipc_decoder_impl();

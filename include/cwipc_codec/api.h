@@ -109,6 +109,12 @@ public:
      * `available()` will return false again until `feed()` has been called.
      */
     virtual bool copy_data(void *buffer, size_t bufferSize) = 0;
+    
+    /** \brief Check whether we are at a Group-of-Pointclouds boundary
+     *
+     * \return true if the next compressed pointcloud should begin a new GOP.
+     */
+     virtual bool at_gop_boundary() = 0;
 };
 
 /** \brief Pointcloud encoder, abstract C++ interface.
@@ -212,6 +218,12 @@ _CWIPC_CODEC_EXPORT size_t cwipc_encoder_get_encoded_size(cwipc_encoder *obj);
  * `available()` will return false again until `feed()` has been called.
  */
 _CWIPC_CODEC_EXPORT bool cwipc_encoder_copy_data(cwipc_encoder *obj, void *buffer, size_t bufferSize);
+
+/** \brief Check whether we are at a Group-of-Pointclouds boundary
+ *
+ * \return true if the next compressed pointcloud should begin a new GOP.
+ */
+ _CWIPC_CODEC_EXPORT bool cwipc_encoder_at_gop_boundary(cwipc_encoder *obj);
 
 /** \brief Create pointcloud decompressor.
  * \returns cwipc_decoder object representing the decompressor.
