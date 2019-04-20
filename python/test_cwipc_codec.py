@@ -65,6 +65,7 @@ class TestApi(unittest.TestCase):
         self.assertFalse(encoder.available(False))
         encoder.feed(pc)
         self.assertTrue(encoder.available(False))
+        self.assertTrue(encoder.at_gop_boundary())
         data = encoder.get_bytes()
         self.assertNotEqual(len(data), 0)
         self.assertFalse(encoder.available(False))
