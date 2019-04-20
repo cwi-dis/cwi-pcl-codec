@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	param.jpeg_quality = 85;
 	param.macroblock_size = 16;
 	
-    cwipc_encoder *encoder = cwipc_new_encoder(CWIPC_ENCODER_PARAM_VERSION, &param);
+    cwipc_encoder *encoder = cwipc_new_encoder(CWIPC_ENCODER_PARAM_VERSION, NULL);
     if (encoder == NULL) {
     	std::cerr << argv[0] << ": Could not create encoder" << std::endl;
     	return 1;

@@ -1,44 +1,25 @@
-> Copyright (c) 2017-, Stichting Centrum Wiskunde en Informatica (CWI).
+> Copyright (c) 2017-2019, Stichting Centrum Wiskunde en Informatica (CWI).
 
-# cwi-pcl-codec
+# cwipc_codec
 
-This distribution contains a codec for encoding/decoding 3D Point Cloud data streams, and a toolset for its objective evaluation.   
-The codec is described in detail in a journal paper:
+This distribution contains a compressor and decompressor for pointclouds. It uses the _cwipc_ abstract object to represent pointclouds.
+
+It is a modified version of the cwi-pcl-codec distribution, from <http://github.com/cwi-dis/cwi-pcl-codec>. Both distributions share the same codec, described in the following journal paper:
+
 > _(R. Mekuria, K. Blom, and P. Cesar, "Design, Implementation and Evaluation of a Point Cloud Codec for Tele-Immersive Video," IEEE Transactions on Circuits and Systems for Video Technology, 27(4): 828 -842, 2017_
-
-of which a preprint is available at: <https://ir.cwi.nl/pub/24395>.   
-
-The codec has served as the software to generate the anchors for the Call for Proposals for Point Cloud Compression by  the MPEG working group 3DG-PCC on PointCloud Compression
-<http://mpeg.chiariglione.org/standards/exploration/point-cloud-compression>.
-
-This version can be build on  MacOSX 10.12 or later (using Homebrew), Ubuntu 18.04 (64 bit) (using 'apt') or Windows 10 64bit (using pre-build PointCloudLibrary(PCL)
-installers), or on many other systems by downloading and building PCL and its dependencies.
-
-This package contains:
-
-* codec software (cloud_codec_v2)
-* auxiliary files needed (for using 'cmake'  and building 'jpeg_io')
-* quality metrics
-* evaluation library
-* tools for testing and evaluation of several aspects of this codec
-* installation instructions
-* an API library that conforms to the *cwipc* API.
-
-To use it, several dependencies need to be installed:  
-
-
-* Boost
-* Eigen
-* Flann
-* QHull
-* VTK
-* libjpeg-turbo
-
 
 ## Installing
 
 For use within VRtogether you can get pre-built zipfiles (or tgzfiles for Mac/Linux) from <https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_codec/releases>. Download the most recent release with a normal v_X_._Y_._Z_ name. You will also need the accompanying _cwipc\_util_ installer from 
 <https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_util/releases>.
+
+You also need to install a number of dependencies:
+
+* Boost
+* Eigen
+* Flann
+* QHull
+* libjpeg-turbo
 
 [![pipeline status](https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_codec/badges/master/pipeline.svg)](https://baltig.viaccess-orca.com:8443/VRT/nativeclient-group/cwipc_codec/commits/master)
 
@@ -182,84 +163,6 @@ Three test programs are included:
 
 - `cwipc_encode` compresses a `.ply` pointcloud file to a `.cwicpc` compressed pointcloud file.
 - `cwipc_decode` decompresses a `.cwicpc` compresssed file to a `.ply` pointcloud file.
-- `evaluate_compression` allows for evaluation of the algorithm, see below.
+- `evaluate_compression` allows for evaluation of the algorithm, see [its readme file](apps/evaluate_compression/readme.md) for details.
 
-## Running the evaluation program
-
-Suitable input files for the program can be downloaded from: http://vcl.iti.gr/reconstruction/
-Most of these data sets are huge; unpack some and specify the full directory path as an argument
-to the program:
-
-```
-evaluate_compression --input_directories=<full path to directory with datafiles>
-```
-
-The following arguments are recognized by the program `evaluate_compression`:  
-(long version arguments without '--' can also be put in a file 'parameter_config.txt' in the working directory or its parent)
-
-*  -h [ --help ] 
-	*  produce help message  
-*  -K [ --K_outlier_filter ] arg (=0)
-    * K neighbours for radius outlier filter   
-*  --radius arg (=0.01) 
-    * radius outlier filter, maximum radius  
-*  -g [ --group_size ] arg (=0)
-    * maximum number of files to be compressed together (0=read all files, then en(de)code 1 by 1)  
-*  -f [ --bb_expand_factor ] arg (=0.2)
-    * bounding box expansion to keep bounding box equal accross frames  
-*  -a [ --algorithm ] arg (=V2) 
-     * compression algorithm ('V1' or 'V2')  
-*  -i [ --input_directories ] arg
-      * Directory containing supported files (.pcd or .ply)  
-*  -o [ --output_directory ] arg
-      *  Directory to store decompressed pointclouds (.ply)  
-*  -s [ --show_statistics ] [=arg(=1)] (=0)
-      * gather and show a bunch of releavant statistical data  
-*  -v [ --visualization ] [=arg(=1)] (=0)
-      * show both original and decoded PointClouds graphically  
-*  -p [ --point_resolution ] arg (=0.2)
-       * XYZ resolution of point coordinates  
-*  -r [ --octree_resolution ] arg (=0.2)
-       * voxel size  
-*  -b [ --octree_bits ] arg (=11)
-       * octree resolution (bits)  
-*  -c [ --color_bits ] arg (=8) 
-       * color resolution (bits)  
-*  -e [ --enh_bits ] arg (=0) 
-       * bits to code the points towards the center  
-*  -t [ --color\_coding\_type ] arg (=1)
-       * pcl=0,jpeg=1 or graph transform  
-*  -m [ --macroblock_size ] arg (=16)
-       * size of macroblocks used for predictive frame (has to be a power of 2)  
-*  --keep_centroid  arg (=0) 
-       * keep voxel grid positions or not  
-*  --create_scalable arg (=0) 
-       * create scalable bitstream (not yet implemented)  
-*  --do\_connectivity_coding arg (=0) 
-       * connectivity coding (not yet implemented)  
-*  --icp\_on_original arg (=0)
-       * icp\_on_original  
-*  -q [ --jpeg_quality ] arg (=0) 
-       * jpeg quality parameter  
-*  -d [ --do\_delta_coding ] arg (=0) 
-       * use delta (predictive) en(de)coding  
-*  --do\_quality_computation arg (=0)
-       * compute quality of en(de)coding  
-*  --do\_icp\_color_offset arg (=0) 
-       *  do color offset en(de)coding on predictive frames  
-*  -j [ --num_threads ] arg (=1) 
-       *  number of parallel threads (1=default, single  thread, no parallel execution)  
-*  --intra\_frame\_quality_csv arg (=intra\_frame\_quality.csv)
-       * intra frame coding quality results filename (.csv file)  
-*  --predictive\_quality_csv arg
-       * (=predictive_quality.csv) predictive coding quality results file name (.csv file)  
-*  --debug_level arg (=0)
-       *  debug print level (0=no debug print, 3=all debug print)  
-
-The precise meanings of these parameters are explained in the journal paper mentioned above.
-
-Apr.6, 2017, updated: Jun 25, 2017, Apr. 23, 2018 and Mar.19, 2019.
-
-Kees Blom (Kees.Blom@cwi.nl) CWI, Amsterdam, The Netherlands
-
-
+The Python unittest [python/test\_cwipc\_codec.py](python/test_cwipc_codec.py) tests each individual feature and API call of the codec.

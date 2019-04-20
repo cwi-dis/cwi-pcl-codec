@@ -38,15 +38,11 @@
 cmake_minimum_required(VERSION 3.10.0)
 
 
-add_library(cwipc_codec SHARED cwi_encode.cpp)
+add_library(cwipc_codec SHARED cwipc_codec.cpp)
 
 target_sources(cwipc_codec
 	PRIVATE
 	"../include/cwipc_codec/api.h"
-	"../include/cwipc_codec/evaluate_comp.h"
-	"qual_metrics.h"
-	"evaluate_comp_impl.hpp"
-	"qual_metrics_impl.hpp"
 )
 
 target_include_directories(

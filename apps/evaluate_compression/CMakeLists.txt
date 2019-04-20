@@ -36,14 +36,61 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
-project(CWI_PCL_CODEC)
 set(SUBSYS_NAME evaluate_compression)
 set(SUBSYS_DESC "Evaluation program for Point Cloud Compression V2 (using JPEG compression")
+
+
+# Set the following to 1 to enable the -v (visualisation) flag to evaluate_compression. Requires vtk.
+set(ENABLE_VISUALIZATION 0)
+if(ENABLE_VISUALIZATION)
+	set(VISUALIZATION_OPTIONAL visualization)
+	set(VISUALIZATION_DEFINITIONS -DWITH_VTK)
+endif()
+
+if(NOT PCL_ALL_IN_ONE_INSTALLER)
+  # search for 3rd party packages
+  if(WIN32)
+    # Remove 'lib' prefix for shared libraries on Windows
+    set(CMAKE_SHARED_LIBRARY_PREFIX "")
+    set(CMAKE_C_FLAGS "(/EHsc /UBOOST_NO_EXCEPTIONS")
+    set(CMAKE_CXX_FLAGS "/EHsc")
+    set(CMAKE_LD_FLAGS "-g -O0")
+    if(ENABLE_VISUALIZATION)
+		# On Windows we have VTK 7.0
+		find_package(VTK 7.0 REQUIRED ${QUIET_FLAG})
+		if(NOT VTK_FOUND)
+		  message(ERROR "VTK >= 7.0 found.")
+		endif(VTK_FOUND)
+	endif()
+  else(WIN32)
+    # enable debugging on Linux
+    set(CMAKE_C_FLAGS "-g -O0")
+    set(CMAKE_CXX_FLAGS "-g -O0")
+    set(CMAKE_LD_FLAGS "-g -O0")
+    if(ENABLE_VISUALIZATION)
+		# On Ubuntu 16.04 we have VTK 6.0, on MacOSX (brew) VTK 8.1
+		find_package(VTK 6.0 ${QUIET_FLAG})
+		if(NOT VTK_FOUND)
+		 find_package(VTK 6.1 ${QUIET_FLAG})
+		endif(NOT VTK_FOUND)
+		if(NOT VTK_FOUND)
+		 find_package(VTK 8.0 ${QUIET_FLAG})
+		endif(NOT VTK_FOUND)
+		if(NOT VTK_FOUND)
+		  find_package(VTK 8.1 REQUIRED)
+		endif(NOT VTK_FOUND)
+		if(NOT VTK_FOUND)
+		   message(ERROR "Neither VTK 6.0, 6.1, 8.0 nor 8.1 found.")
+		endif(NOT VTK_FOUND)
+	endif()
+  endif(WIN32)
+endif(NOT PCL_ALL_IN_ONE_INSTALLER)
 
 set(${PROJECT_NAME}_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/include/pcl/apps/${SUBSYS_NAME}
   ${CMAKE_CURRENT_SOURCE_DIR}/include/pcl/apps/${SUBSYS_NAME}/impl
   ${${PROJECT_NAME}_INCLUDE_DIRS}
+  ${VTK_INCLUDE_DIR}
   CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
 if(CMAKELISTS_DEBUG)
   message("${SUBSYS_NAME}-${PROJECT_NAME}_INCLUDE_DIRS: " ${${PROJECT_NAME}_INCLUDE_DIRS})
@@ -67,6 +114,7 @@ include_directories(${${PROJECT_NAME}_INCLUDE_DIRS})
 set(${PROJECT_NAME}_LIBRARY_DIRS
   ${CMAKE_CURRENT_BINARY_DIR}
   ${${PROJECT_NAME}_LIBRARY_DIRS}
+  ${VTK_LIBRARY_DIR}
   CACHE INTERNAL "${PROJECT_NAME}: Library Directories" FORCE)
 if(CMAKELISTS_DEBUG)
   message("${SUBSYS_NAME}-${PROJECT_NAME}_LIBRARY_DIRS: " ${${PROJECT_NAME}_LIBRARY_DIRS})
@@ -75,10 +123,13 @@ endif(CMAKELISTS_DEBUG)
 set(${PROJECT_NAME}_LIBRARIES
 #  ${LIB_NAME}
   ${${PROJECT_NAME}_LIBRARIES}  
+  ${VTK_LIBRARIES}
   CACHE INTERNAL "${PROJECT_NAME}:Libraries" FORCE)
 if(CMAKELISTS_DEBUG)
   message("${SUBSYS_NAME}-${PROJECT_NAME}_LIBRARIES: " ${${PROJECT_NAME}_LIBRARIES})
 endif(CMAKELISTS_DEBUG)
+
+add_definitions(${VISUALIZATION_DEFINITIONS})
 
 add_executable(${SUBSYS_NAME} ${srcs} ${incs} ${impl_incs})
 target_link_libraries(${SUBSYS_NAME} ${${PROJECT_NAME}_LIBRARIES})

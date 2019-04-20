@@ -48,7 +48,6 @@ namespace pcl{
   namespace io{
   
     /** \brief Class for writing jpeg buffers and files */
-    template <typename charT=uint8_t>
     class PCL_EXPORTS JPEGWriter
     {
       public:
@@ -59,7 +58,7 @@ namespace pcl{
         *  \return  returns true when succesfull, false otherwise
         */
         static bool
-        writeJPEG(const PCLImage &im_in, std::vector<charT> &cdat, int quality = 75);
+        writeJPEG(const PCLImage &im_in, std::vector<uint8_t> &cdat, int quality = 75);
 
         /** \brief function for writing an image as a compressed JPEG file
         *  \param[in] im_in PCLImage input image
@@ -80,11 +79,10 @@ namespace pcl{
         *  \return  returns true when succesfull
         */
         static bool
-        writeJPEG(const PCLImage &im_in, std::vector<charT> &cdat, const std::string &file_name, int quality, bool write_file);
+        writeJPEG(const PCLImage &im_in, std::vector<uint8_t> &cdat, const std::string &file_name, int quality, bool write_file);
     };
 
     /** \brief Class for reading jpeg buffers and files */
-    template <typename charT=uint8_t>
     class PCL_EXPORTS JPEGReader
     {
       public:
@@ -94,7 +92,7 @@ namespace pcl{
         *  \return  returns true when succesfull, false otherwise
         */
         static bool
-        readJPEG(const std::vector<charT> &jpeg_in_dat, PCLImage &im_out);
+        readJPEG(const std::vector<uint8_t> &jpeg_in_dat, PCLImage &im_out);
 
         /** \brief function for reading a compressed JPEG file as a PCL image
         *   \param[in] jpeg_in_file  string filename with compressed jpeg image
@@ -113,7 +111,7 @@ namespace pcl{
         *   \return  returns true when succesfull, false otherwise
         */
         static bool
-        readJPEG(const std::vector<charT> &jpeg_in_dat, const std::string &jpeg_in_file, bool read_file, PCLImage &im_out);
+        readJPEG(const std::vector<uint8_t> &jpeg_in_dat, const std::string &jpeg_in_file, bool read_file, PCLImage &im_out);
     };
   }
 }

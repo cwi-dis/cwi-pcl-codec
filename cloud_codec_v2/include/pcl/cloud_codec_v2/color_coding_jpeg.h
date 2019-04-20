@@ -37,7 +37,7 @@
 
 #include <pcl/compression/color_coding.h>
 #include <pcl/cloud_codec_v2/snake_grid_mapping.h>
-#include <pcl/io/jpeg_io.h>
+#include <pcl/cloud_codec_v2/jpeg_io.h>
 #include <pcl/PCLImage.h>
 
 namespace pcl{
@@ -221,15 +221,18 @@ namespace pcl{
         l_mapped_im.data = res;
 #endif//__cplusplus < 201103L
 
-        io::JPEGWriter<uint8_t>::writeJPEG(l_mapped_im,out_data,jpeg_quality_);
+        io::JPEGWriter::writeJPEG(l_mapped_im,out_data,jpeg_quality_);
         return;
       }
 
       void
       decodeJPEGSnake(std::vector<char> &in_vec)
       {
-        PCLImage im_out; 
-        io::JPEGReader<char>::readJPEG(in_vec,im_out);  
+        PCLImage im_out;
+        // This is not elegant. The JPEGReader wants uint8_t, but we have a char vector.
+        // We do a nasty cast here so we don't have to make the jpeg reader templated.
+        std::vector<uint8_t> *casted_in_vec_ptr = reinterpret_cast<std::vector<uint8_t> *>(&in_vec);
+        io::JPEGReader::readJPEG(*casted_in_vec_ptr,im_out);
 
         SnakeGridMapping<uint8_t,char> un_m(im_out.width,im_out.height);
         std::vector<char> res2 = un_m.undoSnakeGridMapping(im_out.data);
@@ -271,7 +274,7 @@ namespace pcl{
           im_in.data = line_dat;
 #endif//__cplusplus < 201103L
 
-            io::JPEGWriter<uint8_t>::writeJPEG(im_in,cdat.clines[0],jpeg_quality_);
+            io::JPEGWriter::writeJPEG(im_in,cdat.clines[0],jpeg_quality_);
         }
         //! write all the image lines to the grid
         for(int i =0; i< num_lines;i++)
@@ -287,7 +290,7 @@ namespace pcl{
 #else
             im_in.data = line_dat;
 #endif//__cplusplus < 201103L
-            io::JPEGWriter<uint8_t>::writeJPEG(im_in,cdat.clines[i],jpeg_quality_);
+            io::JPEGWriter::writeJPEG(im_in,cdat.clines[i],jpeg_quality_);
           }
           else
           {
@@ -301,7 +304,7 @@ namespace pcl{
             im_in.data = line_dat;
 #endif//__cplusplus < 201103L
             im_in.width = (uint32_t) im_in.data.size() / 3;
-            io::JPEGWriter<uint8_t>::writeJPEG(im_in,cdat.clines[i],jpeg_quality_);
+            io::JPEGWriter::writeJPEG(im_in,cdat.clines[i],jpeg_quality_);
           }
         }
 
@@ -333,7 +336,7 @@ namespace pcl{
         for(int i=0; i<cdat.line_count; i++)
         {
           PCLImage t_o_dat;
-          io::JPEGReader<uint8_t>::readJPEG(cdat.clines[i],t_o_dat);
+          io::JPEGReader::readJPEG(cdat.clines[i],t_o_dat);
           for(int i=0; i<t_o_dat.data.size();i++)
             out_data.push_back(t_o_dat.data[i]);
         }
