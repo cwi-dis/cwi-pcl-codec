@@ -50,6 +50,7 @@ endif(CMAKELISTS_DEBUG)
 
 set(srcs
   "src/point_cloud_codec_v2.cpp"
+  "src/jpeg_io.cpp"
 )
 set(LIB_NAME ${SUBSYS_NAME})
 set(incs
@@ -57,6 +58,7 @@ set(incs
   "include/pcl/${SUBSYS_NAME}/point_cloud_codec_v2_omp.h"
   "include/pcl/${SUBSYS_NAME}/point_coding_v2.h"
   "include/pcl/${SUBSYS_NAME}/color_coding_jpeg.h"
+  "include/pcl/${SUBSYS_NAME}/jpeg_io.h"
   "include/pcl/${SUBSYS_NAME}/snake_grid_mapping.h"
   "include/pcl/${SUBSYS_NAME}/color_coding_jpeg.h"
   "include/pcl/${SUBSYS_NAME}/quaternion_coding.h"

@@ -37,7 +37,7 @@
 
 #include <pcl/compression/color_coding.h>
 #include <pcl/cloud_codec_v2/snake_grid_mapping.h>
-#include <pcl/io/jpeg_io.h>
+#include <pcl/cloud_codec_v2/jpeg_io.h>
 #include <pcl/PCLImage.h>
 
 namespace pcl{
