@@ -42,15 +42,3 @@
 
 using namespace pcl;
 using namespace io;
-
-#ifdef _WIN32
-template class PCL_EXPORTS pcl::io::JPEGReader<uint8_t>;
-#endif//_WIN32
-template class PCL_EXPORTS pcl::io::JPEGReader<char>;
-template class PCL_EXPORTS pcl::io::JPEGReader<unsigned char>;
-
-#ifdef _WIN32
-template class PCL_EXPORTS pcl::io::JPEGWriter<uint8_t>;
-#endif//_WIN32
-template class PCL_EXPORTS pcl::io::JPEGWriter<char>;
-template class PCL_EXPORTS pcl::io::JPEGWriter<unsigned char>;

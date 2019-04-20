@@ -73,22 +73,22 @@ namespace pcl{
     ///////////////////////////////////////////////////////////////////////////////////
 
     ///////////////////////// JPEG READER /////////////////////////////////////////
-    template<typename charT> bool
-    pcl::io::JPEGReader<charT>::readJPEG(const std::vector<charT> &jpeg_in_dat, PCLImage &im_out)
+    bool
+    pcl::io::JPEGReader::readJPEG(const std::vector<uint8_t> &jpeg_in_dat, PCLImage &im_out)
     {
       std::string file_name;
       return readJPEG(jpeg_in_dat,file_name,false,im_out);
     }
 
-    template<typename charT> bool
-      pcl::io::JPEGReader<charT>::readJPEG(const std::string &jpeg_in_file, PCLImage &im_out)
+    bool
+      pcl::io::JPEGReader::readJPEG(const std::string &jpeg_in_file, PCLImage &im_out)
     {
-      std::vector<charT> empty_data;
+      std::vector<uint8_t> empty_data;
       return readJPEG(empty_data,jpeg_in_file,true,im_out);
     }
 
-    template<typename charT> bool
-    pcl::io::JPEGReader<charT>::readJPEG(const std::vector<charT> &jpeg_in_dat, const std::string &file_name, bool read_file, PCLImage &im_out)
+    bool
+    pcl::io::JPEGReader::readJPEG(const std::vector<uint8_t> &jpeg_in_dat, const std::string &file_name, bool read_file, PCLImage &im_out)
     {
       // jpeg structures
       struct jpeg_decompress_struct cinfo;
@@ -194,22 +194,22 @@ namespace pcl{
 
 
     ////////////////////////////// JPEG WRITER /////////////////////////////
-    template<typename charT> bool
-    pcl::io::JPEGWriter<charT>::writeJPEG(const PCLImage &im_in, std::vector<charT> &cdat, int quality)
+    bool
+    pcl::io::JPEGWriter::writeJPEG(const PCLImage &im_in, std::vector<uint8_t> &cdat, int quality)
     {
       std::string fname;
       return writeJPEG(im_in, cdat, fname, quality, false);
     }
 
-    template<typename charT> bool
-      pcl::io::JPEGWriter<charT>::writeJPEG(const PCLImage &im_in, const std::string &file_name, int quality)
+    bool
+      pcl::io::JPEGWriter::writeJPEG(const PCLImage &im_in, const std::string &file_name, int quality)
     {
-      std::vector<charT> em_dat;
+      std::vector<uint8_t> em_dat;
       return writeJPEG(im_in, em_dat, file_name, quality, true);
     }
 
-    template<typename charT> bool
-    pcl::io::JPEGWriter<charT>::writeJPEG(const PCLImage &im_in, std::vector<charT> &cdat, const std::string &file_name, int quality, bool write_file)
+    bool
+    pcl::io::JPEGWriter::writeJPEG(const PCLImage &im_in, std::vector<uint8_t> &cdat, const std::string &file_name, int quality, bool write_file)
     {
       // structures for jpeg compression
       struct jpeg_compress_struct cinfo;
@@ -325,7 +325,7 @@ namespace pcl{
       if (!write_file) 
       {
         cdat.resize(out_data_size);
-        std::copy( (charT *) out_buffer, (charT *) (out_buffer +out_data_size) , cdat.data());
+        std::copy( (uint8_t *) out_buffer, (uint8_t *) (out_buffer +out_data_size) , cdat.data());
 		free(out_buffer);
 		out_buffer = 0;
 	  }
