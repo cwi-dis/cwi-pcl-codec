@@ -4,8 +4,8 @@ stages:
   - deploy
 
 variables:
-  # REL_CWIPC_UTIL: --release v1.5.0_stable
-  REL_CWIPC_UTIL: ""
+  REL_CWIPC_UTIL: --release exp-multicam-tiling-1
+  # REL_CWIPC_UTIL: ""
 build_linux:
   stage: build
   tags:
