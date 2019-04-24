@@ -8,6 +8,7 @@
 #define PCL_INSTALLED // xxxjack temp
 #include <pcl/cloud_codec_v2/point_cloud_codec_v2.h>
 #include <pcl/cloud_codec_v2/impl/point_cloud_codec_v2_impl.hpp>
+#include <pcl/filters/voxel_grid.h>
 
 #include "cwipc_util/api_pcl.h"
 #include "cwipc_util/api.h"
@@ -19,4 +20,5 @@ template class OctreePointCloudCodecV2<cwipc_pcl_point>;
 }
 
 template class RadiusOutlierRemoval<cwipc_pcl_point>;
+template class VoxelGrid<cwipc_pcl_point>;
 }

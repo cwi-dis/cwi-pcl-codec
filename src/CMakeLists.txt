@@ -38,7 +38,7 @@
 cmake_minimum_required(VERSION 3.10.0)
 
 
-add_library(cwipc_codec SHARED cwipc_codec.cpp cwipc_pcl_additions.cpp)
+add_library(cwipc_codec SHARED cwipc_codec.cpp cwipc_filters.cpp cwipc_pcl_additions.cpp)
 
 target_sources(cwipc_codec
 	PRIVATE
