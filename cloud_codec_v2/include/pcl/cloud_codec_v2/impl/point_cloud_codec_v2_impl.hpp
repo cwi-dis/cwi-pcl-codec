@@ -1873,11 +1873,11 @@ namespace pcl{
     template<typename PointT,  typename LeafT, typename BranchT, typename OctreeT> void OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::remove_outliers (vector<PointCloudPtr> &point_clouds, int min_points, double radius, unsigned int debug_level)
     {
       // apply a radius filter to remove outliers
-      typedef OctreePointCloudCompression<PointXYZRGB> colorOctreeCodec;
+      typedef OctreePointCloudCompression<PointT> colorOctreeCodec;
       if(min_points > 0)
       {
         for(int i=0;i<point_clouds.size();i++){
-          colorOctreeCodec::PointCloudPtr l_ptr= colorOctreeCodec::PointCloudPtr(new colorOctreeCodec::PointCloud());
+			typename colorOctreeCodec::PointCloudPtr l_ptr = typename colorOctreeCodec::PointCloudPtr(new typename colorOctreeCodec::PointCloud());
           pcl::RadiusOutlierRemoval<PointT> rorfilter (true); // Initializing with true will allow us to  extract the removed indices
           rorfilter.setInputCloud (point_clouds[i]);
           rorfilter.setRadiusSearch (radius);
@@ -1924,7 +1924,7 @@ namespace pcl{
 	    Eigen::Vector4f min_pt;
         Eigen::Vector4f max_pt;
         
-        pcl::getMinMax3D<pcl::PointXYZRGB>(*point_clouds[k],min_pt,max_pt);
+        pcl::getMinMax3D<PointT>(*point_clouds[k],min_pt,max_pt);
           
         if (debug_level > 3) cerr << "[ " << min_pt.x() << "," << min_pt.y() << "," << min_pt.z() << "]    [" << max_pt.x() << "," << max_pt.y() << "," << max_pt.z() <<"]" << endl;
         
@@ -1983,7 +1983,7 @@ namespace pcl{
         Eigen::Vector4f min_pt_res;
         Eigen::Vector4f max_pt_res;
         
-        pcl::getMinMax3D<pcl::PointXYZRGB>(*(point_clouds[k]),min_pt_res,max_pt_res);
+        pcl::getMinMax3D<PointT>(*(point_clouds[k]),min_pt_res,max_pt_res);
         
         assert(min_pt_res[0] >= 0);
         assert(min_pt_res[1] >= 0);
