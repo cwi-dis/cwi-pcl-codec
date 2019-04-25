@@ -14,6 +14,7 @@
 
 #include <pcl/point_cloud.h>
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/exceptions.h>
 
 cwipc *cwipc_downsample(cwipc *pc, float voxelsize)
 {
@@ -22,20 +23,29 @@ cwipc *cwipc_downsample(cwipc *pc, float voxelsize)
 	if (src == NULL) return NULL;
 	cwipc_pcl_pointcloud dst = new_cwipc_pcl_pointcloud();
 	// Step 1 - Voxelize
-	pcl::VoxelGrid<cwipc_pcl_point> grid;
-	grid.setInputCloud(src);
-	grid.setLeafSize(voxelsize, voxelsize, voxelsize);
-	grid.setSaveLeafLayout(true);
-	grid.filter(*dst);
-	// Step 2 - Clear tile numbers in destination
-	for (auto dstpt : dst->points) {
-		dstpt.a = 0;
+	try {
+		pcl::VoxelGrid<cwipc_pcl_point> grid;
+		grid.setInputCloud(src);
+		grid.setLeafSize(voxelsize, voxelsize, voxelsize);
+		grid.setSaveLeafLayout(true);
+		grid.filter(*dst);
+		// Step 2 - Clear tile numbers in destination
+		for (auto dstpt : dst->points) {
+			dstpt.a = 0;
+		}
+		// Step 3 - Do OR of all contribution point tile numbers in destination.
+		for (auto srcpt : src->points) {
+			auto dstIndex = grid.getCentroidIndex(srcpt);
+			auto dstpt = dst->points[dstIndex];
+			dstpt.a |= srcpt.a;
+		}
+	} catch (pcl::PCLException& e) {
+		std::cerr << "cwipc_downsample: PCL exception: " << e.detailedMessage() << std::endl;
+		return NULL;
 	}
-	// Step 3 - Do OR of all contribution point tile numbers in destination.
-	for (auto srcpt : src->points) {
-		auto dstIndex = grid.getCentroidIndex(srcpt);
-		auto dstpt = dst->points[dstIndex];
-		dstpt.a |= srcpt.a;
+	catch (std::exception& e) {
+		std::cerr << "cwipc_downsample: std exception: " << e.what() << std::endl;
+		return NULL;	
 	}
 	return cwipc_from_pcl(dst, pc->timestamp(), NULL);
 }
