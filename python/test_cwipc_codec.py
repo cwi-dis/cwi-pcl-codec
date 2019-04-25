@@ -133,6 +133,58 @@ class TestApi(unittest.TestCase):
         pc.free()     
         pc2.free()   
 
+    def test_tilefilter(self):
+        """Check that the tilefilter returns the same number of points if not filtering, and correct number if filtering"""
+        gen = cwipc.cwipc_synthetic()
+        pc_orig = gen.get()
+        print('xxxjack 0')
+        pc_filtered = cwipc.codec.cwipc_tilefilter(pc_orig, 0)
+        self.assertEqual(len(pc_orig.get_points()), len(pc_filtered.get_points()))
+        print('xxxjack 1')
+        pc_filtered_1 = cwipc.codec.cwipc_tilefilter(pc_orig, 1)
+        print('xxxjack 2')
+        pc_filtered_2 = cwipc.codec.cwipc_tilefilter(pc_orig, 2)
+        self.assertEqual(len(pc_orig.get_points()), len(pc_filtered_1.get_points()) + len(pc_filtered_2.get_points()))
+        print('xxxjack done')
+        gen.free()
+        pc_orig.free()
+        pc_filtered.free()
+        pc_filtered_1.free()
+        pc_filtered_2.free()
+        
+    def test_downsample(self):
+        """Check that the downsampler returns at most the same number of points and eventually returns 1"""
+        gen = cwipc.cwipc_synthetic()
+        pc_orig = gen.get()
+        count_orig = len(pc_orig.get_points())
+        count_prev = count_orig
+        factor = 1
+        while True:
+            print('xxxjack going down factor=', factor)
+            pc_filtered = cwipc.codec.cwipc_downsample(pc_orig, factor)
+            count_filtered = len(pc_filtered.get_points())
+            self.assertGreaterEqual(count_filtered, 1)
+            self.assertLessEqual(count_filtered, count_orig)
+            count_prev = count_filtered
+            pc_filtered.free()
+            if count_filtered == count_orig:
+                break
+            factor = factor / 10
+        while True:
+            print('xxxjack up down factor=', factor)
+            pc_filtered = cwipc.codec.cwipc_downsample(pc_orig, factor)
+            count_filtered = len(pc_filtered.get_points())
+            self.assertGreaterEqual(count_filtered, 1)
+            self.assertLessEqual(count_filtered, count_prev)
+            count_prev = count_filtered
+            if count_filtered == 1:
+                break
+            factor = factor * 10
+            self.assertLessEqual(factor, 10000)
+            pc_filtered.free()
+        gen.free()
+        pc_orig.free()
+        
     def _verify_pointcloud(self, pc):
         points = pc.get_points()
         self.assertGreater(len(points), 1)
