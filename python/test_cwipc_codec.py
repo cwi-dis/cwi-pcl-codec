@@ -102,14 +102,13 @@ class TestApi(unittest.TestCase):
         pc3.free()
         
     def test_cwipc_encoder_octree_depth(self):
-        """Test that we can encode a ply file multiple times and the results are the same, and different for different timestamps"""
+        """Test that octree_bits encoder param makes a significant difference"""
         pc = cwipc.cwipc_read(PLY_FILENAME, 1234)
         decoder = cwipc.codec.cwipc_new_decoder()
         depth = 11
         decoded_npoints_per_depth = {}
         while depth >= 0:
-            params = cwipc.codec.cwipc_encoder_params(1, False, 1, 0, depth, 8, 85, 16)
-            encoder = cwipc.codec.cwipc_new_encoder(params=params)
+            encoder = cwipc.codec.cwipc_new_encoder(octree_bits=depth)
             encoder.feed(pc)
             encoded_data = encoder.get_bytes()
             encoded_size = len(encoded_data)
@@ -119,7 +118,6 @@ class TestApi(unittest.TestCase):
             points = decoded_pc.get_points()
             decoded_npoints = len(points)
             decoded_npoints_per_depth[depth] = decoded_npoints
-            print('xxxjack depth=', depth, ' encoded size=', encoded_size, 'decoded npoints=', decoded_npoints)
             encoder.free()
             decoded_pc.free()
             depth = depth - 1
@@ -130,6 +128,24 @@ class TestApi(unittest.TestCase):
             self.assertLessEqual(decoded_npoints_per_depth[0], 16)
         else:
             self.assertLessEqual(decoded_npoints_per_depth[0], decoded_npoints_per_depth[11]/10000)
+        pc.free()
+        
+    def test_cwipc_encoder_jpeg_quality(self):
+        """Test that jpeg_quality encoder param makes a difference"""
+        pc = cwipc.cwipc_read(PLY_FILENAME, 1234)
+        quality = 90
+        prev_size = None
+        while quality >= 10:
+            params = cwipc.codec.cwipc_new_encoder_params(jpeg_quality=quality)
+            encoder = cwipc.codec.cwipc_new_encoder(params=params)
+            encoder.feed(pc)
+            encoded_data = encoder.get_bytes()
+            encoded_size = len(encoded_data)
+            if prev_size != None:
+                self.assertLess(encoded_size, prev_size)
+            prev_size = encoded_size
+            encoder.free()
+            quality = quality - 10
         pc.free()
         
     def test_cwipc_decode_cwicpc(self):
