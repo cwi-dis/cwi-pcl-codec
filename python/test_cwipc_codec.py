@@ -180,6 +180,25 @@ class TestApi(unittest.TestCase):
         pc.free()     
         pc2.free()   
 
+    def test_cwipc_codec_roundtrip_empty(self):
+        """Check that we can roundtrip an empty pointcloud"""
+        pc = cwipc.cwipc_from_points([], 0)
+        encoder = cwipc.codec.cwipc_new_encoder()
+        decoder = cwipc.codec.cwipc_new_decoder()
+        encoder.feed(pc)
+        data = encoder.get_bytes()
+        self.assertNotEqual(len(data), 0)
+        decoder.feed(data)
+        pc2 = decoder.get()
+        points = pc.get_points()
+        points2 = pc2.get_points()
+        self.assertEqual(len(points), 0)
+        self.assertEqual(len(points2), 0)
+        encoder.free()
+        decoder.free()
+        pc.free()     
+        pc2.free()   
+
     def test_tilefilter(self):
         """Check that the tilefilter returns the same number of points if not filtering, and correct number if filtering"""
         gen = cwipc.cwipc_synthetic()
