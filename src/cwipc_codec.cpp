@@ -151,6 +151,15 @@ public:
         cwipc_pcl_pointcloud decpc = new_cwipc_pcl_pointcloud();
         uint64_t tmStmp = 0;
         bool ok = decoder_V2_->decodePointCloud(istream, decpc, tmStmp);
+        if (decpc->size() == 1) {
+            // Special case: single point (0,0,0,0,0,0) signals an empty pointcloud
+            cwipc_pcl_point& pt(decpc->at(0));
+            if (abs(pt.x) < 0.01 && abs(pt.y) < 0.01 && abs(pt.z) < 0.01
+                && pt.r < 2 && pt.g < 2 && pt.b < 2
+                ) {
+                decpc->clear();
+            }
+        }
         if (ok) {
             m_result = cwipc_from_pcl(decpc, tmStmp, NULL);
         } else {
