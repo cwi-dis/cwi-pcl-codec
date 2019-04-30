@@ -64,6 +64,12 @@ public:
                   ));
         encoder_V2_->setMacroblockSize(m_params.macroblock_size);
         cwipc_pcl_pointcloud pcl_pc = pc->access_pcl_pointcloud();
+        if (pcl_pc->size() == 0) {
+        	// Special case: if the point cloud is empty we compress a point cloud with a single black point at 0,0,0
+        	pcl_pc = new_cwipc_pcl_pointcloud();
+        	cwipc_pcl_point dummyPoint;
+        	pcl_pc->push_back(dummyPoint);
+        }
         encoder_V2_->encodePointCloud(pcl_pc, comp_frame);
         /* xxxjack should lock here */
         if (m_result) {
