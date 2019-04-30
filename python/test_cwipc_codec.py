@@ -214,6 +214,15 @@ class TestApi(unittest.TestCase):
         pc_filtered_1.free()
         pc_filtered_2.free()
         
+    def test_tilefilter_empty(self):
+        """Check that the tilefilter returns an empty pointcloud when passed an empty pointcloud"""
+        pc_orig = cwipc.cwipc_from_points([], 0)
+        pc_filtered = cwipc.codec.cwipc_tilefilter(pc_orig, 0)
+        self.assertEqual(len(pc_orig.get_points()), 0)
+        self.assertEqual(len(pc_filtered.get_points()), 0)
+        pc_orig.free()
+        pc_filtered.free()
+        
     def test_downsample(self):
         """Check that the downsampler returns at most the same number of points and eventually returns 1"""
         gen = cwipc.cwipc_synthetic()
@@ -234,6 +243,15 @@ class TestApi(unittest.TestCase):
         gen.free()
         pc_orig.free()
         
+    def test_downsample_empty(self):
+        """Check that the downsample returns an empty pointcloud when passed an empty pointcloud"""
+        pc_orig = cwipc.cwipc_from_points([], 0)
+        pc_filtered = cwipc.codec.cwipc_downsample(pc_orig, 1)
+        self.assertEqual(len(pc_orig.get_points()), 0)
+        self.assertEqual(len(pc_filtered.get_points()), 0)
+        pc_orig.free()
+        pc_filtered.free()
+                
     def _verify_pointcloud(self, pc):
         points = pc.get_points()
         self.assertGreater(len(points), 1)
