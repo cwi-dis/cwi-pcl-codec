@@ -164,7 +164,8 @@ class TestApi(unittest.TestCase):
         
     def test_cwipc_codec_roundtrip(self):
         """Check that we can roundtrip encoder-decoder and get at most as many points back"""
-        pc = cwipc.cwipc_read(PLY_FILENAME, 1234)
+        timestamp = 1234
+        pc = cwipc.cwipc_read(PLY_FILENAME, timestamp)
         encoder = cwipc.codec.cwipc_new_encoder()
         decoder = cwipc.codec.cwipc_new_decoder()
         encoder.feed(pc)
@@ -175,6 +176,7 @@ class TestApi(unittest.TestCase):
         points = pc.get_points()
         points2 = pc2.get_points()
         self.assertGreaterEqual(len(points), len(points2))
+        self.assertEqual(pc2.timestamp(), timestamp)
         encoder.free()
         decoder.free()
         pc.free()     
@@ -182,7 +184,8 @@ class TestApi(unittest.TestCase):
 
     def test_cwipc_codec_roundtrip_empty(self):
         """Check that we can roundtrip an empty pointcloud"""
-        pc = cwipc.cwipc_from_points([], 0)
+        timestamp = 5678
+        pc = cwipc.cwipc_from_points([], timestamp)
         encoder = cwipc.codec.cwipc_new_encoder()
         decoder = cwipc.codec.cwipc_new_decoder()
         encoder.feed(pc)
@@ -194,6 +197,7 @@ class TestApi(unittest.TestCase):
         points2 = pc2.get_points()
         self.assertEqual(len(points), 0)
         self.assertEqual(len(points2), 0)
+        self.assertEqual(pc2.timestamp(), timestamp)
         encoder.free()
         decoder.free()
         pc.free()     
@@ -208,6 +212,8 @@ class TestApi(unittest.TestCase):
         pc_filtered_1 = cwipc.codec.cwipc_tilefilter(pc_orig, 1)
         pc_filtered_2 = cwipc.codec.cwipc_tilefilter(pc_orig, 2)
         self.assertEqual(len(pc_orig.get_points()), len(pc_filtered_1.get_points()) + len(pc_filtered_2.get_points()))
+        self.assertEqual(pc_orig.timestamp(), pc_filtered_1.timestamp())
+        self.assertEqual(pc_orig.timestamp(), pc_filtered_2.timestamp())
         gen.free()
         pc_orig.free()
         pc_filtered.free()
@@ -235,6 +241,7 @@ class TestApi(unittest.TestCase):
             count_filtered = len(pc_filtered.get_points())
             self.assertGreaterEqual(count_filtered, 1)
             self.assertLessEqual(count_filtered, count_orig)
+            self.assertEqual(pc_orig.timestamp(), pc_filtered.timestamp())
             count_prev = count_filtered
             pc_filtered.free()
             if count_filtered > count_orig/2:
