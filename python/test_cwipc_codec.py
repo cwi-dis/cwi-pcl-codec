@@ -164,7 +164,7 @@ class TestApi(unittest.TestCase):
         
     def test_cwipc_codec_roundtrip(self):
         """Check that we can roundtrip encoder-decoder and get at most as many points back"""
-        timestamp = 1234
+        timestamp = 0x1122334455667788
         pc = cwipc.cwipc_read(PLY_FILENAME, timestamp)
         encoder = cwipc.codec.cwipc_new_encoder()
         decoder = cwipc.codec.cwipc_new_decoder()
@@ -184,7 +184,7 @@ class TestApi(unittest.TestCase):
 
     def test_cwipc_codec_roundtrip_empty(self):
         """Check that we can roundtrip an empty pointcloud"""
-        timestamp = 5678
+        timestamp = 0x2233445566778899
         pc = cwipc.cwipc_from_points([], timestamp)
         encoder = cwipc.codec.cwipc_new_encoder()
         decoder = cwipc.codec.cwipc_new_decoder()
