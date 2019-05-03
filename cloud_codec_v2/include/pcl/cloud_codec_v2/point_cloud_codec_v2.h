@@ -92,8 +92,8 @@ namespace pcl{
 
         /** \brief Constructor
         * \param compressionProfile_arg:  define compression profile
-        * \param octreeResolution_arg:  octree resolution at lowest octree level
         * \param pointResolution_arg:  precision of point coordinates
+        * \param octreeResolution_arg:  octree resolution at lowest octree level
         * \param doVoxelGridDownDownSampling_arg:  voxel grid filtering
         * \param iFrameRate_arg:  i-frame encoding rate
         * \param doColorEncoding_arg:  enable/disable color coding
