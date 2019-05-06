@@ -54,24 +54,32 @@ struct cwipc_encoder_params
 
 #ifdef __cplusplus
 
-/** \brief Pointcloud encoder, abstract C++ interface.
+/** \brief Pointcloud encoder input interface.
  *
- * This interface is provided by pointcloud compressors. The caller
- * feeds in pointclouds (as `cwipc` objects) and it returns memory blocks
- * with compressed pointcloud data.
+ * This interface is provided by encoders and multiencoders, it allows
+ * feeding pointclouds into the encoder(s).
  */
-class _CWIPC_CODEC_EXPORT cwipc_encoder
+class cwipc_encoder_in
 {
 public:
-    virtual ~cwipc_encoder() {}
+    virtual ~cwipc_encoder_in() {}
 
-    /** \brief Deallocate the encoder.
+    /** \brief Encode a pointcloud.
      *
-     * Because the encoder may be used in a different implementation
-     * language or DLL than where it is implemented we do not count on refcounting
-     * and such. Call this method if you no longer need it.
+     * This call presents the encoder with a new pointcloud to encode.
      */
-    virtual void free() = 0;
+    virtual void feed(cwipc *pc) = 0;
+};
+
+/** \brief Pointcloud encoder output interface.
+ *
+ * This interface is provided by encoders and multiencoder children, it allows
+ * obtaining compressed bytes from the encoder.
+ */
+class cwipc_encoder_out
+{
+public:
+    virtual ~cwipc_encoder_out() {}
 
     /** \brief Return true if no more encoded buffers are forthcoming.
      */
@@ -86,13 +94,7 @@ public:
      * one becomes available.
      */
     virtual bool available(bool wait) = 0;
-    
-    /** \brief Encode a pointcloud.
-     *
-     * This call presents the encoder with a new pointcloud to encode.
-     */
-    virtual void feed(cwipc *pc) = 0;
-    
+
     /** \brief Return size (in bytes) of compressed data available.
      *
      * The caller should first call `available()` to check that compressed
@@ -117,6 +119,26 @@ public:
      virtual bool at_gop_boundary() = 0;
 };
 
+/** \brief Pointcloud encoder, abstract C++ interface.
+ *
+ * This interface is provided by pointcloud compressors. The caller
+ * feeds in pointclouds (as `cwipc` objects) and it returns memory blocks
+ * with compressed pointcloud data.
+ */
+class cwipc_encoder : public cwipc_encoder_in, public cwipc_encoder_out
+{
+public:
+    virtual ~cwipc_encoder() {}
+
+    /** \brief Deallocate the encoder.
+     *
+     * Because the encoder may be used in a different implementation
+     * language or DLL than where it is implemented we do not count on refcounting
+     * and such. Call this method if you no longer need it.
+     */
+    virtual void free() = 0;
+};
+
 /** \brief Pointcloud decoder, abstract C++ interface.
  *
  * This interface is provided by pointcloud decompressors. The caller
@@ -124,7 +146,7 @@ public:
  * adheres to the `cwipc_source` interface and produces `cwipc` objects on the
  * output side.
  */
-class _CWIPC_CODEC_EXPORT cwipc_decoder : public cwipc_source
+class cwipc_decoder : public cwipc_source
 {
 public:
     virtual ~cwipc_decoder() {}
