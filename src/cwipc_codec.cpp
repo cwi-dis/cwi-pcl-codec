@@ -38,6 +38,7 @@ public:
     ~cwipc_encoder_impl() {}
     void free() {
         if (m_result) ::free(m_result);
+        m_encoder = NULL;
         m_result = NULL;
         m_result_size = 0;
     };
@@ -49,6 +50,16 @@ public:
     bool at_gop_boundary() { return m_encoder == NULL; };
 
     void feed(cwipc *pc) {
+    	cwipc *newpc = NULL;
+    	// Apply tile filtering, if needed
+    	if (m_params.tilenumber) {
+    		newpc = cwipc_tilefilter(pc, m_params.tilenumber);
+    		if (newpc == NULL) {
+    			std::cerr << "cwipc_encoder: tilefilter failed" << std::endl;
+    			return;
+			}
+			pc = newpc;
+		}
         std::stringstream comp_frame;
 		// Allocate an encoder if none is available (we are at the beginning of a GOP)
 		if (m_encoder == NULL)
@@ -78,6 +89,10 @@ public:
         m_result_size = comp_frame.str().length();
         m_result = (void *)malloc(m_result_size);
         comp_frame.str().copy((char *)m_result, m_result_size);
+        if (newpc) {
+        	// Free a temporary pointcloud we allocated
+        	newpc->free();
+		}
     };
     
     size_t get_encoded_size() { return m_result_size; };
@@ -124,7 +139,58 @@ private:
     int m_remaining_frames_in_gop;
 };
 
-class _CWIPC_CODEC_EXPORT cwipc_decoder_impl : public cwipc_decoder
+class cwipc_encodergroup_impl : public cwipc_encodergroup
+{
+public:
+    cwipc_encodergroup_impl()
+    :	m_voxelsize(-1)
+    {
+	}
+
+    ~cwipc_encodergroup_impl() {}
+
+    void free() {
+    	for (auto enc: m_encoders) {
+    		enc->free();
+		}
+		m_encoders.clear();
+    };
+
+	void feed(cwipc *pc) {
+		cwipc *newpc = NULL;
+		if (m_voxelsize >= 0) {
+			newpc = cwipc_downsample(pc, m_voxelsize);
+			if (newpc == NULL) {
+				std::cerr << "cwipc_encodergroup: cwipc_downsample failed" << std::endl;
+				return;
+			}
+		}
+		for (auto enc : m_encoders) {
+			enc->feed(pc);
+		}
+		if (newpc) {
+			// Free temporary pointcloud, if we allocated one
+			newpc->free();
+		}
+	};
+
+	cwipc_encoder *addencoder(int version, cwipc_encoder_params* params, char **errorMessage) {
+		if (m_voxelsize >= 0 && m_voxelsize != params->voxelsize) {
+			*errorMessage = (char *)"cwipc_encodergroup: voxelsize must be the same for all encoders";
+			return NULL;
+		}
+		m_voxelsize = params->voxelsize;
+		cwipc_encoder *newEncoder = cwipc_new_encoder(version, params, errorMessage);
+		if (newEncoder == NULL) return NULL;
+		m_encoders.push_back(newEncoder);
+		return newEncoder;
+	};
+private:
+	std::vector<cwipc_encoder *> m_encoders;
+	float m_voxelsize;
+};
+
+class cwipc_decoder_impl : public cwipc_decoder
 {
 public:
     cwipc_decoder_impl() 
@@ -248,6 +314,17 @@ bool cwipc_encoder_at_gop_boundary(cwipc_encoder *obj) {
     return obj->at_gop_boundary();
 }
 
+cwipc_encodergroup *cwipc_new_encodergroup() {
+	return new cwipc_encodergroup_impl();
+};
+
+cwipc_encoder *cwipc_encodergroup_addencoder(cwipc_encodergroup *obj, int version, cwipc_encoder_params* params, char **errorMessage) {
+	return obj->addencoder(version, params, errorMessage);
+}
+
+void cwipc_encodergroup_feed(cwipc_encodergroup *obj, cwipc* pc) {
+	return obj->feed(pc);
+}
 
 cwipc_decoder* cwipc_new_decoder() {
     return new cwipc_decoder_impl();
