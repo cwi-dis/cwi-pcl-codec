@@ -117,7 +117,7 @@ public:
      virtual bool at_gop_boundary() = 0;
 };
 
-/** \brief Pointcloud encoder, abstract C++ interface.
+/** \brief Pointcloud decoder, abstract C++ interface.
  *
  * This interface is provided by pointcloud decompressors. The caller
  * feeds in memory blocks with compressed pointcloud data. The interface
