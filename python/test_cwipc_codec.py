@@ -268,6 +268,26 @@ class TestApi(unittest.TestCase):
         pc_orig.free()
         pc_filtered.free()
                 
+    def test_cwipc_multiencoder_octree_depth(self):
+        """Test that a multiencoder setup for 2 octree depths returns sensible pointclouds"""
+        gen = cwipc.cwipc_synthetic()
+        pc_orig = gen.get()
+        count_orig = len(pc_orig.get_points())
+        group = cwipc.codec.cwipc_new_encodergroup()
+        enc_high = group.addencoder(octree_bits=9)
+        enc_low = group.addencoder(octree_bits=5)
+        group.feed(pc_orig)
+        self.assertTrue(enc_high.available(False))
+        self.assertTrue(enc_low.available(False))
+
+        data_high = enc_high.get_bytes()
+        data_low = enc_low.get_bytes()
+        self.assertLess(len(data_low), len(data_high))
+        
+        # xxxjack todo: decompress both and compare
+        group.free()
+        pc_orig.free()        
+
     def _verify_pointcloud(self, pc):
         points = pc.get_points()
         self.assertGreater(len(points), 1)

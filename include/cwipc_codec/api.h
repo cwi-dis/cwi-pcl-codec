@@ -280,6 +280,14 @@ _CWIPC_CODEC_EXPORT bool cwipc_encoder_copy_data(cwipc_encoder *obj, void *buffe
  */
 _CWIPC_CODEC_EXPORT cwipc_encodergroup *cwipc_new_encodergroup();
 
+/** \brief Deallocate the encoder group (C interface).
+ * \param obj The cwipc_encoder object.
+ *
+ * Free the encoder group, including all encoders within the group.
+ */
+_CWIPC_CODEC_EXPORT void cwipc_encodergroup_free(cwipc_encodergroup *obj);
+
+
 /** \brief Add a new encoder to an encodergroup.
  * \param version Pass in CWIPC_ENCODER_PARAM_VERSION to ensure runtime compatibility.
  * \param params Pointer to a structure with parameters than govern the encoding process.

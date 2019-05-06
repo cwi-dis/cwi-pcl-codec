@@ -158,7 +158,7 @@ public:
 
 	void feed(cwipc *pc) {
 		cwipc *newpc = NULL;
-		if (m_voxelsize >= 0) {
+		if (m_voxelsize > 0) {
 			newpc = cwipc_downsample(pc, m_voxelsize);
 			if (newpc == NULL) {
 				std::cerr << "cwipc_encodergroup: cwipc_downsample failed" << std::endl;
@@ -317,6 +317,10 @@ bool cwipc_encoder_at_gop_boundary(cwipc_encoder *obj) {
 cwipc_encodergroup *cwipc_new_encodergroup() {
 	return new cwipc_encodergroup_impl();
 };
+
+void cwipc_encodergroup_free(cwipc_encodergroup *obj) {
+    obj->free();
+}
 
 cwipc_encoder *cwipc_encodergroup_addencoder(cwipc_encodergroup *obj, int version, cwipc_encoder_params* params, char **errorMessage) {
 	return obj->addencoder(version, params, errorMessage);
