@@ -54,32 +54,34 @@ struct cwipc_encoder_params
 
 #ifdef __cplusplus
 
-/** \brief Pointcloud encoder input interface.
+/** \brief Pointcloud encoder, abstract C++ interface.
  *
- * This interface is provided by encoders and multiencoders, it allows
- * feeding pointclouds into the encoder(s).
+ * This interface is provided by pointcloud compressors. The caller
+ * feeds in pointclouds (as `cwipc` objects) and it returns memory blocks
+ * with compressed pointcloud data.
  */
-class cwipc_encoder_in
+class cwipc_encoder
 {
 public:
-    virtual ~cwipc_encoder_in() {}
+    virtual ~cwipc_encoder() {}
+
+    /** \brief Deallocate the encoder.
+     *
+     * Because the encoder may be used in a different implementation
+     * language or DLL than where it is implemented we do not count on refcounting
+     * and such. Call this method if you no longer need it.
+     *
+     * Do not call on an encoder in an encodergroup, call the group free() in stead.
+     */
+    virtual void free() = 0;
 
     /** \brief Encode a pointcloud.
      *
      * This call presents the encoder with a new pointcloud to encode.
+     * Do *not* call this method an on encoder that is part of an encoder group,
+     * call the group feed() method in stead.
      */
     virtual void feed(cwipc *pc) = 0;
-};
-
-/** \brief Pointcloud encoder output interface.
- *
- * This interface is provided by encoders and multiencoder children, it allows
- * obtaining compressed bytes from the encoder.
- */
-class cwipc_encoder_out
-{
-public:
-    virtual ~cwipc_encoder_out() {}
 
     /** \brief Return true if no more encoded buffers are forthcoming.
      */
@@ -121,22 +123,41 @@ public:
 
 /** \brief Pointcloud encoder, abstract C++ interface.
  *
- * This interface is provided by pointcloud compressors. The caller
- * feeds in pointclouds (as `cwipc` objects) and it returns memory blocks
- * with compressed pointcloud data.
+ * This interface is provided by group of pointcloud compressors. The caller
+ * feeds in pointclouds (as `cwipc` objects). Each pointcloud is fed to every
+ * encoder in the group, and these encoders return the compressed pointcloud
+ * data.
  */
-class cwipc_encoder : public cwipc_encoder_in, public cwipc_encoder_out
+class cwipc_encodergroup
 {
 public:
-    virtual ~cwipc_encoder() {}
+    virtual ~cwipc_encodergroup() {}
 
-    /** \brief Deallocate the encoder.
+    /** \brief Deallocate the multiencoder.
      *
      * Because the encoder may be used in a different implementation
      * language or DLL than where it is implemented we do not count on refcounting
      * and such. Call this method if you no longer need it.
+     *
+     * Note that this frees all encoders in the group as well.
      */
     virtual void free() = 0;
+
+    /** \brief Encode a pointcloud.
+     *
+     * This call presents each encoder in the group with a new pointcloud to encode.
+     */
+    virtual void feed(cwipc *pc) = 0;
+    
+	/** \brief Add a new encoder to an encodergroup.
+	 * \param version Pass in CWIPC_ENCODER_PARAM_VERSION to ensure runtime compatibility.
+	 * \param params Pointer to a structure with parameters than govern the encoding process.
+	 * \param errorMessage Pointer to a string that will be filled with a message in case of errors.
+	 *
+	 * The returned object is the cwipc_encoder. It will return compressed pointcloud data
+	 * for each pointcloud fed into the group.
+	 */
+	virtual cwipc_encoder *addencoder(int version, cwipc_encoder_params* params, char **errorMessage) = 0;
 };
 
 /** \brief Pointcloud decoder, abstract C++ interface.
@@ -170,6 +191,10 @@ typedef struct _cwipc_encoder {
     int _dummy;
 } cwipc_encoder;
 
+typedef struct _cwipc_encodergroup {
+    int _dummy;
+} cwipc_encodergroup;
+
 typedef struct _cwipc_decoder {
     cwipc_source source;
 } cwipc_decoder;
@@ -183,6 +208,7 @@ extern "C" {
  *
  * \param version Pass in CWIPC_ENCODER_PARAM_VERSION to ensure runtime compatibility.
  * \param params Pointer to a structure with parameters than govern the encoding process.
+ * \param errorMessage Pointer to a string that will be filled with a message in case of errors.
  * \return A cwipc_encoder object.
  */
 _CWIPC_CODEC_EXPORT cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params* params, char **errorMessage);
@@ -246,6 +272,32 @@ _CWIPC_CODEC_EXPORT bool cwipc_encoder_copy_data(cwipc_encoder *obj, void *buffe
  * \return true if the next compressed pointcloud should begin a new GOP.
  */
  _CWIPC_CODEC_EXPORT bool cwipc_encoder_at_gop_boundary(cwipc_encoder *obj);
+
+/** \brief Create a new encoder group.
+ *
+ * Creates a group of encoders. Initially the group is empty, add
+ * encoders by calling group->addencoder().
+ */
+_CWIPC_CODEC_EXPORT cwipc_encodergroup *cwipc_new_encodergroup();
+
+/** \brief Add a new encoder to an encodergroup.
+ * \param version Pass in CWIPC_ENCODER_PARAM_VERSION to ensure runtime compatibility.
+ * \param params Pointer to a structure with parameters than govern the encoding process.
+ * \param errorMessage Pointer to a string that will be filled with a message in case of errors.
+ *
+ * The returned object is the cwipc_encoder. It will return compressed pointcloud data
+ * for each pointcloud fed into the group.
+ */
+_CWIPC_CODEC_EXPORT cwipc_encoder *cwipc_encodergroup_addencoder(cwipc_encodergroup *obj, int version, cwipc_encoder_params* params, char **errorMessage);
+
+/** \brief Encode a pointcloud (C interface).
+ * \param obj The cwipc_encodergroup object.
+ * \param pc The pointcloud to encode.
+ *
+ * This call presents the group of encoders with a new pointcloud to encode.
+ */
+_CWIPC_CODEC_EXPORT void cwipc_encodergroup_feed(cwipc_encodergroup *obj, cwipc* pc);
+
 
 /** \brief Create pointcloud decompressor.
  * \returns cwipc_decoder object representing the decompressor.
