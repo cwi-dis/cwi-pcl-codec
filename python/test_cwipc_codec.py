@@ -49,6 +49,15 @@ class TestApi(unittest.TestCase):
         self.assertFalse(encoder.available(True))
         encoder.free()
         
+    def test_cwipc_new_encoder_bad_parameters(self):
+        """Do we get exceptions when creating an encoder with unimplemented parameters?"""
+        with self.assertRaises(cwipc.CwipcError):
+            encoder = cwipc.codec.cwipc_new_encoder(do_inter_frame=True)
+        with self.assertRaises(cwipc.CwipcError):
+            encoder = cwipc.codec.cwipc_new_encoder(gop_size=0)
+        with self.assertRaises(cwipc.CwipcError):
+            encoder = cwipc.codec.cwipc_new_encoder(gop_size=2)
+        
     def test_cwipc_new_decoder(self):
         """Can we create and free a cwipc_decoder object"""
         decoder = cwipc.codec.cwipc_new_decoder()

@@ -28,18 +28,18 @@ int main(int argc, char** argv)
     // Compress
     //
     cwipc_encoder_params param;
-	param.num_threads = 1;
 	param.do_inter_frame = false;
 	param.gop_size = 1;
-	param.exp_factor = 0;
-	param.octree_bits = 7;
-	param.color_bits = 8;
+	param.exp_factor = 1.0;
+	param.octree_bits = 9;
 	param.jpeg_quality = 85;
 	param.macroblock_size = 16;
-	
-    cwipc_encoder *encoder = cwipc_new_encoder(CWIPC_ENCODER_PARAM_VERSION, NULL);
+	param.tilenumber = 0;
+
+	char *errorString;
+    cwipc_encoder *encoder = cwipc_new_encoder(CWIPC_ENCODER_PARAM_VERSION, &param, &errorString);
     if (encoder == NULL) {
-    	std::cerr << argv[0] << ": Could not create encoder" << std::endl;
+    	std::cerr << argv[0] << ": Could not create encoder: " << errorString << std::endl;
     	return 1;
     }
     encoder->feed(pc);

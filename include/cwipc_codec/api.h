@@ -33,14 +33,14 @@
  */
 struct cwipc_encoder_params
 {
-    int num_threads;        /**< (unused in this version) How many concurrent threads to use. */
-    bool do_inter_frame;	/**< (unused in this version) do inter-frame compression */
-    int gop_size;			/**< (unused in this version) spacing of I frames for inter-frame compression */
-    double exp_factor;		/**< (unused in this version) Must be 1.0. Bounding box expansion factor for inter-frame coding */
+    bool do_inter_frame;	/**< (unused in this version, must be false) do inter-frame compression */
+    int gop_size;			/**< (unused in this version, ignored) spacing of I frames for inter-frame compression */
+    float exp_factor;		/**< (unused in this version, ignored). Bounding box expansion factor for inter-frame coding */
     int octree_bits;		/**< Octree depth: a fully populated octree will have 8**octree_bits points */
-    int color_bits;			/**< Color resolution: Must set to 8 */
     int jpeg_quality;		/**< JPEG encoding quality */
-    int macroblock_size;	/**< (unused in this version) macroblock size for inter-frame prediction */
+    int macroblock_size;	/**< (unused in this version, ignored) macroblock size for inter-frame prediction */
+    int tilenumber;			/**< 0 for encoding full pointclouds, > 0 for selecting a single tile to encode */
+    float voxelsize;		/**< If non-zero run voxelizer with this cell size to get better tiled pointcloud */
 };
 
 /** \brief Version of cwipc_encoder_params structure.
@@ -50,7 +50,7 @@ struct cwipc_encoder_params
  * also pass this version number, to ensure your code is compatible with this version
  * of the library.
  */
-#define CWIPC_ENCODER_PARAM_VERSION 0x20190330
+#define CWIPC_ENCODER_PARAM_VERSION 0x20190506
 
 #ifdef __cplusplus
 
@@ -163,7 +163,7 @@ extern "C" {
  * \param params Pointer to a structure with parameters than govern the encoding process.
  * \return A cwipc_encoder object.
  */
-_CWIPC_CODEC_EXPORT cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params* params);
+_CWIPC_CODEC_EXPORT cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params* params, char **errorMessage);
 
 /** \brief Deallocate the encoder (C interface).
  * \param obj The cwipc_encoder object.

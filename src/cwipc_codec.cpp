@@ -17,6 +17,11 @@
 
 using namespace std;
 
+// Some parameters that will eventually be customizable again
+const int num_threads = 1;
+const bool downdownsampling = false;
+const int iframerate = 1;
+
 class cwipc_encoder_impl : public cwipc_encoder
 {
 public:
@@ -24,7 +29,9 @@ public:
     :   m_params(*_params),
         m_result(NULL),
         m_result_size(0)
-    {}
+    {
+
+	}
     
     ~cwipc_encoder_impl() {}
     void free() {
@@ -50,17 +57,17 @@ public:
                   false,
                   point_resolution,
                   octree_resolution,
-                  true, // no intra voxel coding in this first version of the codec
-                  0, // i_frame_rate,
-                  m_params.color_bits > 0 ? true : false,
-                  m_params.color_bits,
-                  1,
+                  downdownsampling, // no intra voxel coding in this first version of the codec
+                  iframerate, // i_frame_rate,
+                  true, // do color encoding
+                  8, // color bits
+                  1, // color coding type
                   pc->timestamp(),
                   false,
                   false, // not implemented
                   false, // do_connectivity_coding_ not implemented
                   m_params.jpeg_quality,
-                  m_params.num_threads
+                  num_threads
                   ));
         encoder_V2_->setMacroblockSize(m_params.macroblock_size);
         cwipc_pcl_pointcloud pcl_pc = pc->access_pcl_pointcloud();
@@ -117,12 +124,10 @@ public:
     void feed(void *buffer, size_t bufferSize) {
         cwipc_encoder_params par;
         //Default codec parameter values set in signals
-        par.num_threads = 1;
         par.do_inter_frame = false;
         par.gop_size = 1;
-        par.exp_factor = 0;
-        par.octree_bits = 7;
-        par.color_bits = 8;
+        par.exp_factor = 1.0;
+        par.octree_bits = 8;
         par.jpeg_quality = 85;
         par.macroblock_size = 16;
         std::stringstream compfr;
@@ -136,17 +141,17 @@ public:
                 false,
                 std::pow ( 2.0, -1.0 * par.octree_bits ),
                 std::pow ( 2.0, -1.0 * par.octree_bits),
-                true, // no intra voxel coding in this first version of the codec
-                0, // i_frame_rate,
+                downdownsampling, // no intra voxel coding in this first version of the codec
+                iframerate, // i_frame_rate,
                 true,
-                par.color_bits,
+                8,
                 1,
                 0,
                 false,
                 false, // not implemented
                 false, // do_connectivity_coding_, not implemented
                 par.jpeg_quality,
-                par.num_threads
+                num_threads
                 ));
         cwipc_pcl_pointcloud decpc = new_cwipc_pcl_pointcloud();
         uint64_t tmStmp = 0;
@@ -176,13 +181,23 @@ private:
     cwipc *m_result;
 };
 
-cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params *params) {
+cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params *params, char **errorMessage) {
     if (version != CWIPC_ENCODER_PARAM_VERSION) {
+    	*errorMessage = (char *)"cwpic_bew_encoder: incorrect encoder param version";
         return NULL;
     }
     if (params == NULL) {
-    	static cwipc_encoder_params dft = { 1, false, 1, 1.0, 8, 8, 85, 16};
+    	static cwipc_encoder_params dft = {false, 1, 1.0, 9, 85, 16, 0, 0};
     	params = &dft;
+	}
+	// Check parameters for this release
+	if (params->do_inter_frame) {
+		*errorMessage = (char *)"cwipc_new_encoder: do_inter_frame must be false for this version";
+		return NULL;
+	}
+	if (params->gop_size != 1) {
+		*errorMessage = (char *)"cwipc_new_encoder: gop_size must be 1 for this version";
+		return NULL;
 	}
     return new cwipc_encoder_impl(params);
 }
