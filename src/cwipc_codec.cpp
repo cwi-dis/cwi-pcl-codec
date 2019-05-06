@@ -26,9 +26,11 @@ class cwipc_encoder_impl : public cwipc_encoder
 {
 public:
     cwipc_encoder_impl(cwipc_encoder_params *_params)
-    :   m_params(*_params),
+    :	m_encoder(NULL),
+    	m_params(*_params),
         m_result(NULL),
-        m_result_size(0)
+        m_result_size(0),
+        m_remaining_frames_in_gop(0)
     {
 
 	}
@@ -44,32 +46,14 @@ public:
     
     bool available(bool wait) { return m_result != NULL; };
     
-    bool at_gop_boundary() { return true; };
-    
+    bool at_gop_boundary() { return m_encoder == NULL; };
+
     void feed(cwipc *pc) {
         std::stringstream comp_frame;
-        double point_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
-        double octree_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
-        boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> > encoder_V2_;
-        encoder_V2_ = boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> > (
-            new pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> (
-                  pcl::io::MANUAL_CONFIGURATION,
-                  false,
-                  point_resolution,
-                  octree_resolution,
-                  downdownsampling, // no intra voxel coding in this first version of the codec
-                  iframerate, // i_frame_rate,
-                  true, // do color encoding
-                  8, // color bits
-                  1, // color coding type
-                  pc->timestamp(),
-                  false,
-                  false, // not implemented
-                  false, // do_connectivity_coding_ not implemented
-                  m_params.jpeg_quality,
-                  num_threads
-                  ));
-        encoder_V2_->setMacroblockSize(m_params.macroblock_size);
+		// Allocate an encoder if none is available (we are at the beginning of a GOP)
+		if (m_encoder == NULL)
+			alloc_encoder(pc->timestamp());
+
         cwipc_pcl_pointcloud pcl_pc = pc->access_pcl_pointcloud();
         if (pcl_pc->size() == 0) {
         	// Special case: if the point cloud is empty we compress a point cloud with a single black point at 0,0,0
@@ -77,7 +61,14 @@ public:
         	cwipc_pcl_point dummyPoint;
         	pcl_pc->push_back(dummyPoint);
         }
-        encoder_V2_->encodePointCloud(pcl_pc, comp_frame);
+        m_encoder->encodePointCloud(pcl_pc, comp_frame);
+
+		/* Free the encoder if we are at the end of the GOP */
+		if (--m_remaining_frames_in_gop <= 0) {
+			m_encoder = NULL;
+		}
+
+        /* Store the result */
         /* xxxjack should lock here */
         if (m_result) {
             ::free(m_result);
@@ -101,9 +92,36 @@ public:
     };
     
 private:
+	void alloc_encoder(uint64_t timestamp) {
+        double point_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
+        double octree_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
+        m_encoder = NULL;
+        m_encoder = boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> > (
+            new pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> (
+                  pcl::io::MANUAL_CONFIGURATION,
+                  false,
+                  point_resolution,
+                  octree_resolution,
+                  downdownsampling, // no intra voxel coding in this first version of the codec
+                  iframerate, // i_frame_rate,
+                  true, // do color encoding
+                  8, // color bits
+                  1, // color coding type
+                  timestamp,
+                  false,
+                  false, // not implemented
+                  false, // do_connectivity_coding_ not implemented
+                  m_params.jpeg_quality,
+                  num_threads
+                  ));
+        m_encoder->setMacroblockSize(m_params.macroblock_size);
+        m_remaining_frames_in_gop = m_params.gop_size;
+	}
+	boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> > m_encoder;
     cwipc_encoder_params m_params;
     void *m_result;
     size_t m_result_size;
+    int m_remaining_frames_in_gop;
 };
 
 class _CWIPC_CODEC_EXPORT cwipc_decoder_impl : public cwipc_decoder
