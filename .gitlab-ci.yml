@@ -84,6 +84,7 @@ build_win:
   tags:
     - win10
   before_script:
+    - rm -rf /cygdrive/c/dist-win/installed
     - mkdir -p /cygdrive/c/dist-win/installed
 # Install Deployment repo and dependencies
     - python -m pip install requests mechanize
