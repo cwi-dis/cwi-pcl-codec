@@ -17,13 +17,13 @@ int main(int argc, char** argv)
     // Read pointcloud file
     //
     char *errorMessage = NULL;
-    cwipc *pc = cwipc_read(argv[1], 0LL, &errorMessage);
+    cwipc *pc = cwipc_read(argv[1], 0LL, &errorMessage, CWIPC_API_VERSION);
 
     if (pc == NULL || errorMessage) {
         std::cerr << argv[0] << ": Error reading pointcloud from " << argv[1] << ": " << errorMessage << std::endl;
         return 1;
     }
-    std::cerr << "Read pointcloud successfully, " << pc->get_uncompressed_size(CWIPC_POINT_VERSION) << " bytes (uncompressed)" << std::endl;
+    std::cerr << "Read pointcloud successfully, " << pc->get_uncompressed_size() << " bytes (uncompressed)" << std::endl;
     //
     // Compress
     //
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	param.tilenumber = 0;
 
 	char *errorString;
-    cwipc_encoder *encoder = cwipc_new_encoder(CWIPC_ENCODER_PARAM_VERSION, &param, &errorString);
+    cwipc_encoder *encoder = cwipc_new_encoder(CWIPC_ENCODER_PARAM_VERSION, &param, &errorString, CWIPC_API_VERSION);
     if (encoder == NULL) {
     	std::cerr << argv[0] << ": Could not create encoder: " << errorString << std::endl;
     	return 1;

@@ -209,9 +209,10 @@ extern "C" {
  * \param version Pass in CWIPC_ENCODER_PARAM_VERSION to ensure runtime compatibility.
  * \param params Pointer to a structure with parameters than govern the encoding process.
  * \param errorMessage Pointer to a string that will be filled with a message in case of errors.
+ * \param apiVersion Pass in CWIPC_API_VERSION to ensure dll compatibility.
  * \return A cwipc_encoder object.
  */
-_CWIPC_CODEC_EXPORT cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params* params, char **errorMessage);
+_CWIPC_CODEC_EXPORT cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params* params, char **errorMessage, uint64_t apiVersion);
 
 /** \brief Deallocate the encoder (C interface).
  * \param obj The cwipc_encoder object.
@@ -274,11 +275,13 @@ _CWIPC_CODEC_EXPORT bool cwipc_encoder_copy_data(cwipc_encoder *obj, void *buffe
  _CWIPC_CODEC_EXPORT bool cwipc_encoder_at_gop_boundary(cwipc_encoder *obj);
 
 /** \brief Create a new encoder group.
+ * \param errorMessage Pointer to a string that will be filled with a message in case of errors.
+ * \param apiVersion Pass in CWIPC_API_VERSION to ensure dll compatibility.
  *
  * Creates a group of encoders. Initially the group is empty, add
  * encoders by calling group->addencoder().
  */
-_CWIPC_CODEC_EXPORT cwipc_encodergroup *cwipc_new_encodergroup();
+_CWIPC_CODEC_EXPORT cwipc_encodergroup *cwipc_new_encodergroup(char **errorMessage, uint64_t apiVersion);
 
 /** \brief Deallocate the encoder group (C interface).
  * \param obj The cwipc_encoder object.
@@ -308,13 +311,15 @@ _CWIPC_CODEC_EXPORT void cwipc_encodergroup_feed(cwipc_encodergroup *obj, cwipc*
 
 
 /** \brief Create pointcloud decompressor.
+ * \param errorMessage Pointer to a string that will be filled with a message in case of errors.
+ * \param apiVersion Pass in CWIPC_API_VERSION to ensure dll compatibility.
  * \returns cwipc_decoder object representing the decompressor.
  *
  * After creating the decoder you feed it data using the `feed()` method.
  * Whenever `available()` returns true a new pointcloud can be obtained with
  * `get()`.
  */
-_CWIPC_CODEC_EXPORT cwipc_decoder* cwipc_new_decoder();
+_CWIPC_CODEC_EXPORT cwipc_decoder* cwipc_new_decoder(char **errorMessage, uint64_t apiVersion);
 
 /* Methods defined in the cwipc_source superclass, use those */
 #define cwipc_decoder_free(obj) cwipc_source_free(obj)

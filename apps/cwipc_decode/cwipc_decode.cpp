@@ -29,9 +29,10 @@ int main(int argc, char** argv)
     //
     // Uncompress
     //
-    cwipc_decoder *decoder = cwipc_new_decoder();
+    char *message = NULL;
+    cwipc_decoder *decoder = cwipc_new_decoder(&message, CWIPC_API_VERSION);
     if (decoder == NULL) {
-    	std::cerr << argv[0] << ": Could not create decoder" << std::endl;
+    	std::cerr << argv[0] << ": Could not create decoder:" << message << std::endl;
     	return 1;
     }
     decoder->feed(inputBuffer, filesize);
@@ -47,7 +48,7 @@ int main(int argc, char** argv)
     	return 1;
     }
     decoder->free(); // We don't need the encoder anymore
-	std::cerr << "Decoded successfully, " <<pc->get_uncompressed_size(CWIPC_POINT_VERSION) << " bytes (uncompressed)" << std::endl;
+	std::cerr << "Decoded successfully, " <<pc->get_uncompressed_size() << " bytes (uncompressed)" << std::endl;
     //
     // Save pointcloud file
     //

@@ -180,7 +180,7 @@ public:
 			return NULL;
 		}
 		m_voxelsize = params->voxelsize;
-		cwipc_encoder *newEncoder = cwipc_new_encoder(version, params, errorMessage);
+		cwipc_encoder *newEncoder = cwipc_new_encoder(version, params, errorMessage, CWIPC_API_VERSION);
 		if (newEncoder == NULL) return NULL;
 		m_encoders.push_back(newEncoder);
 		return newEncoder;
@@ -250,7 +250,7 @@ public:
             }
         }
         if (ok) {
-            m_result = cwipc_from_pcl(decpc, tmStmp, NULL);
+            m_result = cwipc_from_pcl(decpc, tmStmp, NULL, CWIPC_API_VERSION);
         } else {
             m_result = NULL;
         }
@@ -265,7 +265,13 @@ private:
     cwipc *m_result;
 };
 
-cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params *params, char **errorMessage) {
+cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params *params, char **errorMessage, uint64_t apiVersion) {
+	if (apiVersion < CWIPC_API_VERSION_OLD || apiVersion > CWIPC_API_VERSION) {
+		if (errorMessage) {
+			*errorMessage = (char *)"cwipc_synthetic: incorrect apiVersion";
+		}
+		return NULL;
+	}
     if (version != CWIPC_ENCODER_PARAM_VERSION) {
     	*errorMessage = (char *)"cwpic_bew_encoder: incorrect encoder param version";
         return NULL;
@@ -314,7 +320,13 @@ bool cwipc_encoder_at_gop_boundary(cwipc_encoder *obj) {
     return obj->at_gop_boundary();
 }
 
-cwipc_encodergroup *cwipc_new_encodergroup() {
+cwipc_encodergroup *cwipc_new_encodergroup(char **errorMessage, uint64_t apiVersion) {
+	if (apiVersion < CWIPC_API_VERSION_OLD || apiVersion > CWIPC_API_VERSION) {
+		if (errorMessage) {
+			*errorMessage = (char *)"cwipc_new_encodergroup: incorrect apiVersion";
+		}
+		return NULL;
+	}
 	return new cwipc_encodergroup_impl();
 };
 
@@ -330,7 +342,13 @@ void cwipc_encodergroup_feed(cwipc_encodergroup *obj, cwipc* pc) {
 	return obj->feed(pc);
 }
 
-cwipc_decoder* cwipc_new_decoder() {
+cwipc_decoder* cwipc_new_decoder(char **errorMessage, uint64_t apiVersion) {
+	if (apiVersion < CWIPC_API_VERSION_OLD || apiVersion > CWIPC_API_VERSION) {
+		if (errorMessage) {
+			*errorMessage = (char *)"cwipc_synthetic: incorrect apiVersion";
+		}
+		return NULL;
+	}
     return new cwipc_decoder_impl();
 }
 

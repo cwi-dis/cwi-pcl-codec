@@ -47,7 +47,7 @@ cwipc *cwipc_downsample(cwipc *pc, float voxelsize)
 		std::cerr << "cwipc_downsample: std exception: " << e.what() << std::endl;
 		return NULL;	
 	}
-	return cwipc_from_pcl(dst, pc->timestamp(), NULL);
+	return cwipc_from_pcl(dst, pc->timestamp(), NULL, CWIPC_API_VERSION);
 }
 
 cwipc *cwipc_tilefilter(cwipc *pc, int tile)
@@ -61,6 +61,6 @@ cwipc *cwipc_tilefilter(cwipc *pc, int tile)
 			dst->points.push_back(pt);
 		}
 	}
-	return cwipc_from_pcl(dst, pc->timestamp(), NULL);
+	return cwipc_from_pcl(dst, pc->timestamp(), NULL, CWIPC_API_VERSION);
 }
 
