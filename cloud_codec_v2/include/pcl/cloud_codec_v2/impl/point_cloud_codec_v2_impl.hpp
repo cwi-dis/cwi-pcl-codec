@@ -228,8 +228,8 @@ namespace pcl{
     {
 
       // synchronize to frame header
-      syncToHeader(compressed_tree_data_in_arg);
-
+      if ( ! syncToHeader(compressed_tree_data_in_arg) ) return;
+      
       // initialize octree
       switchBuffers ();
 
@@ -1654,9 +1654,10 @@ namespace pcl{
 
     /** \brief Synchronize to frame header
       * \param compressed_tree_data_in_arg: binary input stream
-      * \brief use the new v2 header
+      * \return true if succesfull, false otherwise
+      * \brief uses the new v2 header
       */
-    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
+    template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> bool
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::syncToHeader (std::istream& compressed_tree_data_in_arg)
     {
       // sync to frame header
@@ -1665,11 +1666,13 @@ namespace pcl{
       {
         char readChar;
         compressed_tree_data_in_arg.read (static_cast<char*> (&readChar), sizeof (readChar));
+        if (readChar == EOF) return false;
         if (readChar != frame_header_identifier_[header_id_pos++])
           header_id_pos = (frame_header_identifier_[0]==readChar)?1:0;
       }
       //! read the original octree header
       OctreePointCloudCompression<PointT>::syncToHeader (compressed_tree_data_in_arg);
+      return true;
     };
 
     /** \brief Apply entropy encoding to encoded information and output to binary stream, added bitstream scalability and centroid encoding compared to  V1

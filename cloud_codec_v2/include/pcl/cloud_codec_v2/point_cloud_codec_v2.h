@@ -267,7 +267,7 @@ namespace pcl{
         virtual void 
         deserializeTreeCallback (LeafT&, const OctreeKey& key_arg);
 
-        void
+        bool
         syncToHeader (std::istream& compressed_tree_data_in_arg);
 
         void
