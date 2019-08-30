@@ -50,16 +50,20 @@ Mac OSX 10.14.3 Installation:
 * Start 'Xcode' and use it to open the new Xcode-project, select 'Project->Build'.
   The resulting application can be found in 'apps/evaluate_compression' and is self-documenting.
 
-Installation on Windows 10 (older versions won't work):
--------------------------------------------------------
+Installation on Windows 10 (older Windows versions won't work):
+---------------------------------------------------------------
 
-* Install 'Visual Studio (2017)' Compiler Version 15.9  and 'cmake-gui' Version 3.13
+* Install 'Visual Studio (2017)' Compiler Version 15.9 or higher and 'cmake-gui' Version 3.13
 
-* Install PCL-1.9 and all 3rd party packages that it needs using the
-  All-In-One Installer from 'https://github.com/PointCloudLibrary/pcl/releases'
+* Install PCL-1.9.1 and all 3rd party packages that it needs using the
+  All-In-One Installer from: 'https://github.com/PointCloudLibrary/pcl/releases'
   Select (if possible) 64-bit version (PointClouds can be huge data sets, too big for 32-bit addressing)
 
-* Download 'libjpeg-turbo64' from https://sourceforge.net/projects/libjpeg-turbo/files/1.5.3/
+* Download 'libjpeg-turbo64' from: 'https://sourceforge.net/projects/libjpeg-turbo/files/2.0.2/libjpeg-turbo-2.0.2.tar.gz/download'
+
+* Next start 'cmake-gui', select for 'source code' the directory in which 'libjpeg-turbo-2.0.2' was unpacked and
+  for'binaries' another directory, tap 'Configure' and 'Generate'.
+  Start 'Visual Studio (2017)', open 'libjpeg-turbo.sln', select the 'INSTALL' Project to build and install 'libjpeg-turbo-2.0.2'.
 
 * Next start 'cmake-gui', select for 'source code' the directory 'cwi-pcl-codec' (where this file README.md
   distributed), and for 'binaries' another directory
