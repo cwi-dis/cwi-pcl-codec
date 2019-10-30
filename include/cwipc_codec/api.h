@@ -292,6 +292,7 @@ _CWIPC_CODEC_EXPORT void cwipc_encodergroup_free(cwipc_encodergroup *obj);
 
 
 /** \brief Add a new encoder to an encodergroup.
+ * \param obj The cwipc_encodergroup object.
  * \param version Pass in CWIPC_ENCODER_PARAM_VERSION to ensure runtime compatibility.
  * \param params Pointer to a structure with parameters than govern the encoding process.
  * \param errorMessage Pointer to a string that will be filled with a message in case of errors.
