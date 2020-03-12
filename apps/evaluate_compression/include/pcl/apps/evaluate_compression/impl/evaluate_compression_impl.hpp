@@ -55,6 +55,7 @@
 #include <exception>
 
 // boost library
+#include <boost/exception/diagnostic_information.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -462,7 +463,7 @@ evaluate_compression_impl<PointT>::do_encoding (boost::shared_ptr<pcl::PointClou
       encoder_V2_->encodePointCloud (pointcloud , *stream);
       qualityMetric.encoding_time_ms = tt.toc ();
       // store the partial bytes sizes
-      uint64_t *c_sizes = encoder_V2_->getPerformanceMetrics ();
+      std::uint64_t *c_sizes = encoder_V2_->getPerformanceMetrics ();
       qualityMetric.byte_count_octree_layer = c_sizes[0];
       qualityMetric.byte_count_centroid_layer = c_sizes[1];
       qualityMetric.byte_count_color_layer = c_sizes[2];
