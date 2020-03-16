@@ -12,7 +12,7 @@ namespace pcl{
     \brief class for doing mapping of vector of rgb values into an image grid and back via a zigzag pattern
     \author Rufael Mekuria rufael.mekuria@cwi.nl
     */
-    template<typename cTypeIn=uint8_t,typename cTypeOut=uint8_t>
+    template<typename cTypeIn=std::uint8_t,typename cTypeOut=std::uint8_t>
     class SnakeGridMapping
     {
     public:

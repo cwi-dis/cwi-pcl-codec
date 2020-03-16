@@ -48,7 +48,7 @@ namespace pcl{
   namespace io{
   
     /** \brief Class for writing jpeg buffers and files */
-    template <typename charT=uint8_t>
+    template <typename charT=std::uint8_t>
     class PCL_EXPORTS JPEGWriter
     {
       public:
@@ -84,7 +84,7 @@ namespace pcl{
     };
 
     /** \brief Class for reading jpeg buffers and files */
-    template <typename charT=uint8_t>
+    template <typename charT=std::uint8_t>
     class PCL_EXPORTS JPEGReader
     {
       public:

@@ -65,8 +65,8 @@ namespace pcl{
       //! JPEG lines data
       struct JPEGLineData
       {
-        uint32_t line_count;
-        typedef std::vector<uint8_t> cline_t;
+        std::uint32_t line_count;
+        typedef std::vector<std::uint8_t> cline_t;
         std::vector<cline_t> clines;
         // serialize to stream
         void 
@@ -75,7 +75,7 @@ namespace pcl{
            ss.write((char *)&line_count,sizeof(line_count)); 
           
            for(int i=0;i<line_count;i++){
-             uint32_t val = (uint32_t) clines[i].size();
+             std::uint32_t val = (std::uint32_t) clines[i].size();
              ss.write((char *)&val, sizeof(val)); 
              if(val > 0)
                ss.write((char *) clines[i].data(),clines[i].size());
@@ -84,12 +84,12 @@ namespace pcl{
         // read from stream
         void
         deserialize(std::istream &ss){
-          ss.read( (char*) &line_count, sizeof(uint32_t));
+          ss.read( (char*) &line_count, sizeof(std::uint32_t));
           clines.resize(line_count);
           for(int i=0; i< line_count;i++)
           {
-            uint32_t line_size; 
-            ss.read( (char*) &line_size, sizeof(uint32_t));
+            std::uint32_t line_size; 
+            ss.read( (char*) &line_size, sizeof(std::uint32_t));
             clines[i].resize(line_size);
             if(line_size > 0)
               ss.read((char *) clines[i].data(),line_size);
@@ -117,7 +117,7 @@ namespace pcl{
       {
         // we still need to do jpeg encoding
         if(needs_jpeg_encoding_avg_){
-          std::vector<uint8_t> out_data;
+          std::vector<std::uint8_t> out_data;
           switch(mapping_mode_)
           {
             case(SNAKE):
@@ -150,7 +150,7 @@ namespace pcl{
       virtual void
       initializeDecoding()
       {
-        std::vector<uint8_t> out_data;
+        std::vector<std::uint8_t> out_data;
         switch(mapping_mode_)
         {
           case(SNAKE):
@@ -185,7 +185,7 @@ namespace pcl{
     public:
       
       void
-      encodeJPEGSnake(std::vector<char> &in_vec, std::vector<uint8_t> & out_data)
+      encodeJPEGSnake(std::vector<char> &in_vec, std::vector<std::uint8_t> & out_data)
       {
         // encode using the JPEG Snake
         PCLImage l_mapped_im;
@@ -213,15 +213,15 @@ namespace pcl{
         }
 
         //! map the colors to jpeg via a zigzag scan and code them as a single jpeg
-        SnakeGridMapping<char,uint8_t> m(l_mapped_im.width ,l_mapped_im.height);
-        std::vector<uint8_t> &res = m.doMapping(in_vec);
+        SnakeGridMapping<char,std::uint8_t> m(l_mapped_im.width ,l_mapped_im.height);
+        std::vector<std::uint8_t> &res = m.doMapping(in_vec);
 #if __cplusplus >= 201103L
         l_mapped_im.data = std::move(res);
 #else
         l_mapped_im.data = res;
 #endif//__cplusplus < 201103L
 
-        io::JPEGWriter<uint8_t>::writeJPEG(l_mapped_im,out_data,jpeg_quality_);
+        io::JPEGWriter<std::uint8_t>::writeJPEG(l_mapped_im,out_data,jpeg_quality_);
         return;
       }
 
@@ -231,7 +231,7 @@ namespace pcl{
         PCLImage im_out; 
         io::JPEGReader<char>::readJPEG(in_vec,im_out);  
 
-        SnakeGridMapping<uint8_t,char> un_m(im_out.width,im_out.height);
+        SnakeGridMapping<std::uint8_t,char> un_m(im_out.width,im_out.height);
         std::vector<char> res2 = un_m.undoSnakeGridMapping(im_out.data);
 #if __cplusplus >= 201103L
         in_vec = std::move(res2);
@@ -242,7 +242,7 @@ namespace pcl{
       }
 
       void
-      encodeJPEGLines(std::vector<char> &in_vec, std::vector<uint8_t> & out_data)
+      encodeJPEGLines(std::vector<char> &in_vec, std::vector<std::uint8_t> & out_data)
       {
         // encode as lines of jpeg scans
         long pixel_count = (long) in_vec.size()/3;
@@ -261,7 +261,7 @@ namespace pcl{
         {
           cdat.line_count = 1;
           cdat.clines.resize(1);
-          std::vector<uint8_t> line_dat(3*pixel_count);
+          std::vector<std::uint8_t> line_dat(3*pixel_count);
           std::copy((char *) in_vec.data(),
                     (char *) in_vec.data() + 3 * pixel_count, 
                     (char *) line_dat.data());
@@ -271,14 +271,14 @@ namespace pcl{
           im_in.data = line_dat;
 #endif//__cplusplus < 201103L
 
-            io::JPEGWriter<uint8_t>::writeJPEG(im_in,cdat.clines[0],jpeg_quality_);
+            io::JPEGWriter<std::uint8_t>::writeJPEG(im_in,cdat.clines[0],jpeg_quality_);
         }
         //! write all the image lines to the grid
         for(int i =0; i< num_lines;i++)
         {
           if(i != num_lines -1 )
           {
-            std::vector<uint8_t> line_dat(3*2048);
+            std::vector<std::uint8_t> line_dat(3*2048);
             std::copy((char *) in_vec.data() + 3 * 2048 * i,
                       (char *) in_vec.data() + 3 * 2048 * (i+1), 
                       (char *) line_dat.data());
@@ -287,11 +287,11 @@ namespace pcl{
 #else
             im_in.data = line_dat;
 #endif//__cplusplus < 201103L
-            io::JPEGWriter<uint8_t>::writeJPEG(im_in,cdat.clines[i],jpeg_quality_);
+            io::JPEGWriter<std::uint8_t>::writeJPEG(im_in,cdat.clines[i],jpeg_quality_);
           }
           else
           {
-            std::vector<uint8_t> line_dat(in_vec.size() - 3 * i *2048);
+            std::vector<std::uint8_t> line_dat(in_vec.size() - 3 * i *2048);
             std::copy((char *)   in_vec.data() + 3 * 2048 * i,
                       (char *)   in_vec.data() + in_vec.size(), 
                       (char *)   line_dat.data());
@@ -300,8 +300,8 @@ namespace pcl{
 #else
             im_in.data = line_dat;
 #endif//__cplusplus < 201103L
-            im_in.width = (uint32_t) im_in.data.size() / 3;
-            io::JPEGWriter<uint8_t>::writeJPEG(im_in,cdat.clines[i],jpeg_quality_);
+            im_in.width = (std::uint32_t) im_in.data.size() / 3;
+            io::JPEGWriter<std::uint8_t>::writeJPEG(im_in,cdat.clines[i],jpeg_quality_);
           }
         }
 
@@ -317,7 +317,7 @@ namespace pcl{
       }
 
       void
-      decodeJPEGLines(std::vector<char> &in_vec, std::vector<uint8_t> & out_data)
+      decodeJPEGLines(std::vector<char> &in_vec, std::vector<std::uint8_t> & out_data)
       {
         //! collect the data and deserialize
         std::string data;
@@ -333,7 +333,7 @@ namespace pcl{
         for(int i=0; i<cdat.line_count; i++)
         {
           PCLImage t_o_dat;
-          io::JPEGReader<uint8_t>::readJPEG(cdat.clines[i],t_o_dat);
+          io::JPEGReader<std::uint8_t>::readJPEG(cdat.clines[i],t_o_dat);
           for(int i=0; i<t_o_dat.data.size();i++)
             out_data.push_back(t_o_dat.data[i]);
         }

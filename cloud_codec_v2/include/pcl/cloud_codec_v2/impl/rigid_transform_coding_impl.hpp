@@ -63,11 +63,11 @@ namespace pcl{
     template <typename Scalar> bool 
       RigidTransformCoding<Scalar>::compressRigidTransform(
         const Eigen::Matrix<Scalar, 4, 4>& tr_in, 
-        std::vector<int16_t>& comp_dat_out,
+        std::vector<std::int16_t>& comp_dat_out,
         Eigen::Quaternion<Scalar>& quat_out)
     {
       // 2,5 is the maximum translation
-      const float scaling_factor = (float) std::numeric_limits<int16_t>::max()/2.5;
+      const float scaling_factor = (float) std::numeric_limits<std::int16_t>::max()/2.5;
       
       // convert the rotation to a quaternion
 #if _WIN32
@@ -80,7 +80,7 @@ namespace pcl{
       // test the quaternion mode for coding the rotation (encode,decode check if stable)
       Eigen::Quaternion<Scalar> quat_test;
       comp_dat_out.resize(3);
-      QuaternionCoding::compressQuaternion(quat_out,(int16_t *) &comp_dat_out[0]);
+      QuaternionCoding::compressQuaternion(quat_out,(std::int16_t *) &comp_dat_out[0]);
       QuaternionCoding::deCompressQuaternion(&comp_dat_out[0],quat_test);
       Eigen::Matrix<Scalar, 3, 3> res_rot = quat_test.toRotationMatrix();
  
@@ -107,8 +107,8 @@ namespace pcl{
          comp_dat_out.resize(7);
          // only store two vectors of the rotation matrix
          for(int l=0;l<3;l++){
-           comp_dat_out[l] =  (int16_t) int(rotm(0,l) * (std::numeric_limits<int16_t>::max() -1));
-           comp_dat_out[l+3] =  (int16_t) int(rotm(1,l) * (std::numeric_limits<int16_t>::max() -1));
+           comp_dat_out[l] =  (std::int16_t) int(rotm(0,l) * (std::numeric_limits<std::int16_t>::max() -1));
+           comp_dat_out[l+3] =  (std::int16_t) int(rotm(1,l) * (std::numeric_limits<std::int16_t>::max() -1));
            
            // add a byte for storing the signs
            comp_dat_out[6]+= rotm(2,l)<0? 1<<l:0;
@@ -117,7 +117,7 @@ namespace pcl{
       }
       else{
         // make sure to code the rotation properly to the outputvector as a quantized quaternion
-        QuaternionCoding::compressQuaternion(quat_out,(int16_t *) &comp_dat_out[0]);
+        QuaternionCoding::compressQuaternion(quat_out,(std::int16_t *) &comp_dat_out[0]);
       }
 
       // quantize the translation
@@ -141,9 +141,9 @@ namespace pcl{
         t3=-2.5;
 
       // compress the translation by quantization using 16 bits
-      comp_dat_out.push_back( (int16_t) (int) (t1 * (scaling_factor-1)));
-      comp_dat_out.push_back( (int16_t) (int) (t2 * (scaling_factor-1)));
-      comp_dat_out.push_back( (int16_t)  (int)(t3 * (scaling_factor-1)));
+      comp_dat_out.push_back( (std::int16_t) (int) (t1 * (scaling_factor-1)));
+      comp_dat_out.push_back( (std::int16_t) (int) (t2 * (scaling_factor-1)));
+      comp_dat_out.push_back( (std::int16_t)  (int)(t3 * (scaling_factor-1)));
 
       return true;
     }
@@ -157,16 +157,16 @@ namespace pcl{
 	*/
     template <typename Scalar> bool 
       RigidTransformCoding<Scalar>::deCompressRigidTransform(
-        const std::vector<int16_t>& comp_dat_in, 
+        const std::vector<std::int16_t>& comp_dat_in,
         Eigen::Matrix<Scalar, 4, 4>& tr_out, 
         Eigen::Quaternion<Scalar>& quat_out)
     {
       // 2 is the maximum 
-      const float scaling_factor = (float) std::numeric_limits<int16_t>::max()/2.5;
+      const float scaling_factor = (float) std::numeric_limits<std::int16_t>::max()/2.5;
       
       if(comp_dat_in.size() == 6){
         // decode rotation offset which is coded as quaternion
-        QuaternionCoding::deCompressQuaternion((int16_t *) &comp_dat_in[0], quat_out);
+        QuaternionCoding::deCompressQuaternion((std::int16_t *) &comp_dat_in[0], quat_out);
 #if _WIN32
         tr_out.block<3,3>(0,0) = quat_out.toRotationMatrix();
         //std::cout << "decoded rotation" << std::endl << tr_out.block<3,3>(0,0) << std::endl;
@@ -178,8 +178,8 @@ namespace pcl{
       else{
         //decode the rotation matrix from two vectors and the sign vectors
          for(int l=0;l<3;l++){
-           tr_out(0,l) = ((float) comp_dat_in[l]) / (std::numeric_limits<int16_t>::max() -1);
-           tr_out(1,l) = ((float) comp_dat_in[l+3]) / (std::numeric_limits<int16_t>::max() -1);
+           tr_out(0,l) = ((float) comp_dat_in[l]) / (std::numeric_limits<std::int16_t>::max() -1);
+           tr_out(1,l) = ((float) comp_dat_in[l+3]) / (std::numeric_limits<std::int16_t>::max() -1);
            tr_out(2,l) =  std::sqrt(1 - tr_out(0,l) * tr_out(0,l) - tr_out(1,l) * tr_out(1,l));
            
            // decode the sign

@@ -190,7 +190,7 @@ namespace pcl{
         std::istream& i_coded_data, std::istream& p_coded_data);
       
         //! function to return performance metric
-        uint64_t *
+        std::uint64_t *
         getPerformanceMetrics()
         {
           return compression_performance_metrics;
@@ -280,7 +280,7 @@ namespace pcl{
 
         // protected variables cloud codec v2
 
-        uint32_t color_coding_type_; //! color coding with jpeg, graph transform, or differential encodings
+        std::uint32_t color_coding_type_; //! color coding with jpeg, graph transform, or differential encodings
 
         bool do_voxel_centroid_enDecoding_;  //! encode the centroid in addition
 
@@ -292,7 +292,7 @@ namespace pcl{
 
         ColorCodingJPEG<PointT> jp_color_coder_; //! new color coding via jpeg
 
-        uint64_t compression_performance_metrics[3]; //! octree_bytes, centroid_bytes, color_bytes, monitor the buildup of compressed data
+        std::uint64_t compression_performance_metrics[3]; //! octree_bytes, centroid_bytes, color_bytes, monitor the buildup of compressed data
 
         static const char* frame_header_identifier_; //! new frame header identifier
 

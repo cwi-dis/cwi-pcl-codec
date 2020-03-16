@@ -105,10 +105,10 @@ namespace pcl{
         cloud_with_color_ = false;
         std::vector<pcl::PCLPointField> fields;
         int rgba_index = -1;
-        rgba_index = pcl::getFieldIndex (*input_, "rgb", fields);
+        rgba_index = pcl::getFieldIndex<PointT> ("rgb", fields);
         if (rgba_index == -1)
         {
-          rgba_index = pcl::getFieldIndex (*input_, "rgba", fields);
+          rgba_index = pcl::getFieldIndex<PointT> ("rgba", fields);
         }
         if (rgba_index >= 0)
         {
@@ -242,9 +242,9 @@ namespace pcl{
       cloud_with_color_ = false;
       std::vector<pcl::PCLPointField> fields;
       int rgba_index = -1;
-      rgba_index = pcl::getFieldIndex (*output_, "rgb", fields);
+      rgba_index = pcl::getFieldIndex<PointT> ("rgb", fields);
       if (rgba_index == -1)
-        rgba_index = pcl::getFieldIndex (*output_, "rgba", fields);
+        rgba_index = pcl::getFieldIndex<PointT> ("rgba", fields);
       if (rgba_index >= 0)
       {
         point_color_offset_ = static_cast<unsigned char> (fields[rgba_index].offset);
@@ -282,7 +282,7 @@ namespace pcl{
 
       // assign point cloud properties
       output_->height = 1;
-      output_->width = static_cast<uint32_t> (cloud_arg->points.size ());
+      output_->width = static_cast<std::uint32_t> (cloud_arg->points.size ());
       output_->is_dense = false;
 
       if (b_show_statistics_)
@@ -340,7 +340,7 @@ namespace pcl{
       /////////////////////////////////////////////////////////////////////////
       //! initialize output cloud
       //PointCloudPtr out_cloud(new PointCloud( octree_simplifier.leaf_count_, 1));
-      out_cloud->width = (uint32_t) octree_simplifier->getLeafCount();
+      out_cloud->width = (std::uint32_t) octree_simplifier->getLeafCount();
       out_cloud->height = 1;
       out_cloud->points.reserve(octree_simplifier->getLeafCount());  
       // cant get access to the number of leafs
@@ -651,20 +651,20 @@ namespace pcl{
 
 
             // icp success, encode the rigid transform
-            std::vector<int16_t> comp_dat;
+            std::vector<std::int16_t> comp_dat;
             Eigen::Quaternion<float> l_quat_out;
             RigidTransformCoding<float>::compressRigidTransform(rt,comp_dat,l_quat_out);
 
             // write octree key, write rigid transform
-            int16_t l_key_dat[3]={0,0,0};
+            std::int16_t l_key_dat[3]={0,0,0};
 
             l_key_dat[0] = (int) current_key.x; 
             l_key_dat[1] = (int) current_key.y; 
             l_key_dat[2] = (int) current_key.z;
 
             // write the p coded data (we can add entropy encoding later)
-            p_coded_data.write((const char *) l_key_dat ,3*sizeof(int16_t));
-            p_coded_data.write((const char *) &comp_dat[0] ,comp_dat.size()*sizeof(int16_t));
+            p_coded_data.write((const char *) l_key_dat ,3*sizeof(std::int16_t));
+            p_coded_data.write((const char *) &comp_dat[0] ,comp_dat.size()*sizeof(std::int16_t));
 
             if(do_icp_color_offset_)
               p_coded_data.write((const char *) &rgb_offsets[0] ,3*sizeof(char));
@@ -862,22 +862,22 @@ namespace pcl{
 					{
 						convergence_count++;
 						// icp success, encode the rigid transform
-						std::vector<int16_t> comp_dat;
+						std::vector<std::int16_t> comp_dat;
 						Eigen::Quaternion<float> l_quat_out;
 						RigidTransformCoding<float>::compressRigidTransform(rt, comp_dat, l_quat_out);
 
 						// write octree key, write rigid transform
-						int16_t l_key_dat[3] = { 0,0,0 };
+						std::int16_t l_key_dat[3] = { 0,0,0 };
 
 						l_key_dat[0] = (int)current_key.x;
 						l_key_dat[1] = (int)current_key.y;
 						l_key_dat[2] = (int)current_key.z;
 
 						// write the p coded data (we can add entropy encoding later)
-						uint8_t chunk_size = (uint8_t)(3 * sizeof(int16_t) + comp_dat.size()*sizeof(int16_t) + (do_icp_color_offset_ ? 3 : 0)); // size of the chunk
+						std::uint8_t chunk_size = (std::uint8_t)(3 * sizeof(std::int16_t) + comp_dat.size()*sizeof(std::int16_t) + (do_icp_color_offset_ ? 3 : 0)); // size of the chunk
 						p_coded_data.write((const char *)&chunk_size, sizeof(chunk_size));
-						p_coded_data.write((const char *)l_key_dat, 3 * sizeof(int16_t));
-						p_coded_data.write((const char *)&comp_dat[0], comp_dat.size()*sizeof(int16_t));
+						p_coded_data.write((const char *)l_key_dat, 3 * sizeof(std::int16_t));
+						p_coded_data.write((const char *)&comp_dat[0], comp_dat.size()*sizeof(std::int16_t));
 
 						if (do_icp_color_offset_)
 							p_coded_data.write((const char *)rgb_offsets, 3 * sizeof(char));
@@ -1006,22 +1006,22 @@ namespace pcl{
 
 						convergence_count++;
 						// icp success, encode the rigid transform
-						std::vector<int16_t> comp_dat;
+						std::vector<std::int16_t> comp_dat;
 						Eigen::Quaternion<float> l_quat_out;
 						RigidTransformCoding<float>::compressRigidTransform(rt, comp_dat, l_quat_out);
 
 						// write octree key, write rigid transform
-						int16_t l_key_dat[3] = { 0, 0, 0 };
+						std::int16_t l_key_dat[3] = { 0, 0, 0 };
 
 						l_key_dat[0] = (int)current_key.x;
 						l_key_dat[1] = (int)current_key.y;
 						l_key_dat[2] = (int)current_key.z;
 
 						// write the p coded data (we can add entropy encoding later)
-						uint8_t chunk_size = (uint8_t)(3 * sizeof(int16_t) + comp_dat.size()*sizeof(int16_t) + (do_icp_color_offset_ ? 3 : 0)); // size of the chunk
+						std::uint8_t chunk_size = (std::uint8_t)(3 * sizeof(std::int16_t) + comp_dat.size()*sizeof(std::int16_t) + (do_icp_color_offset_ ? 3 : 0)); // size of the chunk
 						p_coded_data.write((const char *)&chunk_size, sizeof(chunk_size));
-						p_coded_data.write((const char *)l_key_dat, 3 * sizeof(int16_t));
-						p_coded_data.write((const char *)&comp_dat[0], comp_dat.size()*sizeof(int16_t));
+						p_coded_data.write((const char *)l_key_dat, 3 * sizeof(std::int16_t));
+						p_coded_data.write((const char *)&comp_dat[0], comp_dat.size()*sizeof(std::int16_t));
 
 						if (do_icp_color_offset_)
 							p_coded_data.write((const char *)rgb_offsets, 3 * sizeof(char));
@@ -1126,29 +1126,29 @@ namespace pcl{
       MacroBlockTree * i_block_tree = generate_macroblock_tree(icloud_arg);
 
       ///////////// inputs for decoding chunks of p data /////////////////////////////////
-      int16_t keys_in[3]={0,0,0};
-      uint8_t chunk_size=0;
+      std::int16_t keys_in[3]={0,0,0};
+      std::uint8_t chunk_size=0;
       char rgb_offsets[3]={0,0,0};
-      std::vector<int16_t> comp_dat_in;
+      std::vector<std::int16_t> comp_dat_in;
       int decoded_mblocks=0;
 
       ///////////////////////////decode p data ///////////////////////////
       while(p_coded_data.good())
       {
         // read the chunk size first
-        p_coded_data.read((char *) &chunk_size, sizeof(uint8_t));
+        p_coded_data.read((char *) &chunk_size, sizeof(std::uint8_t));
 
         if((chunk_size > 0) && p_coded_data.good()){
 
           // read the keys 
-          p_coded_data.read((char *) keys_in, 3*sizeof(int16_t));
+          p_coded_data.read((char *) keys_in, 3*sizeof(std::int16_t));
 
           // compute size of comp_dat (13 for vector mode a, 6 for quaternion mode)
-          uint8_t comp_dat_size = chunk_size - 3*sizeof(int16_t) - (do_icp_color_offset_ ? 3:0);
-          comp_dat_in.resize(comp_dat_size/sizeof(int16_t));
+          std::uint8_t comp_dat_size = chunk_size - 3*sizeof(std::int16_t) - (do_icp_color_offset_ ? 3:0);
+          comp_dat_in.resize(comp_dat_size/sizeof(std::int16_t));
 
           //  load compdat
-          p_coded_data.read((char *) &comp_dat_in[0] ,comp_dat_in.size()*sizeof(int16_t));
+          p_coded_data.read((char *) &comp_dat_in[0] ,comp_dat_in.size()*sizeof(std::int16_t));
 
           //load color offsets
           if(do_icp_color_offset_)
@@ -1682,8 +1682,8 @@ namespace pcl{
     template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::entropyEncoding (std::ostream& compressed_tree_data_out_arg1, std::ostream& compressed_tree_data_out_arg2 )
     {
-      uint64_t binary_tree_data_vector_size;
-      uint64_t point_avg_color_data_vector_size;
+      std::uint64_t binary_tree_data_vector_size;
+      std::uint64_t point_avg_color_data_vector_size;
 
       compressed_point_data_len_ = 0;
       compressed_color_data_len_ = 0;
@@ -1701,8 +1701,8 @@ namespace pcl{
       {
         // encode differential centroid information
         std::vector<char>& point_diff_data_vector = centroid_coder_.getDifferentialDataVector ();
-        uint32_t point_diff_data_vector_size = (uint32_t) point_diff_data_vector.size();
-        compressed_tree_data_out_arg1.write (reinterpret_cast<const char*> (&point_diff_data_vector_size), sizeof (uint32_t));
+        std::uint32_t point_diff_data_vector_size = (std::uint32_t) point_diff_data_vector.size();
+        compressed_tree_data_out_arg1.write (reinterpret_cast<const char*> (&point_diff_data_vector_size), sizeof (std::uint32_t));
         compressed_point_data_len_ += entropy_coder_.encodeCharVectorToStream(point_diff_data_vector, compressed_tree_data_out_arg1);
       }
 
@@ -1727,9 +1727,9 @@ namespace pcl{
 
       if (!do_voxel_grid_enDecoding_)
       {
-        uint64_t pointCountDataVector_size;
-        uint64_t point_diff_data_vector_size;
-        uint64_t point_diff_color_data_vector_size;
+        std::uint64_t pointCountDataVector_size;
+        std::uint64_t point_diff_data_vector_size;
+        std::uint64_t point_diff_color_data_vector_size;
 
         // encode amount of points per voxel
         pointCountDataVector_size = point_count_data_vector_.size();
@@ -1766,8 +1766,8 @@ namespace pcl{
     template<typename PointT, typename LeafT, typename BranchT, typename OctreeT> void
       OctreePointCloudCodecV2<PointT, LeafT, BranchT, OctreeT>::entropyDecoding (std::istream& compressed_tree_data_in_arg1, std::istream& compressed_tree_data_in_arg2)
     {
-      uint64_t binary_tree_data_vector_size;
-      uint64_t point_avg_color_data_vector_size;
+      std::uint64_t binary_tree_data_vector_size;
+      std::uint64_t point_avg_color_data_vector_size;
 
       compressed_point_data_len_ = 0;
       compressed_color_data_len_ = 0;
@@ -1780,11 +1780,11 @@ namespace pcl{
       //! new option for encoding centroids
       if(do_voxel_centroid_enDecoding_)
       {
-        uint32_t l_count;
+        std::uint32_t l_count;
 
         // decode differential point information
         std::vector<char>& pointDiffDataVector = centroid_coder_.getDifferentialDataVector ();
-        compressed_tree_data_in_arg1.read (reinterpret_cast<char*> (&l_count), sizeof (uint32_t));
+        compressed_tree_data_in_arg1.read (reinterpret_cast<char*> (&l_count), sizeof (std::uint32_t));
         pointDiffDataVector.resize (static_cast<std::size_t> (l_count));
         compressed_point_data_len_ += entropy_coder_.decodeStreamToCharVector(compressed_tree_data_in_arg1, pointDiffDataVector);
       }
@@ -1807,9 +1807,9 @@ namespace pcl{
 
       if (!do_voxel_grid_enDecoding_)
       {
-        uint64_t point_count_data_vector_size;
-        uint64_t point_diff_data_vector_size;
-        uint64_t point_diff_color_data_vector_size;
+        std::uint64_t point_count_data_vector_size;
+        std::uint64_t point_diff_data_vector_size;
+        std::uint64_t point_diff_color_data_vector_size;
 
         // decode amount of points per voxel
         compressed_tree_data_in_arg2.read (reinterpret_cast<char*> (&point_count_data_vector_size), sizeof (point_count_data_vector_size));

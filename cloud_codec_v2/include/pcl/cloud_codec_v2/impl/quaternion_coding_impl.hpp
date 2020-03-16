@@ -52,7 +52,7 @@ namespace pcl{
   namespace io
   {
 
-    bool QuaternionCoding::compressQuaternion(Eigen::Quaternion<float> &quat_in, int16_t *comp_dat)
+    bool QuaternionCoding::compressQuaternion(Eigen::Quaternion<float> &quat_in, std::int16_t *comp_dat)
     {
       static const float scale = 1.41421f;
 
@@ -61,9 +61,9 @@ namespace pcl{
       float &y = quat_in.y();
       float &z = quat_in.z();
 
-      int16_t &s0 = comp_dat[0];
-      int16_t &s1 = comp_dat[1];
-      int16_t &s2 = comp_dat[2];
+      std::int16_t &s0 = comp_dat[0];
+      std::int16_t &s1 = comp_dat[1];
+      std::int16_t &s2 = comp_dat[2];
 
       if (w > x && w > y && w > z) {
 
@@ -85,9 +85,9 @@ namespace pcl{
         if (rz < -1) rz = -1;
         else if (rz > 1) rz = 1;
 
-        s0 = int16_t(rx * 32767);
-        s1 = int16_t((int(ry * 32767) & 0xfffe) | 1);
-        s2 = int16_t((int(rz * 32767) & 0xfffe) | 1);
+        s0 = std::int16_t(rx * 32767);
+        s1 = std::int16_t((int(ry * 32767) & 0xfffe) | 1);
+        s2 = std::int16_t((int(rz * 32767) & 0xfffe) | 1);
       }
       else if (z > x && z > y) {
 
@@ -109,9 +109,9 @@ namespace pcl{
         if (rw < -1) rw = -1;
         else if (rw > 1) rw = 1;
 
-        s0 = int16_t(rx * 32767);
-        s1 = int16_t((int(ry * 32767) & 0xfffe) | 1);
-        s2 = int16_t((int(rw * 32767) & 0xfffe) | 0);
+        s0 = std::int16_t(rx * 32767);
+        s1 = std::int16_t((int(ry * 32767) & 0xfffe) | 1);
+        s2 = std::int16_t((int(rw * 32767) & 0xfffe) | 0);
       }
       else if (y > x) {
 
@@ -133,9 +133,9 @@ namespace pcl{
         if (rw < -1) rw = -1;
         else if (rw > 1) rw = 1;
 
-        s0 = int16_t(rx * 32767);
-        s1 = int16_t((int(rz * 32767) & 0xfffe) | 0);
-        s2 = int16_t((int(rw * 32767) & 0xfffe) | 1);
+        s0 = std::int16_t(rx * 32767);
+        s1 = std::int16_t((int(rz * 32767) & 0xfffe) | 0);
+        s2 = std::int16_t((int(rw * 32767) & 0xfffe) | 1);
       }
       else {
 
@@ -157,24 +157,24 @@ namespace pcl{
         if (rw < -1) rw = -1;
         else if (rw > 1) rw = 1;
 
-        s0 = int16_t(ry * 32767);
-        s1 = int16_t((int(rz * 32767) & 0xfffe) | 0);
-        s2 = int16_t((int(rw * 32767) & 0xfffe) | 0);
+        s0 = std::int16_t(ry * 32767);
+        s1 = std::int16_t((int(rz * 32767) & 0xfffe) | 0);
+        s2 = std::int16_t((int(rw * 32767) & 0xfffe) | 0);
       }
 
       return true;
     };
 
-    bool QuaternionCoding::deCompressQuaternion(int16_t *comp_dat, Eigen::Quaternion<float> &quat_out)
+    bool QuaternionCoding::deCompressQuaternion(std::int16_t *comp_dat, Eigen::Quaternion<float> &quat_out)
     {
       float &x = quat_out.x();
       float &w = quat_out.w();
       float &y = quat_out.y();
       float &z = quat_out.z();
 
-      int16_t &s0 = comp_dat[0];
-      int16_t &s1 = comp_dat[1];
-      int16_t &s2 = comp_dat[2];
+      std::int16_t &s0 = comp_dat[0];
+      std::int16_t &s1 = comp_dat[1];
+      std::int16_t &s2 = comp_dat[2];
 
       int which = ((s1 & 1) << 1) | (s2 & 1);
       s1 &= 0xfffe;
