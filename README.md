@@ -10,6 +10,7 @@ The codec has served as the software to generate the anchors for the Call for Pr
 
 This version can be build on  MacOSX 10.14.3 macOS Mojave (using Homebrew), Ubuntu 18.04 (64 bit) (using 'apt') or Windows 10 bit, using pre-build PointCloudLibrary(PCL)
 installers, or on many other systems by downloading and building PCL and its dependencies.
+The code has been updated s.t. it works with PCL-1.10.0
 
 This package contains:
 
@@ -32,14 +33,15 @@ To use it, several dependencies (Boost,Eigen,Flann,QHull,VTK and libjpeg-turbo) 
 Installation
 ============
 
-Mac OSX 10.14.3 Installation:
+Mac OSX 10.15.3 Installation:
 -----------------------------
-
-* On a clean Mac OSX 10.14.3 installation install Xcode 10.1, Cmake 10.13.4 and Homebrew 2.0.6
+1
+* On a clean Mac OSX 10.15.3 installation install Xcode 11.3.1, Cmake 3.13.4 and Homebrew 2.2.7
 
 * brew unlink jpeg
   brew install --HEAD jpeg-turbo
-  brew install vtk pcl
+  brew install vtk
+  The Point Cloud Library PCL (not yet available in Homebrew) needs to be build from source (see below).
 
 * Start 'CMake', specify the directory where this file is located in 'Where is the source code',                            
   another empty directory 'Where to build the binaries', and select 'Xcode'  in the 'CMakeSetup'                        
@@ -53,11 +55,11 @@ Mac OSX 10.14.3 Installation:
 Installation on Windows 10 (older Windows versions won't work):
 ---------------------------------------------------------------
 
-* Install 'Visual Studio (2017)' Compiler Version 15.9 or higher and 'cmake-gui' Version 3.13
+* Install 'Visual Studio (2017)' Version 15.9.20 or higher and 'cmake-gui' Version 3.16.5
 
-* Install PCL-1.9.1 and all 3rd party packages that it needs using the
+* Install PCL-1.10.0 and all 3rd party packages that it needs using the
   All-In-One Installer from: 'https://github.com/PointCloudLibrary/pcl/releases'
-  Select (if possible) 64-bit version (PointClouds can be huge data sets, too big for 32-bit addressing)
+  This is a 64-bit version, 32-bit addressing is not suported anymore.
 
 * Download 'libjpeg-turbo64' from: 'https://sourceforge.net/projects/libjpeg-turbo/files/2.0.2/libjpeg-turbo-2.0.2.tar.gz/download'
 
@@ -100,11 +102,11 @@ Ubuntu 18.04 Install PCL 1.8.1 using binary packages:
 Now the codec libraries and evaluation tools can be build by typing 'make' in the directory
 that was specified in 'cmake-gui' to build the binaries. The application can be found in 'apps/evaluate_compression'.
 
-Not so easy (tedious, but not difficult) install PCL 1.9.1 from source: (all platforms):
+Not so easy (tedious, but not difficult) install PCL 1.10.0 from source: (all platforms):
 ----------------------------------------------------------------------------------------
 
-* Get PCL source code from 'https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.8.0'
-  (note that the source code in the PCL development tree is not compatible with this package).
+* Get PCL source code from 'https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.10.0'
+  (note that the source code in the PCL development tree is not necessarily compatible with this package).
 
 * Get 3rd party packages:
   follow the instructions in: http://pointclouds.org/documentation/tutorials/compiling_pcl_dependencies_windows.php
@@ -154,7 +156,7 @@ The following arguments are recognized by the program 'evaluate_compression':
 
 The precise meanings of these parameters are explained in the journal paper mentioned above.
 
-Apr.6, 2017, updated: Jun 25, 2017, Apr. 23, 2018 and Mar.19, 2019.
+Apr.6, 2017, updated: Jun 25, 2017, Apr. 23, 2018, Mar.19, 2019 and Mr. 16, 2020.
    
 Kees Blom (Kees.Blom@cwi.nl) CWI, Amsterdam, The Netherlands
 
