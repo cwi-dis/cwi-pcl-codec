@@ -46,7 +46,6 @@ class TestApi(unittest.TestCase):
         encoder = cwipc.codec.cwipc_new_encoder()
         self.assertFalse(encoder.eof())
         self.assertFalse(encoder.available(False))
-        self.assertFalse(encoder.available(True))
         encoder.free()
         
     def test_cwipc_new_encoder_bad_parameters(self):
@@ -63,7 +62,6 @@ class TestApi(unittest.TestCase):
         decoder = cwipc.codec.cwipc_new_decoder()
         self.assertFalse(decoder.eof())
         self.assertFalse(decoder.available(False))
-        self.assertFalse(decoder.available(True))
         decoder.free()
 
     def test_cwipc_encoder_plyfile(self):

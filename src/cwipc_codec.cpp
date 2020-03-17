@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <chrono>
 #include <sstream>
+#include <condition_variable>
 #ifdef WIN32
 #define _CWIPC_CODEC_EXPORT __declspec(dllexport)
 #else
@@ -30,22 +31,30 @@ public:
     	m_params(*_params),
         m_result(NULL),
         m_result_size(0),
-        m_remaining_frames_in_gop(0)
+        m_remaining_frames_in_gop(0),
+        m_alive(true)
     {
 
 	}
     
     ~cwipc_encoder_impl() {}
+    
     void free() {
         if (m_result) ::free(m_result);
         m_encoder = NULL;
         m_result = NULL;
         m_result_size = 0;
+        m_alive = false;
+        m_result_cv.notify_all();
     };
     
-    bool eof() { return false; };
+    bool eof() { return !m_alive; };
     
-    bool available(bool wait) { return m_result != NULL; };
+    bool available(bool wait) {
+    	std::unique_lock<std::mutex> lock(m_result_mutex);
+    	if (wait) m_result_cv.wait(lock, [this]{return m_result != NULL || !m_alive; });
+    	return m_result != NULL; 
+    };
     
     bool at_gop_boundary() { return m_encoder == NULL; };
 
@@ -80,7 +89,7 @@ public:
 		}
 
         /* Store the result */
-        /* xxxjack should lock here */
+        std::lock_guard<std::mutex> lock(m_result_mutex);
         if (m_result) {
             ::free(m_result);
             m_result = NULL;
@@ -93,11 +102,17 @@ public:
         	// Free a temporary pointcloud we allocated
         	newpc->free();
 		}
+        m_result_cv.notify_one();
     };
     
-    size_t get_encoded_size() { return m_result_size; };
+    size_t get_encoded_size() { 
+    	// xxxjack note that this is not thread-safe: before the copy_data()
+    	// call another thread could have grabbed the data.
+    	return m_result_size; 
+    };
     
     bool copy_data(void *buffer, size_t bufferSize) {
+    	std::lock_guard<std::mutex> lock(m_result_mutex);
         if (m_result == NULL || bufferSize < m_result_size) return false;
         memcpy(buffer, m_result, m_result_size);
         ::free(m_result);
@@ -108,6 +123,7 @@ public:
     
 private:
 	void alloc_encoder(uint64_t timestamp) {
+		// xxxjack note that feed() and alloc_encoder() are not thread-safe.
         double point_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
         double octree_resolution = std::pow ( 2.0, -1.0 * m_params.octree_bits);
         m_encoder = NULL;
@@ -132,11 +148,15 @@ private:
         m_encoder->setMacroblockSize(m_params.macroblock_size);
         m_remaining_frames_in_gop = m_params.gop_size;
 	}
+	
 	boost::shared_ptr<pcl::io::OctreePointCloudCodecV2<cwipc_pcl_point> > m_encoder;
     cwipc_encoder_params m_params;
     void *m_result;
     size_t m_result_size;
+    std::mutex m_result_mutex;
+    std::condition_variable m_result_cv;
     int m_remaining_frames_in_gop;
+    bool m_alive;
 };
 
 class cwipc_encodergroup_impl : public cwipc_encodergroup
@@ -194,16 +214,24 @@ class cwipc_decoder_impl : public cwipc_decoder
 {
 public:
     cwipc_decoder_impl() 
-    : m_result(NULL)
+    : m_result(NULL),
+      m_alive(true)
     {}
     
     ~cwipc_decoder_impl() {}
     
-    void free() {};
+    void free() {
+    	m_alive = false;
+    	m_result_cv.notify_all();
+    };
     
-    bool eof() {return false; };
+    bool eof() {return !m_alive; };
     
-    bool available(bool wait) { return m_result != NULL; };
+    bool available(bool wait) {
+    	std::unique_lock<std::mutex> lock(m_result_mutex);
+    	if (wait) m_result_cv.wait(lock, [this]{return m_result != NULL || !m_alive; });
+    	return m_result != NULL; 
+    };
     
     void feed(void *buffer, size_t bufferSize) {
         cwipc_encoder_params par;
@@ -249,20 +277,26 @@ public:
                 decpc->clear();
             }
         }
+        std::lock_guard<std::mutex> lock(m_result_mutex);
         if (ok) {
             m_result = cwipc_from_pcl(decpc, tmStmp, NULL, CWIPC_API_VERSION);
         } else {
             m_result = NULL;
         }
+        m_result_cv.notify_one();
     };
     
     cwipc *get() {
+        std::lock_guard<std::mutex> lock(m_result_mutex);
         cwipc *rv = m_result;
         m_result = NULL;
         return rv;
     };
 private:
     cwipc *m_result;
+    std::mutex m_result_mutex;
+    std::condition_variable m_result_cv;
+    bool m_alive;
 };
 
 cwipc_encoder* cwipc_new_encoder(int version, cwipc_encoder_params *params, char **errorMessage, uint64_t apiVersion) {
