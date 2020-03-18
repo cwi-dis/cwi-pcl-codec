@@ -55,6 +55,7 @@
 #include <exception>
 
 // boost library
+#include <boost/exception/diagnostic_information.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/program_options/parsers.hpp>
