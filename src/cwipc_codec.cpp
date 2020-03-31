@@ -184,6 +184,7 @@ public:
 				std::cerr << "cwipc_encodergroup: cwipc_downsample failed" << std::endl;
 				return;
 			}
+			pc = newpc;
 		}
 		for (auto enc : m_encoders) {
 			enc->feed(pc);
