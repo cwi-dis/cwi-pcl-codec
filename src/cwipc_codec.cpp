@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <chrono>
 #include <sstream>
+#include <thread>
 #include <condition_variable>
 #ifdef WIN32
 #define _CWIPC_CODEC_EXPORT __declspec(dllexport)
@@ -186,9 +187,14 @@ public:
 			}
 			pc = newpc;
 		}
+        std::vector<std::thread*> threads;
 		for (auto enc : m_encoders) {
-			enc->feed(pc);
+            std::thread* thr = new std::thread([enc, pc] { enc->feed(pc); });
+            threads.push_back(thr);
 		}
+        for (std::thread* thr : threads) {
+            thr->join();
+        }
 		if (newpc) {
 			// Free temporary pointcloud, if we allocated one
 			newpc->free();

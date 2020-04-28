@@ -4,8 +4,8 @@ stages:
   - deploy
 
 variables:
-  #REL_CWIPC_UTIL: --release_name v2.1_stable
-  REL_CWIPC_UTIL: ""
+  REL_CWIPC_UTIL: --release_name v2.7_stable
+  #REL_CWIPC_UTIL: ""
 build_linux:
   stage: build
   tags:
