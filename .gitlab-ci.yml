@@ -29,7 +29,7 @@ build_linux:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
     - cd ..
 # Get and install cwipc_util
-    - python3 deployment-helpers/Deployment/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
+    - python3 deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
     - tar --directory /usr/local -xvf cwipc_util_ubuntu1804_*.tgz
   script:
     - mkdir -p build
@@ -63,7 +63,7 @@ build_osx:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
     - cd ..
 # Get and install cwipc_util
-    - python3 deployment-helpers/Deployment/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
+    - python3 deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
     - tar --directory /usr/local -xvmf cwipc_util_osx1012_*.tgz
   script:
     - mkdir -p build
@@ -93,7 +93,7 @@ build_win:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
     - cd ..
 # Get and install cwipc_util
-    - python deployment-helpers/Deployment/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
+    - python deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
     - (zipfile=$PWD/cwipc_util_win1064_*.zip && cd /cygdrive/c/dist-win && unzip $zipfile)
   script:
     - mkdir -p build
