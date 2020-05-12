@@ -57,11 +57,31 @@ class TestApi(unittest.TestCase):
         with self.assertRaises(cwipc.CwipcError):
             encoder = cwipc.codec.cwipc_new_encoder(gop_size=2)
         
+    def test_cwipc_encoder_close(self):
+        """Can we close a encoder"""
+        encoder = cwipc.codec.cwipc_new_encoder()
+        self.assertFalse(encoder.eof())
+        self.assertFalse(encoder.available(False))
+        encoder.close()
+        self.assertTrue(encoder.eof())
+        self.assertFalse(encoder.available(True))
+        encoder.free()
+
     def test_cwipc_new_decoder(self):
         """Can we create and free a cwipc_decoder object"""
         decoder = cwipc.codec.cwipc_new_decoder()
         self.assertFalse(decoder.eof())
         self.assertFalse(decoder.available(False))
+        decoder.free()
+
+    def test_cwipc_decoder_close(self):
+        """Can we close a decoder"""
+        decoder = cwipc.codec.cwipc_new_decoder()
+        self.assertFalse(decoder.eof())
+        self.assertFalse(decoder.available(False))
+        decoder.close()
+        self.assertTrue(decoder.eof())
+        self.assertFalse(decoder.available(True))
         decoder.free()
 
     def test_cwipc_encoder_plyfile(self):

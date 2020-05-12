@@ -48,6 +48,11 @@ public:
         m_result_cv.notify_all();
     };
     
+    void close() {
+        m_alive = false;
+        m_result_cv.notify_all();
+    }
+    
     bool eof() { return !m_alive; };
     
     bool available(bool wait) {
@@ -59,6 +64,10 @@ public:
     bool at_gop_boundary() { return m_encoder == NULL; };
 
     void feed(cwipc *pc) {
+        if (!m_alive) {
+            std::cerr << "cwipc_encoder: feed() after close()" << std::endl;
+            return;
+        }
     	cwipc *newpc = NULL;
     	// Apply tile filtering, if needed
     	if (m_params.tilenumber) {
@@ -175,6 +184,10 @@ public:
 		}
 		m_encoders.clear();
     };
+    
+    void close() {
+        for (auto enc : m_encoders) enc->close();
+    }
 
 	void feed(cwipc *pc) {
 		cwipc *newpc = NULL;
@@ -226,7 +239,9 @@ public:
     	m_result_cv.notify_all();
     };
     
-    bool eof() {return !m_alive; };
+    void close() { m_alive = false; }
+    
+    bool eof() { return !m_alive; };
     
     bool available(bool wait) {
     	std::unique_lock<std::mutex> lock(m_result_mutex);
@@ -235,6 +250,10 @@ public:
     };
     
     void feed(void *buffer, size_t bufferSize) {
+        if (!m_alive) {
+            std::cerr << "cwipc_decoder: feed() called after close()" << std::endl;
+            return;
+        }
         cwipc_encoder_params par;
         //Default codec parameter values set in signals
         par.do_inter_frame = false;
@@ -343,6 +362,10 @@ void cwipc_encoder_feed(cwipc_encoder *obj, cwipc* pc) {
     obj->feed(pc);
 }
 
+void cwipc_encoder_close(cwipc_encoder *obj) {
+    obj->close();
+}
+
 size_t cwipc_encoder_get_encoded_size(cwipc_encoder *obj) {
     return obj->get_encoded_size();
 }
@@ -377,6 +400,10 @@ void cwipc_encodergroup_feed(cwipc_encodergroup *obj, cwipc* pc) {
 	return obj->feed(pc);
 }
 
+void cwipc_encodergroup_close(cwipc_encodergroup *obj) {
+    obj->close();
+}
+
 cwipc_decoder* cwipc_new_decoder(char **errorMessage, uint64_t apiVersion) {
 	if (apiVersion < CWIPC_API_VERSION_OLD || apiVersion > CWIPC_API_VERSION) {
 		if (errorMessage) {
@@ -389,4 +416,8 @@ cwipc_decoder* cwipc_new_decoder(char **errorMessage, uint64_t apiVersion) {
 
 void cwipc_decoder_feed(cwipc_decoder *obj, void *buffer, size_t bufferSize) {
     obj->feed(buffer, bufferSize);
+}
+
+void cwipc_decoder_close(cwipc_decoder *obj) {
+    obj->close();
 }

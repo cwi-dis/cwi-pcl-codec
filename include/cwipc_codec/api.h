@@ -74,7 +74,7 @@ public:
      * Do not call on an encoder in an encodergroup, call the group free() in stead.
      */
     virtual void free() = 0;
-
+    
     /** \brief Encode a pointcloud.
      *
      * This call presents the encoder with a new pointcloud to encode.
@@ -83,6 +83,12 @@ public:
      */
     virtual void feed(cwipc *pc) = 0;
 
+    /** \brief Signal end of stream.
+     *
+     * In multi-threaded applications call this to signal that no more data will be passed to feed().
+     */
+    virtual void close() = 0;
+    
     /** \brief Return true if no more encoded buffers are forthcoming.
      */
     virtual bool eof() = 0;
@@ -149,7 +155,13 @@ public:
      */
     virtual void feed(cwipc *pc) = 0;
     
-	/** \brief Add a new encoder to an encodergroup.
+    /** \brief Signal end of stream.
+     *
+     * In multi-threaded applications call this to signal that no more data will be passed to feed().
+     */
+    virtual void close() = 0;
+
+    /** \brief Add a new encoder to an encodergroup.
 	 * \param version Pass in CWIPC_ENCODER_PARAM_VERSION to ensure runtime compatibility.
 	 * \param params Pointer to a structure with parameters than govern the encoding process.
 	 * \param errorMessage Pointer to a string that will be filled with a message in case of errors.
@@ -174,6 +186,7 @@ public:
     virtual void free() = 0;
     virtual bool eof() = 0;
     virtual bool available(bool wait) = 0;
+    virtual cwipc *get() = 0;
 
     /** \brief Feed compressed data into the decoder.
 	 * \param buffer Pointer to the data buffer containing the compressed pointcloud data.
@@ -184,7 +197,12 @@ public:
      * used to obtain the cwipc pointcloud data.
      */
     virtual void feed(void *buffer, size_t bufferSize) = 0;
-    virtual cwipc *get() = 0;
+
+    /** \brief Signal end of stream.
+     *
+     * In multi-threaded applications call this to signal that no more data will be passed to feed().
+     */
+    virtual void close() = 0;
 };
 #else
 typedef struct _cwipc_encoder {
@@ -246,6 +264,12 @@ _CWIPC_CODEC_EXPORT bool cwipc_encoder_available(cwipc_encoder *obj, bool wait);
  * This call presents the encoder with a new pointcloud to encode.
  */
 _CWIPC_CODEC_EXPORT void cwipc_encoder_feed(cwipc_encoder *obj, cwipc* pc);
+
+/** \brief Signal end of stream (C interface).
+ *
+ * In multi-threaded applications call this to signal that no more data will be passed to feed().
+ */
+_CWIPC_CODEC_EXPORT void cwipc_encoder_close(cwipc_encoder *obj);
 
 /** \brief Return size (in bytes) of compressed data available (C interface).
  * \param obj The cwipc_encoder object.
@@ -310,6 +334,12 @@ _CWIPC_CODEC_EXPORT cwipc_encoder *cwipc_encodergroup_addencoder(cwipc_encodergr
  */
 _CWIPC_CODEC_EXPORT void cwipc_encodergroup_feed(cwipc_encodergroup *obj, cwipc* pc);
 
+/** \brief Signal end of stream (C interface).
+ *
+ * In multi-threaded applications call this to signal that no more data will be passed to feed().
+ */
+_CWIPC_CODEC_EXPORT void cwipc_encodergroup_close(cwipc_encodergroup *obj);
+
 
 /** \brief Create pointcloud decompressor.
  * \param errorMessage Pointer to a string that will be filled with a message in case of errors.
@@ -338,6 +368,13 @@ _CWIPC_CODEC_EXPORT cwipc_decoder* cwipc_new_decoder(char **errorMessage, uint64
  * used to obtain the cwipc pointcloud data.
  */
 _CWIPC_CODEC_EXPORT void cwipc_decoder_feed(cwipc_decoder *obj, void *buffer, size_t bufferSize);
+
+/** \brief Signal end of stream (C interface).
+ *
+ * In multi-threaded applications call this to signal that no more data will be passed to feed().
+ */
+_CWIPC_CODEC_EXPORT void cwipc_decoder_close(cwipc_decoder *obj);
+
 
 /** \brief Downsample a cwipc pointcloud.
  * \param pc The source pointcloud
