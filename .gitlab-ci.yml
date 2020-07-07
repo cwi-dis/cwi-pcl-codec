@@ -5,7 +5,7 @@ stages:
 
 variables:
   #REL_CWIPC_UTIL: --release_name v2.1_stable
-  REL_CWIPC_UTIL: ""
+  REL_CWIPC_UTIL: "--release_name latest"
 build_linux:
   stage: build
   tags:
@@ -132,3 +132,28 @@ deploy_all:
     - mkdir deliverables
     - mv cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip deliverables
     - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --notag cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
+      
+deploy_all_untagged:
+  stage: deploy
+  tags:
+    - linux
+  except: 
+    - tags
+  dependencies: 
+    - build_linux
+    - build_osx
+    - build_win
+  before_script:
+  - apt-get update
+  - apt-get install -y python3-pip
+  - python3 -m pip install requests
+  - mkdir deployment-helpers
+  - cd deployment-helpers
+  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
+  - cd ..
+  script:
+    - mkdir deliverables
+    - mv cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip deliverables
+    - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --tag_name latest --release_name latest --deleterelease || true
+    - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --tag_name latest --release_name latest --deletetag || true
+    - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --tag_name latest --release_name latest --branch_to_tag "$CI_COMMIT_REF_NAME" cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
