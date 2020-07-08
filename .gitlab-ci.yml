@@ -3,13 +3,12 @@ stages:
   - test
   - deploy
 
-variables:
-  #REL_CWIPC_UTIL: --release_name v2.1_stable
-  REL_CWIPC_UTIL: "--release_name latest"
 build_linux:
   stage: build
   tags:
     - ubuntu1804
+  except: 
+  - /latest/
   variables:
     DEBIAN_FRONTEND: noninteractive
   before_script:
@@ -29,6 +28,7 @@ build_linux:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
     - cd ..
 # Get and install cwipc_util
+    - if [ "$CI_COMMIT_TAG" = "" ]; then REL_CWIPC_UTIL="--release_name latest"; else REL_CWIPC_UTIL="--release_name $CI_COMMIT_TAG"; fi
     - python3 deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
     - tar --directory /usr/local -xvf cwipc_util_ubuntu1804_*.tgz
   script:
@@ -48,7 +48,9 @@ build_linux:
 build_osx:
   stage: build
   tags:
-  - osx1012
+  - osx1014
+  except: 
+  - /latest/
   before_script:
     - brew install pkg-config || true # brew upgrade pkg-config
     - brew install cmake || true # brew upgrade cmake
@@ -63,26 +65,29 @@ build_osx:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
     - cd ..
 # Get and install cwipc_util
+    - if [ "$CI_COMMIT_TAG" = "" ]; then REL_CWIPC_UTIL="--release_name latest"; else REL_CWIPC_UTIL="--release_name $CI_COMMIT_TAG"; fi
     - python3 deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
-    - tar --directory /usr/local -xvmf cwipc_util_osx1012_*.tgz
+    - tar --directory /usr/local -xvmf cwipc_util_osx1014_*.tgz
   script:
     - mkdir -p build
-    - mkdir -p dist-osx1012
+    - mkdir -p dist-osx1014
     - cd build
     - cmake ..
     - make
     - make test
-    - make install DESTDIR=../dist-osx1012
+    - make install DESTDIR=../dist-osx1014
     - cd ..
-    - tar --directory dist-osx1012/usr/local -z -cvf cwipc_codec_osx1012_$CI_BUILD_TAG.tgz .
+    - tar --directory dist-osx1014/usr/local -z -cvf cwipc_codec_osx1014_$CI_BUILD_TAG.tgz .
   artifacts:
     paths:
-      - cwipc_codec_osx1012_$CI_BUILD_TAG.tgz
+      - cwipc_codec_osx1014_$CI_BUILD_TAG.tgz
       
 build_win:
   stage: build
   tags:
     - win10
+  except: 
+  - /latest/
   before_script:
     - rm -rf /cygdrive/c/dist-win/installed
     - mkdir -p /cygdrive/c/dist-win/installed
@@ -93,6 +98,7 @@ build_win:
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
     - cd ..
 # Get and install cwipc_util
+    - if [ "$CI_COMMIT_TAG" = "" ]; then REL_CWIPC_UTIL="--release_name latest"; else REL_CWIPC_UTIL="--release_name $CI_COMMIT_TAG"; fi
     - python deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
     - (zipfile=$PWD/cwipc_util_win1064_*.zip && cd /cygdrive/c/dist-win && unzip $zipfile)
   script:
@@ -116,6 +122,8 @@ deploy_all:
     - linux
   only: 
     - tags
+  except: 
+  - /latest/
   dependencies: 
     - build_linux
     - build_osx
@@ -130,8 +138,8 @@ deploy_all:
   - cd ..
   script:
     - mkdir deliverables
-    - mv cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip deliverables
-    - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --notag cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
+    - mv cwipc_codec_osx1014_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip deliverables
+    - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --notag cwipc_codec_osx1014_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
       
 deploy_all_untagged:
   stage: deploy
@@ -139,6 +147,7 @@ deploy_all_untagged:
     - linux
   except: 
     - tags
+    - /latest/
   dependencies: 
     - build_linux
     - build_osx
@@ -153,7 +162,7 @@ deploy_all_untagged:
   - cd ..
   script:
     - mkdir deliverables
-    - mv cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip deliverables
+    - mv cwipc_codec_osx1014_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip deliverables
     - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --tag_name latest --release_name latest --deleterelease || true
     - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --tag_name latest --release_name latest --deletetag || true
-    - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --tag_name latest --release_name latest --branch_to_tag "$CI_COMMIT_REF_NAME" cwipc_codec_osx1012_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
+    - python3 deployment-helpers/Deployment/scripts/addReleaseToGitLab --cicd --tag_name latest --release_name latest --branch_to_tag "$CI_COMMIT_REF_NAME" cwipc_codec_osx1014_$CI_BUILD_TAG.tgz cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz cwipc_codec_win1064_$CI_BUILD_TAG.zip
