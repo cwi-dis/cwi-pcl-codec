@@ -1,6 +1,6 @@
 import unittest
 import cwipc
-import cwipc.codec
+import _cwipc_codec
 import os
 import sys
 import tempfile
@@ -13,8 +13,8 @@ if 0:
     # - run `python3 test_cwipc_util`
     # - Attach to python in the XCode debugger
     # - press return to python3.
-    import cwipc.codec
-    cwipc.codec._cwipc_codec_dll('/Users/jack/src/VRTogether/cwipc_codec/build-xcode/lib/Debug/libcwipc_codec.dylib')
+    import _cwipc_codec
+    _cwipc_codec._cwipc_codec_dll('/Users/jack/src/VRTogether/cwipc_codec/build-xcode/lib/Debug/libcwipc_codec.dylib')
     print('Type return after attaching in XCode debugger - ')
     sys.stdin.readline()
 
@@ -23,7 +23,7 @@ if 0:
 #
 if 'CWIPC_TEST_DLL' in os.environ:
 	filename = os.environ['CWIPC_TEST_DLL']
-	dllobj = cwipc.codec._cwipc_codec_dll(filename)
+	dllobj = _cwipc_codec._cwipc_codec_dll(filename)
 #
 # Find directories for test inputs and outputs
 #
@@ -43,7 +43,7 @@ class TestApi(unittest.TestCase):
         
     def test_cwipc_new_encoder(self):
         """Can we create and free a cwipc_encoder object"""
-        encoder = cwipc.codec.cwipc_new_encoder()
+        encoder = _cwipc_codec.cwipc_new_encoder()
         self.assertFalse(encoder.eof())
         self.assertFalse(encoder.available(False))
         encoder.free()
@@ -51,15 +51,15 @@ class TestApi(unittest.TestCase):
     def test_cwipc_new_encoder_bad_parameters(self):
         """Do we get exceptions when creating an encoder with unimplemented parameters?"""
         with self.assertRaises(cwipc.CwipcError):
-            encoder = cwipc.codec.cwipc_new_encoder(do_inter_frame=True)
+            encoder = _cwipc_codec.cwipc_new_encoder(do_inter_frame=True)
         with self.assertRaises(cwipc.CwipcError):
-            encoder = cwipc.codec.cwipc_new_encoder(gop_size=0)
+            encoder = _cwipc_codec.cwipc_new_encoder(gop_size=0)
         with self.assertRaises(cwipc.CwipcError):
-            encoder = cwipc.codec.cwipc_new_encoder(gop_size=2)
+            encoder = _cwipc_codec.cwipc_new_encoder(gop_size=2)
         
     def test_cwipc_encoder_close(self):
         """Can we close a encoder"""
-        encoder = cwipc.codec.cwipc_new_encoder()
+        encoder = _cwipc_codec.cwipc_new_encoder()
         self.assertFalse(encoder.eof())
         self.assertFalse(encoder.available(False))
         encoder.close()
@@ -69,14 +69,14 @@ class TestApi(unittest.TestCase):
 
     def test_cwipc_new_decoder(self):
         """Can we create and free a cwipc_decoder object"""
-        decoder = cwipc.codec.cwipc_new_decoder()
+        decoder = _cwipc_codec.cwipc_new_decoder()
         self.assertFalse(decoder.eof())
         self.assertFalse(decoder.available(False))
         decoder.free()
 
     def test_cwipc_decoder_close(self):
         """Can we close a decoder"""
-        decoder = cwipc.codec.cwipc_new_decoder()
+        decoder = _cwipc_codec.cwipc_new_decoder()
         self.assertFalse(decoder.eof())
         self.assertFalse(decoder.available(False))
         decoder.close()
@@ -88,7 +88,7 @@ class TestApi(unittest.TestCase):
         """Test that we can encode a PLY file and the available flags behaves correct"""
         pc = cwipc.cwipc_read(PLY_FILENAME, 1234)
         self._verify_pointcloud(pc)
-        encoder = cwipc.codec.cwipc_new_encoder()
+        encoder = _cwipc_codec.cwipc_new_encoder()
         self.assertFalse(encoder.available(False))
         encoder.feed(pc)
         self.assertTrue(encoder.available(False))
@@ -103,7 +103,7 @@ class TestApi(unittest.TestCase):
     def test_cwipc_encoder_plyfile_multiple_same(self):
         """Test that we can encode a ply file multiple times and the results are the same"""
         pc = cwipc.cwipc_read(PLY_FILENAME, 1234)
-        encoder = cwipc.codec.cwipc_new_encoder()
+        encoder = _cwipc_codec.cwipc_new_encoder()
         encoder.feed(pc)
         data_one = encoder.get_bytes()
         encoder.feed(pc)
@@ -116,7 +116,7 @@ class TestApi(unittest.TestCase):
     def test_cwipc_encoder_plyfile_multiple_different(self):
         """Test that we can encode a ply file multiple times and the results are the same, and different for different timestamps"""
         pc = cwipc.cwipc_read(PLY_FILENAME, 1234)
-        encoder = cwipc.codec.cwipc_new_encoder()
+        encoder = _cwipc_codec.cwipc_new_encoder()
         encoder.feed(pc)
         data_one = encoder.get_bytes()
         pc3 = cwipc.cwipc_read(PLY_FILENAME, 4567)
@@ -131,11 +131,11 @@ class TestApi(unittest.TestCase):
     def test_cwipc_encoder_octree_depth(self):
         """Test that octree_bits encoder param makes a significant difference"""
         pc = cwipc.cwipc_read(PLY_FILENAME, 1234)
-        decoder = cwipc.codec.cwipc_new_decoder()
+        decoder = _cwipc_codec.cwipc_new_decoder()
         depth = 11
         decoded_npoints_per_depth = {}
         while depth >= 0:
-            encoder = cwipc.codec.cwipc_new_encoder(octree_bits=depth)
+            encoder = _cwipc_codec.cwipc_new_encoder(octree_bits=depth)
             encoder.feed(pc)
             encoded_data = encoder.get_bytes()
             encoded_size = len(encoded_data)
@@ -163,8 +163,8 @@ class TestApi(unittest.TestCase):
         quality = 90
         prev_size = None
         while quality >= 10:
-            params = cwipc.codec.cwipc_new_encoder_params(jpeg_quality=quality)
-            encoder = cwipc.codec.cwipc_new_encoder(params=params)
+            params = _cwipc_codec.cwipc_new_encoder_params(jpeg_quality=quality)
+            encoder = _cwipc_codec.cwipc_new_encoder(params=params)
             encoder.feed(pc)
             encoded_data = encoder.get_bytes()
             encoded_size = len(encoded_data)
@@ -179,7 +179,7 @@ class TestApi(unittest.TestCase):
         """Test that we can decode a cwicpc compressed pointcloud and get an acceptable cwipc"""
         with open(COMPRESSED_FILENAME, 'rb') as fp:
             compdata = fp.read()
-        decoder = cwipc.codec.cwipc_new_decoder()
+        decoder = _cwipc_codec.cwipc_new_decoder()
         self.assertFalse(decoder.available(False))
         decoder.feed(compdata)
         self.assertTrue(decoder.available(False))
@@ -193,8 +193,8 @@ class TestApi(unittest.TestCase):
         """Check that we can roundtrip encoder-decoder and get at most as many points back"""
         timestamp = 0x1122334455667788
         pc = cwipc.cwipc_read(PLY_FILENAME, timestamp)
-        encoder = cwipc.codec.cwipc_new_encoder()
-        decoder = cwipc.codec.cwipc_new_decoder()
+        encoder = _cwipc_codec.cwipc_new_encoder()
+        decoder = _cwipc_codec.cwipc_new_decoder()
         encoder.feed(pc)
         data = encoder.get_bytes()
         decoder.feed(data)
@@ -213,8 +213,8 @@ class TestApi(unittest.TestCase):
         """Check that we can roundtrip an empty pointcloud"""
         timestamp = 0x2233445566778899
         pc = cwipc.cwipc_from_points([], timestamp)
-        encoder = cwipc.codec.cwipc_new_encoder()
-        decoder = cwipc.codec.cwipc_new_decoder()
+        encoder = _cwipc_codec.cwipc_new_encoder()
+        decoder = _cwipc_codec.cwipc_new_decoder()
         encoder.feed(pc)
         data = encoder.get_bytes()
         self.assertNotEqual(len(data), 0)
@@ -234,10 +234,10 @@ class TestApi(unittest.TestCase):
         """Check that the tilefilter returns the same number of points if not filtering, and correct number if filtering"""
         gen = cwipc.cwipc_synthetic()
         pc_orig = gen.get()
-        pc_filtered = cwipc.codec.cwipc_tilefilter(pc_orig, 0)
+        pc_filtered = _cwipc_codec.cwipc_tilefilter(pc_orig, 0)
         self.assertEqual(len(pc_orig.get_points()), len(pc_filtered.get_points()))
-        pc_filtered_1 = cwipc.codec.cwipc_tilefilter(pc_orig, 1)
-        pc_filtered_2 = cwipc.codec.cwipc_tilefilter(pc_orig, 2)
+        pc_filtered_1 = _cwipc_codec.cwipc_tilefilter(pc_orig, 1)
+        pc_filtered_2 = _cwipc_codec.cwipc_tilefilter(pc_orig, 2)
         self.assertEqual(len(pc_orig.get_points()), len(pc_filtered_1.get_points()) + len(pc_filtered_2.get_points()))
         self.assertEqual(pc_orig.timestamp(), pc_filtered_1.timestamp())
         self.assertEqual(pc_orig.timestamp(), pc_filtered_2.timestamp())
@@ -250,7 +250,7 @@ class TestApi(unittest.TestCase):
     def test_tilefilter_empty(self):
         """Check that the tilefilter returns an empty pointcloud when passed an empty pointcloud"""
         pc_orig = cwipc.cwipc_from_points([], 0)
-        pc_filtered = cwipc.codec.cwipc_tilefilter(pc_orig, 0)
+        pc_filtered = _cwipc_codec.cwipc_tilefilter(pc_orig, 0)
         self.assertEqual(len(pc_orig.get_points()), 0)
         self.assertEqual(len(pc_filtered.get_points()), 0)
         pc_orig.free()
@@ -264,7 +264,7 @@ class TestApi(unittest.TestCase):
         count_prev = count_orig
         factor = 1024
         while factor > 0.0001:
-            pc_filtered = cwipc.codec.cwipc_downsample(pc_orig, factor)
+            pc_filtered = _cwipc_codec.cwipc_downsample(pc_orig, factor)
             count_filtered = len(pc_filtered.get_points())
             self.assertGreaterEqual(count_filtered, 1)
             self.assertLessEqual(count_filtered, count_orig)
@@ -280,7 +280,7 @@ class TestApi(unittest.TestCase):
     def test_downsample_empty(self):
         """Check that the downsample returns an empty pointcloud when passed an empty pointcloud"""
         pc_orig = cwipc.cwipc_from_points([], 0)
-        pc_filtered = cwipc.codec.cwipc_downsample(pc_orig, 1)
+        pc_filtered = _cwipc_codec.cwipc_downsample(pc_orig, 1)
         self.assertEqual(len(pc_orig.get_points()), 0)
         self.assertEqual(len(pc_filtered.get_points()), 0)
         pc_orig.free()
@@ -291,7 +291,7 @@ class TestApi(unittest.TestCase):
         gen = cwipc.cwipc_synthetic()
         pc_orig = gen.get()
         count_orig = len(pc_orig.get_points())
-        group = cwipc.codec.cwipc_new_encodergroup()
+        group = _cwipc_codec.cwipc_new_encodergroup()
         enc_high = group.addencoder(octree_bits=9)
         enc_low = group.addencoder(octree_bits=5)
         group.feed(pc_orig)
