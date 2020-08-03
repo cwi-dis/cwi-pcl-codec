@@ -376,27 +376,6 @@ _CWIPC_CODEC_EXPORT void cwipc_decoder_feed(cwipc_decoder *obj, void *buffer, si
 _CWIPC_CODEC_EXPORT void cwipc_decoder_close(cwipc_decoder *obj);
 
 
-/** \brief Downsample a cwipc pointcloud.
- * \param pc The source pointcloud
- * \param voxelsize Wanted resolution for returned pointcloud.
- * \return a new pointcloud
- *
- * A grid of voxelsize*voxelsize*voxelsize is overlaid over the pointcloud. All
- * points within each cube are combined into the new point, with coordinates and colors
- * of that new point being a smart average of the original points in the cell.
- * The tile of the new point is the OR of the tiles of the contributing points.
- */
-_CWIPC_CODEC_EXPORT cwipc *cwipc_downsample(cwipc *pc, float voxelsize);
-
-/** \brief Filter a pointcloud by tile.
- * \param pc The source pointcloud.
- * \param tile The tile number.
- *
- * Returns a new pointcloud (possibly empty) that only consists only of the points
- * with the given tile number.
- */
-_CWIPC_CODEC_EXPORT cwipc *cwipc_tilefilter(cwipc *pc, int tile);
- 
 #ifdef __cplusplus
 }
 #endif

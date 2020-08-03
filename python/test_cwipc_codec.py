@@ -229,62 +229,6 @@ class TestApi(unittest.TestCase):
         decoder.free()
         pc.free()     
         pc2.free()   
-
-    def test_tilefilter(self):
-        """Check that the tilefilter returns the same number of points if not filtering, and correct number if filtering"""
-        gen = cwipc.cwipc_synthetic()
-        pc_orig = gen.get()
-        pc_filtered = _cwipc_codec.cwipc_tilefilter(pc_orig, 0)
-        self.assertEqual(len(pc_orig.get_points()), len(pc_filtered.get_points()))
-        pc_filtered_1 = _cwipc_codec.cwipc_tilefilter(pc_orig, 1)
-        pc_filtered_2 = _cwipc_codec.cwipc_tilefilter(pc_orig, 2)
-        self.assertEqual(len(pc_orig.get_points()), len(pc_filtered_1.get_points()) + len(pc_filtered_2.get_points()))
-        self.assertEqual(pc_orig.timestamp(), pc_filtered_1.timestamp())
-        self.assertEqual(pc_orig.timestamp(), pc_filtered_2.timestamp())
-        gen.free()
-        pc_orig.free()
-        pc_filtered.free()
-        pc_filtered_1.free()
-        pc_filtered_2.free()
-        
-    def test_tilefilter_empty(self):
-        """Check that the tilefilter returns an empty pointcloud when passed an empty pointcloud"""
-        pc_orig = cwipc.cwipc_from_points([], 0)
-        pc_filtered = _cwipc_codec.cwipc_tilefilter(pc_orig, 0)
-        self.assertEqual(len(pc_orig.get_points()), 0)
-        self.assertEqual(len(pc_filtered.get_points()), 0)
-        pc_orig.free()
-        pc_filtered.free()
-        
-    def test_downsample(self):
-        """Check that the downsampler returns at most the same number of points and eventually returns 1"""
-        gen = cwipc.cwipc_synthetic()
-        pc_orig = gen.get()
-        count_orig = len(pc_orig.get_points())
-        count_prev = count_orig
-        factor = 1024
-        while factor > 0.0001:
-            pc_filtered = _cwipc_codec.cwipc_downsample(pc_orig, factor)
-            count_filtered = len(pc_filtered.get_points())
-            self.assertGreaterEqual(count_filtered, 1)
-            self.assertLessEqual(count_filtered, count_orig)
-            self.assertEqual(pc_orig.timestamp(), pc_filtered.timestamp())
-            count_prev = count_filtered
-            pc_filtered.free()
-            if count_filtered > count_orig/2:
-                break
-            factor = factor / 2
-        gen.free()
-        pc_orig.free()
-        
-    def test_downsample_empty(self):
-        """Check that the downsample returns an empty pointcloud when passed an empty pointcloud"""
-        pc_orig = cwipc.cwipc_from_points([], 0)
-        pc_filtered = _cwipc_codec.cwipc_downsample(pc_orig, 1)
-        self.assertEqual(len(pc_orig.get_points()), 0)
-        self.assertEqual(len(pc_filtered.get_points()), 0)
-        pc_orig.free()
-        pc_filtered.free()
                 
     def test_cwipc_multiencoder_octree_depth(self):
         """Test that a multiencoder setup for 2 octree depths returns sensible pointclouds"""
