@@ -31,6 +31,7 @@ build_linux:
     - if [ "$CI_COMMIT_TAG" = "" ]; then REL_CWIPC_UTIL="--release_name latest"; else REL_CWIPC_UTIL="--release_name $CI_COMMIT_TAG"; fi
     - python3 deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
     - ls -la
+    - file cwipc_util_*
     - tar --directory /usr/local -xvf cwipc_util_ubuntu1804_*.tgz
   script:
     - mkdir -p build
@@ -69,6 +70,7 @@ build_osx:
     - if [ "$CI_COMMIT_TAG" = "" ]; then REL_CWIPC_UTIL="--release_name latest"; else REL_CWIPC_UTIL="--release_name $CI_COMMIT_TAG"; fi
     - ls -la
     - python3 deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
+    - file cwipc_util_*
     - tar --directory /usr/local -xvmf cwipc_util_osx1014_*.tgz
   script:
     - mkdir -p build
@@ -101,8 +103,9 @@ build_win:
     - cd ..
 # Get and install cwipc_util
     - if [ "$CI_COMMIT_TAG" = "" ]; then REL_CWIPC_UTIL="--release_name latest"; else REL_CWIPC_UTIL="--release_name $CI_COMMIT_TAG"; fi
-    - ls -la
     - python deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
+    - ls -la
+    - file cwipc_util_*
     - (zipfile=$PWD/cwipc_util_win1064_*.zip && cd /cygdrive/c/dist-win && unzip $zipfile)
   script:
     - mkdir -p build
