@@ -95,7 +95,7 @@ build_win:
     - mkdir deployment-helpers
     - cd deployment-helpers
     - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@baltig.viaccess-orca.com:8443/VRT/deployment-group/Deployment
-    - python3 -m pip install -r Deployment/scripts/requirements.txt
+    - python -m pip install -r Deployment/scripts/requirements.txt
     - cd ..
 # Get and install cwipc_util
     - if [ "$CI_COMMIT_TAG" = "" ]; then REL_CWIPC_UTIL="--release_name latest"; else REL_CWIPC_UTIL="--release_name $CI_COMMIT_TAG"; fi
