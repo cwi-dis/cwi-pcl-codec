@@ -300,6 +300,7 @@ public:
         std::lock_guard<std::mutex> lock(m_result_mutex);
         if (ok) {
             m_result = cwipc_from_pcl(decpc, tmStmp, NULL, CWIPC_API_VERSION);
+            m_result->_set_cellsize(decoder_V2_->octreeResolution);
         } else {
             m_result = NULL;
         }

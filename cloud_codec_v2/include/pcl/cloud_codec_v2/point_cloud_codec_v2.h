@@ -131,7 +131,11 @@ namespace pcl{
           doColorEncoding_arg,
           colorBitResolution_arg), 
           color_coding_type_(colorCodingType_arg), 
-			timeStamp(timeStamp_arg),
+          timeStamp(timeStamp_arg),
+          octreeResolution(octreeResolution_arg),
+          colorBitResolution(colorBitResolution_arg),
+          jpeg_quality(jpeg_quality_arg),
+
           do_voxel_centroid_enDecoding_(doVoxelGridCentroid_arg),
           create_scalable_bitstream_(createScalableStream_arg),
           do_connectivity_encoding_(codeConnectivity_arg),
@@ -284,12 +288,12 @@ namespace pcl{
         // protected variables cloud codec v2
 
         uint32_t color_coding_type_; //! color coding with jpeg, graph transform, or differential encodings
-
+    public:
 		uint64_t timeStamp;
 		double  octreeResolution;
 		unsigned char colorBitResolution;
 		int jpeg_quality;
-
+    protected:
         bool do_voxel_centroid_enDecoding_;  //! encode the centroid in addition
 
         bool create_scalable_bitstream_;  //! create a scalable bitstream (not yet implemented)

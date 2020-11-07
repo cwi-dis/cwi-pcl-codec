@@ -134,6 +134,7 @@ class TestApi(unittest.TestCase):
         decoder = _cwipc_codec.cwipc_new_decoder()
         depth = 11
         decoded_npoints_per_depth = {}
+        cellsize_per_depth = {}
         while depth >= 0:
             encoder = _cwipc_codec.cwipc_new_encoder(octree_bits=depth)
             encoder.feed(pc)
@@ -145,12 +146,15 @@ class TestApi(unittest.TestCase):
             points = decoded_pc.get_points()
             decoded_npoints = len(points)
             decoded_npoints_per_depth[depth] = decoded_npoints
+            cellsize_per_depth[depth] = pc.cellsize()
             encoder.free()
             decoded_pc.free()
             depth = depth - 1
         # Some sanity checks
         for i in range(11):
             self.assertLessEqual(decoded_npoints_per_depth[i], decoded_npoints_per_depth[i+1])
+        for i in range(11):
+            self.assertLess(cellsize_per_depth[i], cellsize_per_depth[i+1])
         if decoded_npoints_per_depth[11] < 80000:
             self.assertLessEqual(decoded_npoints_per_depth[0], 16)
         else:

@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     	return 1;
     }
     decoder->free(); // We don't need the encoder anymore
-	std::cerr << "Decoded successfully, " <<pc->get_uncompressed_size() << " bytes (uncompressed)" << std::endl;
+	std::cerr << "Decoded successfully, " <<pc->get_uncompressed_size() << " bytes (uncompressed), cellsize=" << pc->cellsize() << std::endl;
     //
     // Save pointcloud file
     //
