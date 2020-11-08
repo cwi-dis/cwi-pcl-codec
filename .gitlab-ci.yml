@@ -41,6 +41,9 @@ build_linux:
     - make install DESTDIR=../dist-ubuntu1804
     - cd ..
     - tar --directory dist-ubuntu1804/usr/local -cvaf cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz .
+    - touch successful.tmp
+  after-script:
+    - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
   artifacts:
     paths:
       - cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz
@@ -68,6 +71,9 @@ build_osx:
     - if [ "$CI_COMMIT_TAG" = "" ]; then REL_CWIPC_UTIL="--release_name latest"; else REL_CWIPC_UTIL="--release_name $CI_COMMIT_TAG"; fi
     - python3 deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
     - tar --directory /usr/local -xvmf cwipc_util_osx1014_*.tgz
+    - touch successful.tmp
+  after-script:
+    - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
   script:
     - mkdir -p build
     - mkdir -p dist-osx1014
@@ -112,6 +118,9 @@ build_win:
     - cmake --build . --config Release --target INSTALL
     - rm `cat previously-installed.txt`
     - (cd /cygdrive/c/dist-win && zip -r $ziplocation installed)
+    - touch successful.tmp
+  after-script:
+    - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
   artifacts:
     paths:
       - cwipc_codec_win1064_$CI_BUILD_TAG.zip
