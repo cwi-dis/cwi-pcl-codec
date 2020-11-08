@@ -43,7 +43,7 @@ build_linux:
     - tar --directory dist-ubuntu1804/usr/local -cvaf cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz .
     - touch successful.tmp
   after_script:
-    - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
+    - if [ ! -e successful.tmp -a -e build/Testing/Temporary/LastTest.log ]; then cat build/Testing/Temporary/LastTest.log; fi
   artifacts:
     paths:
       - cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz
@@ -73,7 +73,7 @@ build_osx:
     - tar --directory /usr/local -xvmf cwipc_util_osx1014_*.tgz
     - touch successful.tmp
   after_script:
-    - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
+    - if [ ! -e successful.tmp -a -e build/Testing/Temporary/LastTest.log ]; then cat build/Testing/Temporary/LastTest.log; fi
   script:
     - mkdir -p build
     - mkdir -p dist-osx1014
@@ -120,7 +120,7 @@ build_win:
     - (cd /cygdrive/c/dist-win && zip -r $ziplocation installed)
     - touch successful.tmp
   after_script:
-    - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
+    - if [ ! -e successful.tmp -a -e build/Testing/Temporary/LastTest.log ]; then cat build/Testing/Temporary/LastTest.log; fi
   artifacts:
     paths:
       - cwipc_codec_win1064_$CI_BUILD_TAG.zip
