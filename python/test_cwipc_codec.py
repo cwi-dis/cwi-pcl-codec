@@ -146,7 +146,7 @@ class TestApi(unittest.TestCase):
             points = decoded_pc.get_points()
             decoded_npoints = len(points)
             decoded_npoints_per_depth[depth] = decoded_npoints
-            cellsize_per_depth[depth] = pc.cellsize()
+            cellsize_per_depth[depth] = decoded_pc.cellsize()
             encoder.free()
             decoded_pc.free()
             depth = depth - 1
@@ -154,7 +154,7 @@ class TestApi(unittest.TestCase):
         for i in range(11):
             self.assertLessEqual(decoded_npoints_per_depth[i], decoded_npoints_per_depth[i+1])
         for i in range(11):
-            self.assertLess(cellsize_per_depth[i], cellsize_per_depth[i+1])
+            self.assertGreater(cellsize_per_depth[i], cellsize_per_depth[i+1])
         if decoded_npoints_per_depth[11] < 80000:
             self.assertLessEqual(decoded_npoints_per_depth[0], 16)
         else:
