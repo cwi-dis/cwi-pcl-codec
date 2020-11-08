@@ -120,7 +120,7 @@ build_win:
     - (cd /cygdrive/c/dist-win && zip -r $ziplocation installed)
     - touch successful.tmp
   after_script:
-    - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
+    - if [ ! -e successful.tmp -a -e build/Testing/Temporary/LastTest.log ]; then cat build/Testing/Temporary/LastTest.log; fi
   artifacts:
     paths:
       - cwipc_codec_win1064_$CI_BUILD_TAG.zip
