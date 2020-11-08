@@ -42,7 +42,7 @@ build_linux:
     - cd ..
     - tar --directory dist-ubuntu1804/usr/local -cvaf cwipc_codec_ubuntu1804_$CI_BUILD_TAG.tgz .
     - touch successful.tmp
-  after-script:
+  after_script:
     - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
   artifacts:
     paths:
@@ -72,7 +72,7 @@ build_osx:
     - python3 deployment-helpers/Deployment/scripts/getReleaseFromGitLab --cicd --project_name cwipc_util $REL_CWIPC_UTIL
     - tar --directory /usr/local -xvmf cwipc_util_osx1014_*.tgz
     - touch successful.tmp
-  after-script:
+  after_script:
     - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
   script:
     - mkdir -p build
@@ -119,7 +119,7 @@ build_win:
     - rm `cat previously-installed.txt`
     - (cd /cygdrive/c/dist-win && zip -r $ziplocation installed)
     - touch successful.tmp
-  after-script:
+  after_script:
     - if [ ! -e successful.tmp -a -e Testing/Temporary/LastTest.log ]; then cat Testing/Temporary/LastTest.log; fi
   artifacts:
     paths:
