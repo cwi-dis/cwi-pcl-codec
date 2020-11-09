@@ -90,6 +90,15 @@ public:
         	cwipc_pcl_point dummyPoint;
         	pcl_pc->push_back(dummyPoint);
         }
+        // Note by Jack: this is a hack. If the point granularity of the pointcloud
+        // is larger (more coarse) than the octree_resolution in the encoder we adapt
+        // the encoder parameter, so a reasonable value is transmitted in the output
+        // file or packet.
+        float cellsize = pc->cellsize();
+        if (cellsize > m_encoder->octreeResolution) {
+            m_encoder->octreeResolution = cellsize;
+        }
+
         m_encoder->encodePointCloud(pcl_pc, comp_frame);
 
 		/* Free the encoder if we are at the end of the GOP */
