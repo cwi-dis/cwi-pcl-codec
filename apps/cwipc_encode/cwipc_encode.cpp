@@ -6,12 +6,12 @@
 int main(int argc, char** argv)
 {
 	uint64_t timestamp = 0LL;
-    if (argc < 4) {
-        std::cerr << "Usage: " << argv[0] << "pointcloudfile.ply compressedfile.cwicpc octree_depth jpeg_qp [timestamp]" << std::endl;
+    if (argc < 3 || argc > 6) {
+        std::cerr << "Usage: " << argv[0] << "pointcloudfile.ply compressedfile.cwicpc [timestamp [octree_depth [jpeg_qp]]]" << std::endl;
         return 2;
     }
-    if (argc > 4) {
-        timestamp = (uint64_t)atoll(argv[5]);
+    if (argc > 3) {
+        timestamp = (uint64_t)atoll(argv[3]);
     }
     //
     // Read pointcloud file
@@ -31,11 +31,13 @@ int main(int argc, char** argv)
 	param.do_inter_frame = false;
 	param.gop_size = 1;
 	param.exp_factor = 1.0;
-	param.octree_bits = atoi(argv[3]);
-	param.jpeg_quality = atoi(argv[4]);
+	param.octree_bits = 9;
+	param.jpeg_quality = 85;
 	param.macroblock_size = 16;
 	param.tilenumber = 0;
 
+	if (argc > 4) param.octree_bits = atoi(argv[4]);
+	if (argc > 5) param.jpeg_quality = atoi(argv[5]);
 	char *errorString;
     cwipc_encoder *encoder = cwipc_new_encoder(CWIPC_ENCODER_PARAM_VERSION, &param, &errorString, CWIPC_API_VERSION);
     if (encoder == NULL) {
