@@ -1,5 +1,11 @@
 # Copyright (c) 2017-, Stichting Centrum Wiskunde en Informatica (CWI).
 
+> This repository is kept because it is of historic interest, and the URL is in the journal paper mentioned below.
+> As of 2025, the codec is still actively maintained but it has been incorporated in the _cwipc_ point cloud suite,
+> <https://github.com/cwi-dis/cwipc>, submodule `cwipc_codec`.
+>
+> Everything available in this repository is included there, but kept up-to-date.
+
 cwi-pcl-codec
 =============
 
